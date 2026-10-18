@@ -2,6 +2,8 @@
 
 面向 OBS 浏览器源的足球比赛直播图文包装系统。当前版本 **v0.1.0-design-preview**：按用户要求先交付两套主题、六个关键画面的可运行视觉预览，等待视觉确认后进入完整系统开发。
 
+GitHub 仓库：[Fantasicrap/HUST_CUP_BROADCAST](https://github.com/Fantasicrap/HUST_CUP_BROADCAST)（私有）。版本标签：`v0.1.0-preview`。PULSE 和 NOCTURNE 两套主题均保留，后续可继续添加。
+
 > 本版本不是完整比赛播控系统。时钟、比分、事件和点球轮次均来自固定示例；尚未实现比赛记账、正式播出、队列、输出延迟与断线恢复。不要将设计预览用于正式比赛。
 
 ## 启动
@@ -35,6 +37,9 @@ node server.mjs
 评审页可以切换主题与画面、重播入场、顺序展示六个画面，以及检查透明背景、安全区、长中文队名、缺失队徽和补时扩展。
 
 `design-previews/` 包含两张六画面总览、12 张 1920×1080 单图、一张透明 PNG、边界情况图片和浏览器验证记录。比赛底图是原创 SVG 示意图，透明输出时隐藏；大画面本身具有有意设计的不透明背景。
+
+- [PULSE 六画面总览](design-previews/pulse-contact-sheet.png)
+- [NOCTURNE 六画面总览](design-previews/nocturne-contact-sheet.png)
 
 ## OBS 预览接入
 
@@ -90,7 +95,7 @@ HUST_CUP_BROADCAST/
 
 ## 继续开发
 
-先确认两套视觉方向和六个关键画面，再按 `docs/项目报告.md` 的阶段计划开发。所有核心需求仍在交付范围内；可选和扩展功能单独列出。GitHub 发布安排在后续开发阶段，当前没有远程仓库和上传记录。
+按用户最新要求，当前视觉预览版先作为 `v0.1.0-preview` 保存并上传 GitHub，**两套主题全部保留**，后续再添加内容。版本内容见 `CHANGELOG.md`；GitHub 上传状态以实际远程校验结果为准。后续开发仍按 `docs/项目报告.md` 的阶段计划进行，所有核心需求保留，可选和扩展功能单独列出。
 
 ## 额度约束
 
