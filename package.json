@@ -1,0 +1,8 @@
+{
+  "name": "hust-cup-broadcast",
+  "version": "0.1.0-design-preview",
+  "private": true,
+  "description": "HUST_CUP_BROADCAST 足球直播包装 · 第一阶段视觉预览",
+  "scripts": { "start": "node server.mjs", "check": "node --check server.mjs && node --check public/graphics.js && node --check public/preview.js" },
+  "engines": { "node": ">=20" }
+}

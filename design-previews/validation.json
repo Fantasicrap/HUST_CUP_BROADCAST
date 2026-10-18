@@ -1,0 +1,15 @@
+{
+  "time": "2026-10-18T10:26:01.316Z",
+  "viewport": "1920x1080",
+  "themes": 2,
+  "scenesPerTheme": 6,
+  "captures": 12,
+  "checks": {
+    "syntax": "在独立命令检查",
+    "transparencyBackgroundAlpha": 0,
+    "graphicAlpha": 255,
+    "themeAndSceneSwitch": true
+  },
+  "errors": [],
+  "note": "浏览器渲染与视觉预览检查；未进行 OBS 实机测试或正式比赛逻辑验收。"
+}
