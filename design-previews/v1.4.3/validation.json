@@ -1,0 +1,24 @@
+{
+  "checks": [
+    "pulse bottomScore 从主体正中心向四周展开，再开放上下延伸，定位不变",
+    "pulse entrance 从主体正中心向四周展开，再开放上下延伸，定位不变",
+    "pulse officials 从主体正中心向四周展开，再开放上下延伸，定位不变",
+    "pulse shootoutCompact 从主体正中心向四周展开，再开放上下延伸，定位不变",
+    "pulse shootout 从主体正中心向四周展开，再开放上下延伸，定位不变",
+    "pulse intro 从主体正中心向四周展开，再开放上下延伸，定位不变",
+    "pulse opening 从主体正中心向四周展开，再开放上下延伸，定位不变",
+    "pulse goal 从主体正中心向四周展开，再开放上下延伸，定位不变",
+    "pulse scoreboard 从主体正中心向四周展开，再开放上下延伸，定位不变",
+    "nocturne bottomScore 从主体正中心向四周展开，再开放上下延伸，定位不变",
+    "nocturne entrance 从主体正中心向四周展开，再开放上下延伸，定位不变",
+    "nocturne officials 从主体正中心向四周展开，再开放上下延伸，定位不变",
+    "nocturne shootoutCompact 从主体正中心向四周展开，再开放上下延伸，定位不变",
+    "nocturne shootout 从主体正中心向四周展开，再开放上下延伸，定位不变",
+    "nocturne intro 从主体正中心向四周展开，再开放上下延伸，定位不变",
+    "nocturne opening 从主体正中心向四周展开，再开放上下延伸，定位不变",
+    "nocturne goal 从主体正中心向四周展开，再开放上下延伸，定位不变",
+    "nocturne scoreboard 从主体正中心向四周展开，再开放上下延伸，定位不变",
+    "收起先闭合上下延伸，再从四周回到主体中心；完成后无残留"
+  ],
+  "errors": []
+}

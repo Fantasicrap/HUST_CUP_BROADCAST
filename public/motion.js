@@ -1,7 +1,6 @@
 // Presentation only. Never delays a match update or writes the event ledger.
 export const EXIT_MS=360;
-const selector='.slim-score,.bottom-score,.compact-pk,.entrance-bar,.mini-event,.info-strip,.referee-panel,.team-event-extension,.added-time-block,.score-context,.dismissal-flags';
-const top='.team-event-extension';
+const selector='.slim-score,.bottom-score,.compact-pk,.entrance-bar,.mini-event,.info-strip,.referee-panel,.team-event-extension,.added-time-block,.score-context,.dismissal-flags,.opening,.intro-screen,.shootout';
 function identity(node,run){
  if(node.matches('.slim-score'))return 'scoreboard';
  if(node.matches('.team-event-extension'))return `event:${run}:${node.dataset.eventTeam}`;
@@ -9,11 +8,22 @@ function identity(node,run){
  return `panel:${run}:${[...node.classList].find(c=>c!=='cue-graphic')}`;
 }
 function items(root,run){return new Map([...root.querySelectorAll(selector)].map(node=>[identity(node,run),node]));}
+function geometry(node){
+ const r=node.getBoundingClientRect(),scale=r.height/(node.offsetHeight||r.height)||1;
+ const core=node.querySelector(':scope>.bottom-row,:scope>.score-row,:scope>.referee-title')||node;
+ const c=core.getBoundingClientRect(),height=r.height/scale,cy=(c.top+c.height/2-r.top)/scale;
+ node.style.setProperty('--core-top',`${(c.top-r.top)/scale}px`);
+ node.style.setProperty('--core-bottom',`${height-(c.bottom-r.top)/scale}px`);
+ node.style.setProperty('--center-top',`${cy}px`);node.style.setProperty('--center-bottom',`${height-cy}px`);
+ let min=r.top,max=r.bottom;
+ node.querySelectorAll('.bottom-context,.team-event-extensions,.score-context,.dismissal-flags').forEach(e=>{const b=e.getBoundingClientRect();min=Math.min(min,b.top);max=Math.max(max,b.bottom);});
+ node.style.setProperty('--spill-top',`${Math.max(8,(r.top-min)/scale+4)}px`);node.style.setProperty('--spill-bottom',`${Math.max(8,(max-r.bottom)/scale+4)}px`);
+}
 function exitFrames(node){
- const down=node.matches(top),edge=down?'top':'bottom';
- const thin=edge==='top'?'inset(0 0 calc(100% - 3px) 0)':'inset(calc(100% - 3px) 0 0 0)';
- const closed=edge==='top'?'inset(0 50% calc(100% - 3px) 50%)':'inset(calc(100% - 3px) 50% 0 50%)';
- return [{clipPath:getComputedStyle(node).clipPath==='none'?'inset(-64px -8px -24px -8px)':getComputedStyle(node).clipPath,opacity:1},{clipPath:thin,opacity:1,offset:.6},{clipPath:closed,opacity:0}];
+ const css=getComputedStyle(node),v=(name,fallback)=>css.getPropertyValue(name).trim()||fallback;
+ const core=`inset(${v('--core-top','0px')} 0 ${v('--core-bottom','0px')} 0)`;
+ const closed=`inset(${v('--center-top','50%')} 50% ${v('--center-bottom','50%')} 50%)`;
+ return [{clipPath:css.clipPath==='none'?'inset(-64px -8px -64px -8px)':css.clipPath,opacity:1},{clipPath:core,opacity:1,offset:.55},{clipPath:closed,opacity:0}];
 }
 export function createMotion(layer){
  const departures=document.createElement('div');departures.id='motion-departures';departures.setAttribute('aria-hidden','true');layer.after(departures);
@@ -46,7 +56,7 @@ export function createMotion(layer){
   layer.innerHTML=html;
   const current=items(layer,run),updated=new Map();
   for(const [key,node] of current){
-   const previous=active.get(key),sameRun=previous?.run===run;
+   geometry(node);const previous=active.get(key),sameRun=previous?.run===run;
    const entered=previous?.entered??(active.size&&[...active.values()].some(v=>v.run===run)?now:now-elapsed);
    // Persistent base survives event changes; its extensions animate independently.
    if(node.matches('.slim-score')&&previous)node.style.animation='none';
