@@ -29,3 +29,93 @@ body{font-family:var(--font-ui);font-weight:900}button,input,select,textarea{fon
 .opening-team h1{display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}.stage .opening-team.long-name h1{font-size:34px;letter-spacing:1px;line-height:1.3;max-height:90px}.stage .opening-team.long-name .badge{height:165px}.lineup-team h1{display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}.lineup-team.long-name h1{font-size:31px;line-height:1.35;letter-spacing:1px}.report-score>strong{max-height:150px;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}.pk-team strong{display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 
 .score-context{left:330px;transform:translateX(-50%);max-width:480px;overflow:hidden}
+
+/* Layout centering must survive the transforms used by entry and exit animations. */
+.entrance-bar{left:0;right:0;margin:0 auto;transform:none;max-width:calc(100% - 108px)}
+.entrance-bar.cue-graphic{animation-name:entranceEnter}
+@keyframes entranceEnter{from{opacity:0;transform:translateY(18px)}to{opacity:1;transform:translateY(0)}}
+
+/* Larger opening identity, with separate sizing for long team names. */
+.opening-versus{top:320px;left:130px;right:130px;grid-template-columns:minmax(0,1fr) 320px minmax(0,1fr)}
+.stage .opening-team .badge{width:220px;height:244px}
+.stage .opening-team h1{font-size:64px;letter-spacing:3px;max-width:620px;margin-top:24px;line-height:1.25}
+.stage .opening-team p{font-size:21px;letter-spacing:2px}
+.stage .opening-team.long-name h1{font-size:42px;line-height:1.3;max-height:110px}
+.stage .opening-team.long-name .badge{width:220px;height:210px}
+.stage .opening-center>.trophy,.stage .opening-center .custom-logo{width:150px;height:150px}
+.opening-center>span{font-size:84px}
+.opening-center>small{font-size:18px}
+.opening-title{top:190px}
+.stage .opening-title h2{font-size:50px}
+.opening-title>span{font-size:21px}
+.opening .competition>.trophy,.stage .opening .competition>.custom-logo{width:78px;height:78px}
+.opening .competition b{font-size:29px}
+.opening .competition span{font-size:19px}
+.opening-location{top:850px}
+.opening-location>b{font-size:34px}
+.opening-location>span{font-size:23px}
+.opening-team h1{text-wrap:balance}
+
+.lineup-panel>.lineup-legend{position:absolute;left:24px;bottom:18px;margin:0;padding:7px 12px;gap:22px;font-size:16px;background:#091943dc;border:1px solid var(--line);border-radius:4px;z-index:5;pointer-events:none}
+.lineup-panel>.lineup-legend:empty{display:none}
+.team-officials{display:flex;flex-direction:column;gap:12px;margin-top:22px}
+.team-official{min-width:0}.team-official small{display:block;font-size:12px;color:var(--muted);letter-spacing:.4px}.team-official strong{display:block;font-size:22px;line-height:1.4;overflow-wrap:anywhere}.team-official.head-coach strong{font-size:30px}
+.bench-panel{display:flex;flex-direction:column;padding:32px 38px 76px}
+.bench-panel .bench-grid{flex:1;min-height:0;margin-top:22px;gap:12px 24px;grid-template-rows:repeat(var(--bench-rows),minmax(0,1fr));grid-auto-flow:column;align-content:stretch}
+.bench-panel .bench-row{height:auto;min-height:0;padding:9px 16px;border:1px solid var(--line);background:#ffffff07;gap:18px;border-left:3px solid var(--accent)}
+.bench-panel .bench-row>b{width:66px;flex-shrink:0;font-size:38px;text-align:center}
+.bench-panel .bench-row>strong{font-size:36px;flex:1;max-width:none;min-width:0}
+.bench-panel .bench-position{font-size:25px;flex:1;max-width:430px}
+.bench-panel .bench-grid.two-cols{grid-template-columns:repeat(2,minmax(0,1fr))}
+.bench-panel .two-cols .bench-row{gap:10px;padding:8px 12px}
+.bench-panel .two-cols .bench-row>b{font-size:31px;width:55px}
+.bench-panel .two-cols .bench-row>strong{font-size:30px;max-width:none}
+.bench-panel .two-cols .bench-position{font-size:21px;max-width:200px}
+.bench-panel .bench-marks{flex:0 0 80px}
+.bench-panel .empty-bench{margin:auto}
+.focus-panel{padding:28px 28px 74px;display:flex;flex-direction:column}
+.focus-cards{flex:1;height:auto;min-height:0;margin-top:18px;grid-template-columns:repeat(var(--cards),minmax(0,var(--focus-card-width)));gap:18px;justify-content:center;align-content:center}
+.focus-cards .flip-space{height:var(--focus-media-height,450px)}
+.focus-card .card-face>.jersey,.focus-card .card-face .player-media>.jersey{width:240px;height:240px}
+.focus-card .card-face .jersey>b{font-size:80px}
+.focus-name{margin-top:14px}.focus-name>strong{font-size:32px}.focus-card>small{font-size:20px;margin-top:8px}
+.kick.unneeded{opacity:.35}
+
+/* Bottom packaging reveals from its own horizontal centre, then grows upwards.
+   clip-path preserves positioning transforms and never reflows the overlay. */
+.bottom-score,.compact-pk,.entrance-bar.cue-graphic,.mini-event,.info-strip.cue-graphic{
+ --bottom-overhang:24px;animation:bottomReveal 680ms cubic-bezier(.25,.7,.25,1) both;
+}
+.bottom-score{--bottom-overhang:64px}
+@keyframes bottomReveal{
+ 0%{clip-path:inset(calc(100% - 4px) 50% 0 50%);opacity:1}
+ 40%{clip-path:inset(calc(100% - 4px) 0 0 0);opacity:1}
+ 100%{clip-path:inset(calc(-1 * var(--bottom-overhang,24px)) -8px -24px -8px);opacity:1}
+}
+#graphics.exiting>.bottom-score,#graphics.exiting>.compact-pk,#graphics.exiting>.entrance-bar,#graphics.exiting>.mini-event,#graphics.exiting>.info-strip{animation:bottomReveal 280ms ease-in reverse both!important}
+.intro-screen{padding:80px 120px;text-align:center}
+.intro-screen>.trophy,.intro-screen>.custom-logo{width:210px;height:210px}
+.intro-screen .intro-overline{font-size:27px;letter-spacing:8px}
+.intro-screen h1{font-size:106px;letter-spacing:6px;line-height:1.3;max-width:1680px;overflow-wrap:anywhere;text-wrap:balance}
+.intro-screen.long-title h1{font-size:78px}
+.intro-screen h2{font-size:44px;line-height:1.4;max-width:1640px;text-wrap:balance;margin:20px 0}
+.intro-screen p{font-size:30px;line-height:1.4;margin:18px 0;max-width:1640px;text-wrap:balance}
+@media(prefers-reduced-motion:reduce){.bottom-score,.compact-pk,.entrance-bar.cue-graphic,.mini-event,.info-strip.cue-graphic{animation-duration:1ms!important}}
+
+.referee-panel{position:absolute;left:0;right:0;margin:0 auto;bottom:72px;width:1160px;max-width:calc(100% - 192px);color:#102956;background:#fff;filter:drop-shadow(0 8px 16px #0004);animation:bottomReveal 680ms cubic-bezier(.25,.7,.25,1) both;--bottom-overhang:24px}
+.referee-title{padding:10px 24px;background:var(--base);color:#fff;font-size:20px;letter-spacing:2px}
+.referee-list{padding:6px 26px 14px;border-top:4px solid var(--accent)}
+.referee-row{display:grid;grid-template-columns:190px minmax(0,1fr) 230px;gap:22px;align-items:center;padding:10px 0;border-bottom:1px solid #85c9fc66;min-height:59px}
+.referee-row:last-child{border-bottom:0}.referee-row>span{font-size:20px;color:#1355fc}.referee-row>strong{font-size:28px;line-height:1.45;overflow-wrap:anywhere;min-width:0}.referee-row>small{font-size:23px;line-height:1.4;overflow-wrap:anywhere;text-align:right}
+.referee-row:not(:has(small)){grid-template-columns:190px minmax(0,1fr)}
+.nocturne .referee-panel{background:linear-gradient(110deg,#1355fc,#101e5a);color:#fff}.nocturne .referee-row>span{color:#86effc}
+.commentator-strip{width:820px}.commentator-person{display:flex;align-items:center;gap:24px;width:100%;min-width:0}.commentator-person>strong{font-size:28px;line-height:1.45;flex:1;min-width:0;overflow-wrap:anywhere}.commentator-person>small{font-size:22px;line-height:1.4;flex:0 0 180px;overflow-wrap:anywhere}
+.card-strip{width:760px}.card-strip .info-content>strong{flex:1;min-width:0;white-space:normal;overflow-wrap:anywhere;line-height:1.45}.card-strip .info-content>small{flex-shrink:0}
+#graphics.exiting>.referee-panel{animation:bottomReveal 280ms ease-in reverse both!important}
+@media(prefers-reduced-motion:reduce){.referee-panel{animation-duration:1ms!important}}
+
+.bug-event-symbol.cancel{font:900 17px/13px sans-serif;color:#86effc}.team-event-extension .cancel-reason{font-size:17px;line-height:1.45;margin:4px 0 0;overflow-wrap:anywhere;color:#fff}
+
+.var-logo{display:inline-flex;align-items:center;justify-content:center;flex:0 0 76px;width:76px;height:48px;border:3px solid #1355fc;border-radius:3px;font-size:26px;letter-spacing:1px;font-family:var(--font-num);color:#1355fc}.nocturne .var-logo{color:#86effc;border-color:#86effc}.var-logo.checking{animation:varPulse 1400ms ease-in-out infinite}.var-copy{min-width:0;flex:1}.var-copy>strong{display:block;font-size:28px;line-height:1.4;overflow-wrap:anywhere}.var-copy>small{display:block;font-size:17px;line-height:1.5;overflow-wrap:anywhere}.var-strip{width:760px}@keyframes varPulse{50%{opacity:.5}}
+
+.sponsor-strip{width:900px;max-width:calc(100% - 192px)}.sponsor-strip .info-label{font-size:22px;padding:10px 26px}.sponsor-strip .info-content{min-height:142px;padding:20px 28px;gap:30px}.sponsor-strip .sponsor-logo{width:220px;height:110px;max-width:220px;max-height:110px;object-fit:contain;flex-shrink:0}.sponsor-strip .info-content>strong{font-size:36px;line-height:1.45;flex:1;min-width:0;overflow-wrap:anywhere}

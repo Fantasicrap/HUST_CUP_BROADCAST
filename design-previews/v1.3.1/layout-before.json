@@ -1,0 +1,27 @@
+{
+  "date": "2026-10-19T10:40:34.325Z",
+  "checks": [],
+  "measurements": [
+    {
+      "theme": "pulse",
+      "scene": "entrance",
+      "rect": {
+        "x": 960,
+        "y": 828,
+        "width": 1060,
+        "height": 180
+      }
+    },
+    {
+      "theme": "nocturne",
+      "scene": "entrance",
+      "rect": {
+        "x": 960,
+        "y": 828,
+        "width": 1060,
+        "height": 180
+      }
+    }
+  ],
+  "errors": []
+}

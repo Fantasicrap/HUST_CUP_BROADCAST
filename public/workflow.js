@@ -43,6 +43,10 @@ export function mountWorkflow({showLive}) {
  corrections.classList.add('event-corrections');eventForm.insertBefore(corrections,$('#goal-fields'));
  const correctionFields=make('div','form-grid');corrections.append(correctionFields);
  for(const id of ['event-name','event-number','event-period'])move($('#'+id).closest('label'),correctionFields);
+ const dialog=make('dialog','event-dialog');dialog.id='event-dialog';dialog.innerHTML='<header><div><small>EVENT EDITOR / 比赛事件</small><h2 id="event-dialog-title">事件</h2></div><button type="button" data-close-event aria-label="关闭事件窗口">关闭</button></header><p id="event-required" class="hint"></p><div class="event-modal-grid"></div>';
+ const eventPreview=make('section','event-modal-preview','<strong>待播预览 · 不进入直播</strong><div class="event-preview-window"><iframe id="event-preview-frame" title="事件待播预览" src="about:blank"></iframe></div><p id="event-preview-status">填写后点击“确认并预览”；不会记账或进入直播。</p>');dialog.querySelector('.event-modal-grid').append(eventForm,eventPreview);root.append(dialog);
+ const launcher=make('section','desk-card event-launcher','<h3>比赛事件</h3><p class="hint">选择事件 → 填写 → 确认预览 → 应用并播出</p><div class="event-launcher-buttons"></div>');for(const option of $('#event-type').options){const b=make('button','',option.textContent);b.dataset.openEvent=option.value;launcher.querySelector('div').append(b);}eventPanel.querySelector('.desk-columns').prepend(launcher);
+ new ResizeObserver(entries=>{const width=entries[0].contentRect.width;$('#event-preview-frame').style.transform=`scale(${width/1920})`;}).observe(eventPreview.querySelector('.event-preview-window'));
  const [queue,manual]=cards('queue');
  const liveMore=drawer('待播队列与其他图文',panes.live);liveMore.id='live-more';const moreGrid=make('div','desk-columns');liveMore.append(moreGrid);move(queue,moreGrid);move(manual,moreGrid);manual.querySelector('h3').textContent='手动播出';
  const flowCard=(id,title,button)=>{const el=card(title,panes[id]);move('#'+button,el);return el;};
@@ -61,7 +65,7 @@ export function mountWorkflow({showLive}) {
  const [archive,people]=cards('portable');
  const rosterSetup=card('阵容确认与同步',panes.pregame);let node=$('#sync-lineups');while(node){const following=node.nextElementSibling;rosterSetup.append(node);node=following;}
  // Keep confirmation and sync beside the roster rather than the live match.
- roster.after(rosterSetup);move(people,panes.pregame);
+ roster.after(rosterSetup);const formationEditor=roster.querySelector('.inline-fields');move($('#formation-template').closest('label'),formationEditor);move('#apply-template',formationEditor);move(people,panes.pregame);
  const fontCard=card('界面与包装字体',panes.settings);move($('[data-asset="config.font"]').closest('label'),fontCard);move('#font-reset',fontCard);move(people.querySelector('p.hint'),fontCard);people.querySelector('h3').textContent='人物、裁判与赞助素材';
  // Reuse the already-bound new-match button, detached with the old title.
  move(title.querySelector('#new-match'),panes.pregame);panes.pregame.prepend(panes.pregame.lastChild);

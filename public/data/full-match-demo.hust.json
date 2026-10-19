@@ -544,7 +544,8 @@
       "english": "CHEN ZI'ANG",
       "number": 9,
       "time": "67′",
-      "kind": "运动战"
+      "kind": "normal",
+      "teamRole": "player"
     },
     "substitution": {
       "team": "away",
@@ -572,6 +573,8 @@
       {
         "id": "demo-1",
         "team": "home",
+        "scoreTeam": "home",
+        "teamRole": "player",
         "name": "陈子昂",
         "number": 9,
         "time": "23′",
@@ -582,6 +585,8 @@
       {
         "id": "demo-2",
         "team": "away",
+        "scoreTeam": "away",
+        "teamRole": "player",
         "name": "周奕辰",
         "number": 8,
         "time": "39′",
@@ -592,6 +597,8 @@
       {
         "id": "demo-3",
         "team": "home",
+        "scoreTeam": "home",
+        "teamRole": "player",
         "name": "陈子昂",
         "number": 9,
         "time": "67′",
@@ -602,6 +609,8 @@
       {
         "id": "demo-4",
         "team": "home",
+        "scoreTeam": "home",
+        "teamRole": "player",
         "name": "杨天佑",
         "number": 7,
         "time": "75′",
@@ -612,6 +621,8 @@
       {
         "id": "demo-9",
         "team": "away",
+        "scoreTeam": "away",
+        "teamRole": "player",
         "name": "谢景明",
         "number": 11,
         "time": "90+2′",
@@ -622,6 +633,8 @@
       {
         "id": "demo-10",
         "team": "home",
+        "scoreTeam": "home",
+        "teamRole": "player",
         "name": "徐知远",
         "number": 10,
         "time": "98′",
@@ -631,7 +644,9 @@
       },
       {
         "id": "demo-11",
-        "team": "away",
+        "team": "home",
+        "scoreTeam": "away",
+        "teamRole": "player",
         "name": "许博文",
         "number": 3,
         "time": "117′",
@@ -735,6 +750,12 @@
       }
     },
     "config": {
+      "showScoreEvents": true,
+      "showRedMarkers": true,
+      "redMarkers": {
+        "home": null,
+        "away": null
+      },
       "font": "",
       "delayMs": 0,
       "replay": false,
@@ -811,7 +832,7 @@
   "match": {
     "version": 1,
     "revision": 41,
-    "createdAt": 1792393453976,
+    "createdAt": 1792405920189,
     "initial": {
       "score": {
         "home": 0,
@@ -1322,55 +1343,59 @@
         "id": "demo-1",
         "type": "goal",
         "team": "home",
-        "at": 1792393453977,
+        "at": 1792405920190,
         "time": "23′",
         "period": "first",
         "active": true,
         "name": "陈子昂",
         "number": 9,
-        "kind": "normal"
+        "kind": "normal",
+        "teamRole": "player"
       },
       {
         "id": "demo-2",
         "type": "goal",
         "team": "away",
-        "at": 1792393453977,
+        "at": 1792405920190,
         "time": "39′",
         "period": "first",
         "active": true,
         "name": "周奕辰",
         "number": 8,
-        "kind": "normal"
+        "kind": "normal",
+        "teamRole": "player"
       },
       {
         "id": "demo-3",
         "type": "goal",
         "team": "home",
-        "at": 1792393453978,
+        "at": 1792405920191,
         "time": "67′",
         "period": "second",
         "active": true,
         "name": "陈子昂",
         "number": 9,
-        "kind": "penalty"
+        "kind": "penalty",
+        "teamRole": "player"
       },
       {
         "id": "demo-4",
         "type": "goal",
         "team": "home",
-        "at": 1792393453978,
+        "at": 1792405920191,
         "time": "75′",
         "period": "second",
         "active": true,
         "name": "杨天佑",
         "number": 7,
-        "kind": "normal"
+        "kind": "normal",
+        "teamRole": "player"
       },
       {
         "id": "demo-5",
         "type": "cancelGoal",
         "team": "home",
-        "at": 1792393453978,
+        "at": 1792405920192,
         "time": "76′",
         "period": "second",
         "active": true,
@@ -1383,7 +1408,7 @@
         "id": "demo-6",
         "type": "card",
         "team": "home",
-        "at": 1792393453978,
+        "at": 1792405920192,
         "time": "31′",
         "period": "second",
         "active": true,
@@ -1398,7 +1423,7 @@
         "id": "demo-7",
         "type": "card",
         "team": "home",
-        "at": 1792393453978,
+        "at": 1792405920192,
         "time": "78′",
         "period": "second",
         "active": true,
@@ -1413,7 +1438,7 @@
         "id": "demo-8",
         "type": "substitution",
         "team": "away",
-        "at": 1792393453979,
+        "at": 1792405920193,
         "time": "80′",
         "period": "second",
         "active": true,
@@ -1495,37 +1520,40 @@
         "id": "demo-9",
         "type": "goal",
         "team": "away",
-        "at": 1792393453979,
+        "at": 1792405920193,
         "time": "90+2′",
         "period": "second",
         "active": true,
         "name": "谢景明",
         "number": 11,
-        "kind": "normal"
+        "kind": "normal",
+        "teamRole": "player"
       },
       {
         "id": "demo-10",
         "type": "goal",
         "team": "home",
-        "at": 1792393453980,
+        "at": 1792405920194,
         "time": "98′",
         "period": "extra",
         "active": true,
         "name": "徐知远",
         "number": 10,
-        "kind": "normal"
+        "kind": "normal",
+        "teamRole": "player"
       },
       {
         "id": "demo-11",
         "type": "goal",
-        "team": "away",
-        "at": 1792393453980,
+        "team": "home",
+        "at": 1792405920195,
         "time": "117′",
         "period": "extra",
         "active": true,
         "name": "许博文",
         "number": 3,
-        "kind": "own"
+        "kind": "own",
+        "teamRole": "player"
       }
     ],
     "clock": {
@@ -1533,7 +1561,7 @@
       "halfMinutes": 45,
       "extraMinutes": 15,
       "elapsedMs": 7200000,
-      "anchor": 1792393453984,
+      "anchor": 1792405920199,
       "running": false,
       "announced": 0,
       "displayMode": "cumulative"

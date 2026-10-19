@@ -1,0 +1,33 @@
+{
+  "date": "2026-10-19T10:41:09.174Z",
+  "checks": [
+    "pulse入场横条在入场动画各阶段及结束后保持底部居中，整条及内容不越界",
+    "pulse开场队名、双方队徽、赛事logo放大，仍与日期场地和边界分离",
+    "nocturne入场横条在入场动画各阶段及结束后保持底部居中，整条及内容不越界",
+    "nocturne开场队名、双方队徽、赛事logo放大，仍与日期场地和边界分离",
+    "较长中文队名、缺队徽及上传赛事logo保持放大后的完整布局"
+  ],
+  "measurements": [
+    {
+      "theme": "pulse",
+      "scene": "entrance",
+      "rect": {
+        "x": 430,
+        "y": 828,
+        "width": 1060,
+        "height": 180
+      }
+    },
+    {
+      "theme": "nocturne",
+      "scene": "entrance",
+      "rect": {
+        "x": 430,
+        "y": 828,
+        "width": 1060,
+        "height": 180
+      }
+    }
+  ],
+  "errors": []
+}

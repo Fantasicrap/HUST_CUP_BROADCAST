@@ -6,6 +6,10 @@ const clone=v=>structuredClone(v),side=v=>v==='away'?'away':'home';
 const integer=(v,min=0,max=999)=>{const n=Number(v);if(!Number.isInteger(n)||n<min||n>max)throw Error(`请输入 ${min}–${max} 的整数`);return n;};
 const txt=(v,max=100)=>String(v??'').trim().slice(0,max);
 const id=()=>globalThis.crypto.randomUUID();
+// Old records used team as the beneficiary. New records mark team as the player's team.
+export function goalTeams(goal){const team=side(goal.team),own=goal.kind==='own',actor=own&&goal.teamRole!=='player'?(team==='home'?'away':'home'):team;return {team:actor,scoreTeam:own?(actor==='home'?'away':'home'):actor};}
+export function specialGoalLabel(kind){return kind==='own'||kind==='乌龙'||kind==='乌龙球'?'乌龙球':kind==='penalty'||kind==='点球'?'点球':'';}
+export function goalMarker(kind){return ['own','乌龙','乌龙球'].includes(kind)?'(OG)':['penalty','点球'].includes(kind)?'(P)':'';}
 export function phaseBounds(clock){const h=clock.halfMinutes*60000,e=clock.extraMinutes*60000;return {first:[0,h],second:[h,h*2],extraFirst:[h*2,h*2+e],extraSecond:[h*2+e,h*2+e*2]}[clock.phase]||[clock.elapsedMs,Infinity];}
 export function clockMs(clock,now=Date.now()){return Math.max(0,clock.elapsedMs+(clock.running?Math.max(0,now-clock.anchor):0));}
 export function clockView(clock,now=Date.now()){
@@ -16,10 +20,10 @@ export function newMatch(d,{demo=false,now=Date.now()}={}){
  return {version:1,revision:0,createdAt:now,initial:{score:demo?clone(d.score):{home:0,away:0},goals:demo?clone(d.goals):[],lineups:{home:clone(d.formation),away:clone(d.awayFormation)}},events:[],clock:{phase:'pregame',halfMinutes:45,extraMinutes:15,elapsedMs:0,anchor:now,running:false,announced:0,displayMode:'cumulative'},halftimeScore:{home:0,away:0},halftimeStats:{},shootout:{home:[],away:[],first:'home',confirmed:false,players:{home:[],away:[]}},stats:{},tie:{enabled:false,firstLeg:{home:0,away:0},awayGoals:false,firstLegAway:'home'},result:{confirmed:false,winner:'',label:'胜者',mvp:''},recovery:null};
 }
 export function deriveMatch(m){
- const score=clone(m.initial.score),goals=clone(m.initial.goals),lineups=clone(m.initial.lineups),reds={home:0,away:0},yellow={},dismissed=new Set(),cards=[];
+ const score=clone(m.initial.score),goals=clone(m.initial.goals).map(g=>({...g,...goalTeams(g),teamRole:'player'})),lineups=clone(m.initial.lineups),reds={home:0,away:0},yellow={},dismissed=new Set(),cards=[];
  for(const e of m.events.filter(e=>e.active!==false)){
-  if(e.type==='goal'){score[e.team]++;goals.push({id:e.id,team:e.team,name:e.name,number:e.number,time:e.time,period:e.period,kind:e.kind,cancelled:false});}
-  if(e.type==='cancelGoal'){const g=goals.find(g=>g.id===e.goalId);if(!g||g.cancelled)throw Error('关联进球不存在或已取消');g.cancelled=true;score[g.team]--;}
+  if(e.type==='goal'){const teams=goalTeams(e);score[teams.scoreTeam]++;goals.push({id:e.id,...teams,teamRole:'player',name:e.name,number:e.number,time:e.time,period:e.period,kind:e.kind,cancelled:false});}
+  if(e.type==='cancelGoal'){const g=goals.find(g=>g.id===e.goalId);if(!g||g.cancelled)throw Error('关联进球不存在或已取消');g.cancelled=true;score[goalTeams(g).scoreTeam]--;}
   if(e.type==='adjustment')score[e.team]+=e.delta;
   if(e.type==='card'){
    const key=`${e.team}:${e.playerId||e.role+':'+e.name}`,p=[...lineups[e.team].players,...lineups[e.team].bench].find(p=>p.id===e.playerId);
@@ -36,7 +40,7 @@ export function deriveMatch(m){
   }
  }
  if(score.home<0||score.away<0)throw Error('修正后比分不能为负数');
- const halftimeScore={home:0,away:0};for(const g of goals)if(!g.cancelled&&g.period==='first')halftimeScore[g.team]++;for(const e of m.events)if(e.active!==false&&e.type==='adjustment'&&e.period==='first')halftimeScore[e.team]+=e.delta;halftimeScore.home=Math.max(0,halftimeScore.home);halftimeScore.away=Math.max(0,halftimeScore.away);
+ const halftimeScore={home:0,away:0};for(const g of goals)if(!g.cancelled&&g.period==='first')halftimeScore[goalTeams(g).scoreTeam]++;for(const e of m.events)if(e.active!==false&&e.type==='adjustment'&&e.period==='first')halftimeScore[e.team]+=e.delta;halftimeScore.home=Math.max(0,halftimeScore.home);halftimeScore.away=Math.max(0,halftimeScore.away);
  const aggregate={home:score.home+(m.tie.enabled?m.tie.firstLeg.home:0),away:score.away+(m.tie.enabled?m.tie.firstLeg.away:0)};
  const awayGoals={home:m.tie.firstLegAway==='home'?m.tie.firstLeg.home:0,away:(m.tie.firstLegAway==='away'?m.tie.firstLeg.away:0)+score.away};
  let suggestedWinner=aggregate.home!==aggregate.away?(aggregate.home>aggregate.away?'home':'away'):m.tie.enabled&&m.tie.awayGoals&&awayGoals.home!==awayGoals.away?(awayGoals.home>awayGoals.away?'home':'away'):null;
@@ -63,15 +67,20 @@ export function changeMatch(original,command,now=Date.now()){
   const x=c.event||{},team=side(x.team);if(!EVENT_LABELS[x.type])throw Error('事件类型无效');
   if(m.events.some(e=>e.id===c.id))return original;
   const e={id:txt(c.id||id(),80),type:x.type,team,at:now,time:txt(x.time||clockView(clock,now).eventTime,24),period:['first','second','extra'].includes(x.period)?x.period:clock.phase==='first'?'first':clock.phase.startsWith('extra')?'extra':'second',active:true,name:txt(x.name||'未填写球员',40),number:integer(x.number||0),kind:['penalty','own'].includes(x.kind)?x.kind:'normal'};
-  if(e.type==='cancelGoal')e.goalId=txt(x.goalId,80);
+  if(e.type==='goal')e.teamRole='player';
+  if(e.type==='penalty'&&x.relatedCardId)e.relatedCardId=txt(x.relatedCardId,80);
+  if(e.type==='card'&&x.parentEventId)e.parentEventId=txt(x.parentEventId,80);
+  if(e.type==='cancelGoal'){e.goalId=txt(x.goalId,80);const goal=a.goals.find(g=>g.id===e.goalId&&!g.cancelled);if(!goal)throw Error('关联进球不存在或已取消');e.team=goal.team;e.name=goal.name;e.number=goal.number;e.goalTime=goal.time;}
   if(e.type==='card'){e.playerId=txt(x.playerId,80);e.role=['player','bench','coach'].includes(x.role)?x.role:'player';e.card=['yellow','red','secondYellow'].includes(x.card)?x.card:'yellow';if(e.role!=='coach'){const roster=e.role==='player'?a.lineups[team].players:a.lineups[team].bench;const p=roster.find(p=>p.id===e.playerId);if(!p)throw Error('给牌对象不在所选名单');e.name=p.name;e.number=p.number;}}
   if(e.type==='substitution'){if(!Array.isArray(x.pairs)||!x.pairs.length||x.pairs.length>10)throw Error('请添加 1–10 组换人');e.pairs=x.pairs.map(pair=>{const off=a.lineups[team].players.find(p=>p.id===pair.offId),on=a.lineups[team].bench.find(p=>p.id===pair.onId);if(!off||!on)throw Error('请选择有效换上 / 换下球员');return {offId:off.id,onId:on.id,off:clone(off),on:clone(on)};});}
-  if(['penalty','var','notice','adjustment'].includes(e.type)){e.text=txt(x.text,140);e.subject=txt(x.subject||'进球',30);e.status=txt(x.status||'检查中',30);}
+  if(['penalty','var','notice','adjustment','cancelGoal'].includes(e.type)){e.text=txt(x.text,140);e.subject=txt(x.subject||'进球',30);e.status=txt(x.status||'检查中',30);}
+  if(e.type==='var'){e.varStage=x.varStage==='decision'?'decision':'checking';e.decision=txt(x.decision||'进球有效',40);}
   if(e.type==='adjustment')e.delta=integer(x.delta,-999,999);
   m.events.push(e);deriveMatch(m);
  }else if(c.action==='editEvent'){
   const e=m.events.find(e=>e.id===c.id);if(!e)throw Error('事件不存在');
   if(typeof c.active==='boolean')e.active=c.active;
+  if(e.type==='goal'&&c.patch&&'kind' in c.patch){e.team=goalTeams(e).team;e.teamRole='player';}
   if(c.patch){for(const k of ['name','time','text'])if(k in c.patch)e[k]=txt(c.patch[k],k==='text'?140:40);if('number' in c.patch)e.number=integer(c.patch.number);if('kind' in c.patch)e.kind=['penalty','own'].includes(c.patch.kind)?c.patch.kind:'normal';}
   deriveMatch(m);
  }else if(c.action==='lineups'){
@@ -97,10 +106,21 @@ export function penaltyStatus(s){
  const totals=side=>s[side].filter(x=>x===0||x===1),h=totals('home'),a=totals('away'),hs=h.reduce((a,b)=>a+b,0),as=a.reduce((a,b)=>a+b,0);let winner=null;
  if(h.length<=5&&a.length<=5){if(hs>as+5-a.length)winner='home';if(as>hs+5-h.length)winner='away';}else if(h.length===a.length&&hs!==as)winner=hs>as?'home':'away';
  let next=h.length===a.length?s.first:h.length>a.length?'away':'home';const hp=s.home.indexOf(null),ap=s.away.indexOf(null);if(hp>=0||ap>=0){winner=null;next=hp<0?'away':ap<0?'home':hp===ap?s.first:hp<ap?'home':'away';}
- return {home:hs,away:as,winner,next,round:Math.max(h.length,a.length)+(h.length===a.length&&!winner?1:0),taken:h.length+a.length};
+ return {home:hs,away:as,winner,next,round:Math.max(h.length,a.length)+(h.length===a.length&&!winner?1:0),taken:h.length+a.length,suddenDeath:h.length>=5&&a.length>=5&&!winner};
 }
 export function composeData(d,m,event=null){
  const out=clone(d),a=deriveMatch(m);out.score=a.score;out.goals=a.goals;out.matchClock=clone(m.clock);out.clock=clockView(m.clock);out.reds=a.reds;out.aggregate=a.aggregate;out.tie=clone(m.tie);out.stats=clone(m.stats);out.result=clone(m.result);out.halftimeScore=clone(a.halftimeScore);out.halftimeStats=clone(m.halftimeStats||{});out.shootout=clone(m.shootout);out.currentLineups=a.lineups;
- if(event){out.event=clone(event);if(event.type==='goal')out.goal={...event,kind:event.kind==='penalty'?'点球':event.kind==='own'?'乌龙':'运动战'};if(event.type==='substitution')out.substitution={...event,...event.pairs[0]};if(event.type==='card')out.event=clone(a.cards.find(e=>e.id===event.id)||event);}
+ if(event){out.event=event.type==='goal'?{...clone(event),...goalTeams(event),teamRole:'player'}:clone(event);if(event.type==='goal')out.goal=clone(out.event);if(event.type==='substitution')out.substitution={...event,...event.pairs[0]};if(event.type==='card')out.event=clone(a.cards.find(e=>e.id===event.id)||event);}
+ if(event?.type==='penalty'&&event.relatedCardId)out.companionCard=clone(a.cards.find(e=>e.id===event.relatedCardId)||null);
  return out;
+}
+
+// Validate the entire group before returning it: an invalid card cannot leave a half-recorded penalty.
+export function recordMatchEvent(original,command,now=Date.now()){
+ if(!command.companionCard)return changeMatch(original,command,now);
+ if(command.event?.type!=='penalty')throw Error('同时给牌仅用于点球事件');
+ const eventId=txt(command.id||id(),60);if(original.events.some(e=>e.id===eventId))return original;
+ const cardId=eventId+':card';
+ const first=changeMatch(original,{...command,id:eventId,event:{...command.event,relatedCardId:cardId}},now);
+ return changeMatch(first,{action:'record',id:cardId,event:{...command.companionCard,type:'card',parentEventId:eventId}},now);
 }
