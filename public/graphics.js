@@ -1,8 +1,9 @@
-import {clockView,STAT_LABELS,PHASES} from './match.js';
+import {scoreboardClock,dismissalMarkers,scoreboardEvent} from './scoreboard.js';
+import {STAT_LABELS,PHASES} from './match.js';
 import {SCENES,CONTEXTS,GROUPS,lineupFor,formationAt,goalRows,outputScene,shootoutStatus} from './model.js';
 const q=new URLSearchParams(location.search),isLive=q.get('mode')==='live';
 let data=isLive?null:(await fetch('api/preview').then(r=>r.json())).data;
-let currentElapsed=0;let live=null,offset=0,startedAt=Date.now(),timer,previewScene=SCENES.includes(q.get('scene'))?q.get('scene'):'scoreboard';
+let currentScene='scoreboard',currentElapsed=0;let live=null,offset=0,startedAt=Date.now(),timer,previewScene=SCENES.includes(q.get('scene'))?q.get('scene'):'scoreboard';
 const stage=document.querySelector('#stage'),layer=document.querySelector('#graphics');
 const esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const trophy=()=>'<svg class="trophy" viewBox="0 0 120 120" aria-label="HUST CUP"><g fill="none" stroke="currentColor" stroke-width="8"><path d="M30 18v48l30 24 30-24V18M30 45h60M43 18v23m34-23v23M60 90v14m-22 0h44"/><path d="M30 26H15v26l17 14m58-40h15v26L88 66" stroke-width="6"/></g></svg>';
@@ -13,13 +14,17 @@ const name=t=>esc(t.name);
 const compactName=t=>esc(t.name.length>8&&t.short?t.short:t.name);
 const competition=()=>`<div class="competition">${logo()}<div><b>${esc(data.competition.name)}</b><span>${esc(data.competition.subtitle)} · ${esc(data.competition.round)}</span></div></div>`;
 const safeImgError=()=>layer.querySelectorAll('img').forEach(img=>{const failed=()=>img.remove();img.addEventListener('error',failed,{once:true});if(img.complete&&!img.naturalWidth)failed();});
+const scoreBadge=(team,side)=>{const count=dismissalMarkers(data,side);return `<span class="score-badge-shell">${badge(team)}${count?`<span class="dismissal-flags" aria-label="${esc(team.name)}场上红牌标记 ${count} 张">${'<i></i>'.repeat(count)}</span>`:''}</span>`;};
 function scoreRow(extra='',scores=data.score){
- return `<div class="score-row ${extra}"><div class="score-team home">${kit(data.home)}${badge(data.home)}<strong title="${name(data.home)}">${compactName(data.home)}</strong></div><b class="score-value" data-side="home">${scores.home}</b><div class="score-logo">${logo()}</div><b class="score-value" data-side="away">${scores.away}</b><div class="score-team away"><strong title="${name(data.away)}">${compactName(data.away)}</strong>${badge(data.away)}${kit(data.away)}</div></div>`;
+ return `<div class="score-row ${extra}"><div class="score-team home">${kit(data.home)}${scoreBadge(data.home,'home')}<strong title="${name(data.home)}">${compactName(data.home)}</strong></div><b class="score-value" data-side="home">${scores.home}</b><div class="score-logo">${logo()}</div><b class="score-value" data-side="away">${scores.away}</b><div class="score-team away"><strong title="${name(data.away)}">${compactName(data.away)}</strong>${scoreBadge(data.away,'away')}${kit(data.away)}</div></div>`;
 }
 function scoreboard(){
  if(!data.config.modules.scoreboard)return '';
- const cv=data.matchClock?clockView(data.matchClock,Date.now()+offset):data.clock;const ext=[];if(cv.announced||data.matchClock?.announced)ext.push('宣布补时 +'+(cv.announced||data.matchClock.announced));if(cv.added)ext.push('<span data-added-clock>实际补时 '+cv.added+'</span>');if(data.tie?.enabled)ext.push(`总比分 ${data.aggregate.home} : ${data.aggregate.away}`);for(const side of ['home','away'])if(data.reds?.[side])ext.push(`<i class="red-mark"></i> ${esc(data[side].short)} ${data.reds[side]}`);if(data.matchClock?.phase==='shootout')ext.push(`点球 ${shootoutStatus(data.shootout).home} : ${shootoutStatus(data.shootout).away}`);
- return `<section class="slim-score" style="left:${Math.min(data.config.x,1920-54-782*data.config.scale)}px;top:${Math.min(data.config.y,1080-54-100*data.config.scale)}px;--scale:${data.config.scale}" aria-label="单行常驻比分牌">${scoreRow()}<div class="slim-clock"><b>${q.get('added')==='1'?'90:00':esc(cv.display)}</b><span>${esc(cv.phase)}</span></div>${ext.length?`<div class="slim-extension">${ext.map(v=>`<span>${v}</span>`).join('')}</div>`:''}${q.get('added')==='1'?'<div class="slim-extension"><span>宣布补时 +4</span><span>实际补时 02:16</span><span>总比分 3 : 3</span><span>▰ 远航 1</span></div>':''}</section>`;
+ const cv=scoreboardClock(data,Date.now()+offset,!isLive&&q.get('added')==='1'),item=scoreboardEvent(data,currentScene),width=782+(cv.announced?60:0),context=[];
+ if(data.tie?.enabled)context.push(`总比分 ${data.aggregate.home} : ${data.aggregate.away}`);
+ if(data.matchClock?.phase==='shootout')context.push(`点球 ${shootoutStatus(data.shootout).home} : ${shootoutStatus(data.shootout).away}`);
+ const extension=item?`<div class="team-event-extensions"><div class="team-event-extension ${item.team}" data-event-team="${item.team}"><div><i class="bug-event-symbol ${item.symbol}">${item.symbol==='goal'?'●':''}</i><span>${esc(data[item.team].short||data[item.team].name)} · ${esc(item.label)}</span><b>${esc(item.time||'')}</b></div><strong>${esc(item.number||'')} ${esc(item.name)}</strong></div></div>`:'';
+ return `<section class="slim-score" style="width:${width}px;left:${Math.min(data.config.x,1920-54-width*data.config.scale)}px;top:${Math.min(data.config.y,1080-54-125*data.config.scale)}px;--scale:${data.config.scale}" aria-label="单行常驻比分牌">${scoreRow()}<div class="slim-clock"><b>${esc(cv.display)}</b><span>${esc(cv.phase)}</span></div>${cv.announced?`<div class="added-time-block" aria-label="补时 ${cv.announced} 分钟"><strong>+${cv.announced}</strong><small>分钟</small></div>`:''}${context.length?`<div class="score-context">${context.map(v=>`<span>${v}</span>`).join('')}</div>`:''}${extension}</section>`;
 }
 function event(type){
  const goal=type==='goal';let item=goal?data.goal:data.substitution;if(!goal&&item.pairs?.length){const index=Math.min(item.pairs.length-1,Math.floor(currentElapsed/Math.max(1200,data.config.eventHoldMs/item.pairs.length)));item={...item,...item.pairs[index]};}const team=data[item.team]||data.home;
@@ -95,7 +100,7 @@ function render(){
  clearTimeout(timer);layer.classList.remove('exiting');
  const previousScores=Object.fromEntries([...layer.querySelectorAll('.slim-score .score-value')].map(e=>[e.dataset.side,e.textContent]));
  const now=Date.now()+offset,session=live||{data,scene:previewScene,context:q.get('context')||'pregame',startedAt};
- const resolved=isLive?outputScene(session,now):outputScene(session,Date.now());if(isLive&&session.expiresAt&&now<session.expiresAt){resolved.scene=session.scene;}if(isLive&&session.expiresAt&&now>=session.expiresAt){resolved.scene=data.config.restoreScoreboard?'scoreboard':'clear';}const {scene,elapsed}=resolved;currentElapsed=elapsed;
+ const resolved=isLive?outputScene(session,now):outputScene(session,Date.now());if(isLive&&session.expiresAt&&now<session.expiresAt){resolved.scene=session.scene;}if(isLive&&session.expiresAt&&now>=session.expiresAt){resolved.scene=data.config.restoreScoreboard?'scoreboard':'clear';}const {scene,elapsed}=resolved;currentElapsed=elapsed;currentScene=scene;
  const theme=isLive?data.config.theme:q.get('theme')||data.config.theme;
  stage.className='stage '+theme+(q.get('transparent')==='1'?' transparent':'');
  document.querySelector('#safe').classList.toggle('visible',q.get('safe')==='1');
@@ -112,7 +117,7 @@ function render(){
  if(data.config.replay&&scene!=='clear'&&outputPart!=='persistent')html+='<div class="replay-corner">回放 / REPLAY</div>';
  layer.innerHTML=html;safeImgError();setupDragging();applyFont();
  const isRefresh=lastRun===session.runId;if(isRefresh)layer.querySelectorAll('.full,.full-bg,.shootout').forEach(e=>e.style.animation='none');lastRun=session.runId;
- const age=Math.max(0,elapsed),animation=layer.querySelector('.cue-graphic');if(animation)animation.style.animationDelay=`-${age}ms`;
+ const age=Math.max(0,elapsed),animation=layer.querySelector('.cue-graphic');if(animation)animation.style.animationDelay=`-${age}ms`;layer.querySelectorAll('.team-event-extension').forEach(e=>e.style.animationDelay=`-${age}ms`);
  if(isLive&&session.expiresAt){const remaining=session.expiresAt-now;if(remaining<=300&&remaining>0)layer.classList.add('exiting');next=Math.min(next,remaining>300?remaining-300:remaining);}
  if(data.matchClock)updateClock();
  const eventGraphic=layer.querySelector('.mini-event');if(eventGraphic)eventGraphic.style.animationDelay=`-${elapsed}ms`;
@@ -123,8 +128,7 @@ function render(){
  parent.postMessage({type:'previewState',scene,step:layer.querySelector('.lineup-panel')?.dataset.step},location.origin);
  if(scene==='transition')next=Math.min(next,elapsed<1250?1250-elapsed:elapsed<1400?1400-elapsed:Infinity);if(['summary','halftime','fulltime'].includes(scene))next=Math.min(next,5000-elapsed%5000);if(Number.isFinite(next))timer=setTimeout(render,Math.max(16,next+5));
 }
-let hadAdded=false;
-function updateClock(){const cv=clockView(data.matchClock,Date.now()+offset);if(Boolean(cv.added)!==hadAdded){hadAdded=Boolean(cv.added);if(['scoreboard','goal','substitution'].includes(stage.dataset.scene)){queueMicrotask(render);}}layer.querySelectorAll('[data-added-clock]').forEach(e=>e.textContent='实际补时 '+cv.added);layer.querySelectorAll('.slim-clock>b').forEach(e=>e.textContent=cv.display);layer.querySelectorAll('.slim-clock>span').forEach(e=>e.textContent=cv.phase);}
+function updateClock(){const cv=scoreboardClock(data,Date.now()+offset,!isLive&&q.get('added')==='1');layer.querySelectorAll('.slim-clock>b').forEach(e=>e.textContent=cv.display);layer.querySelectorAll('.slim-clock>span').forEach(e=>e.textContent=cv.phase);}
 setInterval(()=>{if(data?.matchClock)updateClock();},200);
 let activeFont='';
 function applyFont(){const path=data.config.font||'';if(path===activeFont)return;activeFont=path;if(!path){document.body.style.removeProperty('font-family');stage.style.removeProperty('--font-num');return;}new FontFace('HustCustom',`url("${path}")`).load().then(font=>{if(activeFont!==path)return;document.fonts.add(font);document.body.style.fontFamily='HustCustom, HustBlack, sans-serif';stage.style.setProperty('--font-num','HustCustom, HustBlack, sans-serif');}).catch(()=>{});}
