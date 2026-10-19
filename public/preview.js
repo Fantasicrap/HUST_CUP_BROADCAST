@@ -57,7 +57,7 @@ document.addEventListener('input',event=>{
 });
 document.addEventListener('change',async event=>{const el=event.target;
  try{
-  if(el.dataset.config){draft.config[el.dataset.config]=el.type==='checkbox'?el.checked:Number(el.value);edited();}
+  if(el.dataset.config){draft.config[el.dataset.config]=el.type==='checkbox'?el.checked:typeof draft.config[el.dataset.config]==='string'?el.value:Number(el.value);edited();}
   if(el.dataset.module){draft.config.modules[el.dataset.module]=el.checked;edited();}
   if(el.dataset.context){draft.config.contexts[el.dataset.context]=el.checked;edited();}
   if(el.dataset.group){draft.config.revealGroups[el.dataset.group]=el.checked;edited();}

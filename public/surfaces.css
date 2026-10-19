@@ -18,29 +18,33 @@ body[data-corners] .desk-card,body[data-corners] .workflow-drawer,body[data-corn
 body[data-corners] button,body[data-corners] input,body[data-corners] select,body[data-corners] textarea{border-radius:var(--field-radius)}
 .corner-setting{display:flex;gap:20px;align-items:center;margin-top:18px}.corner-setting select{min-width:180px;padding:10px}.material-preview-link{display:inline-block;margin-top:8px;color:#85c9fc}
 
-/* Tinted acrylic proposal only. Never enabled by mode=live. */
-.acrylic-prototype{--material-alpha:.75;--acrylic:linear-gradient(105deg,rgb(255 255 255 / var(--material-alpha)) 0%,rgb(234 248 255 / var(--material-alpha)) 22%,rgb(133 201 252 / var(--material-alpha)) 48%,rgb(78 96 252 / var(--material-alpha)) 76%,rgb(19 85 252 / var(--material-alpha)) 100%);--acrylic-dark:linear-gradient(135deg,rgb(54 105 252 / var(--material-alpha)),rgb(21 55 122 / var(--material-alpha)) 60%,rgb(22 44 87 / var(--material-alpha)))}
-.acrylic-prototype .score-row,.acrylic-prototype .mini-event,.acrylic-prototype .info-content,.acrylic-prototype .bottom-goals,.acrylic-prototype .compact-pk,.acrylic-prototype .referee-panel,.acrylic-prototype .shootout{background:var(--acrylic);color:#102956;box-shadow:inset 0 1px 0 #c5ecff,inset 0 -1px 0 #426fa0,0 12px 36px #04183d55;text-shadow:0 1px 0 #ffffff35}
-.acrylic-prototype .score-logo,.acrylic-prototype .slim-clock,.acrylic-prototype .info-label,.acrylic-prototype .bottom-context,.acrylic-prototype .mini-badge,.acrylic-prototype .entrance-bar>div:first-child,.acrylic-prototype .entrance-bar>small{background:var(--acrylic-dark);color:#fff;box-shadow:inset 0 1px 0 #a3d5ff}
-.acrylic-prototype .mini-content{background:transparent}
-.acrylic-prototype .mini-content small,.acrylic-prototype .info-content small{color:#bcefff}
-.acrylic-prototype .team-event-extension{background:var(--acrylic-dark);color:#fff}
+/* Published material settings; preview URL overrides are ignored in mode=live. */
+.acrylic-surface{--material-alpha:.75;--acrylic:linear-gradient(105deg,rgb(255 255 255 / var(--material-alpha)) 0%,rgb(234 248 255 / var(--material-alpha)) 22%,rgb(133 201 252 / var(--material-alpha)) 48%,rgb(78 96 252 / var(--material-alpha)) 76%,rgb(19 85 252 / var(--material-alpha)) 100%);--acrylic-dark:linear-gradient(135deg,rgb(54 105 252 / var(--material-alpha)),rgb(21 55 122 / var(--material-alpha)) 60%,rgb(22 44 87 / var(--material-alpha)))}
+.acrylic-surface .score-row,.acrylic-surface .mini-event,.acrylic-surface .info-content,.acrylic-surface .bottom-goals,.acrylic-surface .compact-pk,.acrylic-surface .referee-panel,.acrylic-surface .shootout{background:var(--acrylic);color:#102956;box-shadow:inset 0 1px 0 #c5ecff,inset 0 -1px 0 #426fa0,0 12px 36px #04183d55;text-shadow:0 1px 0 #ffffff35}
+.acrylic-surface .score-logo,.acrylic-surface .slim-clock,.acrylic-surface .info-label,.acrylic-surface .bottom-context,.acrylic-surface .mini-badge,.acrylic-surface .entrance-bar>div:first-child,.acrylic-surface .entrance-bar>small{background:var(--acrylic-dark);color:#fff;box-shadow:inset 0 1px 0 #a3d5ff}
+.acrylic-surface .mini-content{background:transparent}
+.acrylic-surface .mini-content small,.acrylic-surface .info-content small{color:#bcefff}
+.acrylic-surface .team-event-extension{background:var(--acrylic-dark);color:#fff}
 .stadium-prototype .sample-field{background:radial-gradient(ellipse at 70% 14%,#86effc50,transparent 45%),linear-gradient(170deg,#071834 0 18%,#132f56 18% 25%,#265b57 25% 100%)}
 .stadium-prototype .sample-field:before{inset:300px -150px 80px;border-color:#d6ffff45;transform:perspective(750px) rotateX(30deg);background:repeating-linear-gradient(90deg,#173c3644 0 160px,#658c7044 160px 320px)}
 
 /* Explicit white-to-blue gradient: dark copy on the pale side, white on the blue side. */
-.acrylic-prototype .score-team.away,.acrylic-prototype .score-value[data-side="away"],.acrylic-prototype .scorers:last-child{color:#fff;text-shadow:0 1px 4px #10295688}
-.acrylic-prototype .scorers:first-child b{color:#1355fc}.acrylic-prototype .scorers:last-child b{color:#fff}
-.acrylic-prototype .mini-content small,.acrylic-prototype .info-content small{color:#102956}
+.acrylic-surface .score-team.away,.acrylic-surface .score-value[data-side="away"],.acrylic-surface .scorers:last-child{color:#fff;text-shadow:0 1px 4px #10295688}
+.acrylic-surface .scorers:first-child b{color:#1355fc}.acrylic-surface .scorers:last-child b{color:#fff}
+.acrylic-surface .mini-content small,.acrylic-surface .info-content small{color:#102956}
 
 /* Each side follows its current match kit; white remains the shared centre. */
-.acrylic-prototype[data-material-palette="kits"] .score-row,.acrylic-prototype[data-material-palette="kits"] .bottom-goals{background:linear-gradient(90deg,rgb(var(--home-rgb) / var(--material-alpha)) 0%,rgb(255 255 255 / var(--material-alpha)) 48%,rgb(255 255 255 / var(--material-alpha)) 52%,rgb(var(--away-rgb) / var(--material-alpha)) 100%)}
-.acrylic-prototype[data-material-palette="kits"] .score-team.home,.acrylic-prototype[data-material-palette="kits"] .scorers:first-child{color:var(--home-ink)}
-.acrylic-prototype[data-material-palette="kits"] .score-team.away,.acrylic-prototype[data-material-palette="kits"] .scorers:last-child{color:var(--away-ink)}
-.acrylic-prototype[data-material-palette="kits"] .score-value{color:#102033;text-shadow:none}
-.acrylic-prototype[data-material-palette="kits"] .scorers b{color:inherit}
-.acrylic-prototype[data-material-palette="kits"] .mini-event{background:linear-gradient(105deg,rgb(255 255 255 / var(--material-alpha)),rgb(var(--event-rgb) / var(--material-alpha)));color:#102033}
-.acrylic-prototype[data-material-palette="kits"] .mini-heading>b{color:var(--event-edge-ink)}
+.acrylic-surface[data-material-palette="kits"] .score-row,.acrylic-surface[data-material-palette="kits"] .bottom-goals{background:linear-gradient(90deg,rgb(var(--home-rgb) / var(--material-alpha)) 0%,rgb(255 255 255 / var(--material-alpha)) 48%,rgb(255 255 255 / var(--material-alpha)) 52%,rgb(var(--away-rgb) / var(--material-alpha)) 100%)}
+.acrylic-surface[data-material-palette="kits"] .score-team.home,.acrylic-surface[data-material-palette="kits"] .scorers:first-child{color:var(--home-ink)}
+.acrylic-surface[data-material-palette="kits"] .score-team.away,.acrylic-surface[data-material-palette="kits"] .scorers:last-child{color:var(--away-ink)}
+.acrylic-surface[data-material-palette="kits"] .score-value{color:#102033;text-shadow:none}
+.acrylic-surface[data-material-palette="kits"] .scorers b{color:inherit}
+.acrylic-surface[data-material-palette="kits"] .mini-event{background:linear-gradient(105deg,rgb(255 255 255 / var(--material-alpha)),rgb(var(--event-rgb) / var(--material-alpha)));color:#102033}
+.acrylic-surface[data-material-palette="kits"] .mini-heading>b{color:var(--event-edge-ink)}
 
-.acrylic-prototype[data-material-palette="kits"] .pk-row[data-team="home"]{background:linear-gradient(90deg,rgb(255 255 255 / var(--material-alpha)),rgb(var(--home-rgb) / var(--material-alpha)));color:#102033}
-.acrylic-prototype[data-material-palette="kits"] .pk-row[data-team="away"]{background:linear-gradient(90deg,rgb(255 255 255 / var(--material-alpha)),rgb(var(--away-rgb) / var(--material-alpha)));color:#102033}
+.acrylic-surface[data-material-palette="kits"] .pk-row[data-team="home"]{background:linear-gradient(90deg,rgb(255 255 255 / var(--material-alpha)),rgb(var(--home-rgb) / var(--material-alpha)));color:#102033}
+.acrylic-surface[data-material-palette="kits"] .pk-row[data-team="away"]{background:linear-gradient(90deg,rgb(255 255 255 / var(--material-alpha)),rgb(var(--away-rgb) / var(--material-alpha)));color:#102033}
+
+.acrylic-surface[data-material-palette="kits"] .card-strip .info-content{background:linear-gradient(105deg,rgb(255 255 255 / var(--material-alpha)),rgb(var(--event-rgb) / var(--material-alpha)));color:#102033}
+.acrylic-surface[data-material-palette="kits"] .team-event-extension[data-event-team="home"]{background:linear-gradient(90deg,rgb(var(--home-rgb) / var(--material-alpha)),rgb(255 255 255 / var(--material-alpha)));color:var(--home-ink)}
+.acrylic-surface[data-material-palette="kits"] .team-event-extension[data-event-team="away"]{background:linear-gradient(90deg,rgb(255 255 255 / var(--material-alpha)),rgb(var(--away-rgb) / var(--material-alpha)));color:var(--away-ink)}

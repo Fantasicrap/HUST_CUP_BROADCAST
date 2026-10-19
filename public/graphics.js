@@ -1,4 +1,4 @@
-import {kitSurfaceVariables} from './material-colors.js';
+import {kitSurfaceVariables,materialSettings} from './material-colors.js';
 import {createMotion,ENTER_MS,EXIT_MS} from './motion.js';
 import {scoreboardVisible,scoreboardClock,dismissalMarkers,scoreboardEvent} from './scoreboard.js';
 import {STAT_LABELS,PHASES,goalMarker} from './match.js';
@@ -103,11 +103,12 @@ function render(){
  const now=Date.now()+offset,session=live||{data,scene:previewScene,context:q.get('context')||'pregame',startedAt};
  const resolved=isLive?outputScene(session,now):outputScene(session,Date.now());if(isLive&&session.expiresAt&&now<session.expiresAt){resolved.scene=session.scene;}if(isLive&&session.expiresAt&&now>=session.expiresAt){resolved.scene=data.config.restoreScoreboard?'scoreboard':'clear';}if(!isLive&&q.get('hold')==='1'){resolved.scene=previewScene;resolved.elapsed=ENTER_MS+100;}const {scene,elapsed}=resolved;currentElapsed=elapsed;currentScene=scene;
  const theme=isLive?data.config.theme:q.get('theme')||data.config.theme;
- stage.className='stage '+theme+(q.get('transparent')==='1'?' transparent':'')+(!isLive&&q.get('concept')==='acrylic'?' acrylic-prototype':'')+(!isLive&&q.get('backdrop')==='stadium'?' stadium-prototype':'');
- stage.dataset.materialPalette=!isLive&&q.get('concept')==='acrylic'&&q.get('palette')==='kits'?'kits':'fixed';
- for(const [key,value] of Object.entries(kitSurfaceVariables(data)))stage.style.setProperty(key,value);
+ const surface=materialSettings(data.config,{live:isLive,query:q});
+ stage.className='stage '+theme+(q.get('transparent')==='1'?' transparent':'')+(surface.material==='acrylic'?' acrylic-surface':'')+(!isLive&&q.get('backdrop')==='stadium'?' stadium-prototype':'');
+ stage.dataset.materialPalette=surface.palette;
+ for(const [key,value] of Object.entries(kitSurfaceVariables(data,scene)))stage.style.setProperty(key,value);
  stage.dataset.corners=(!isLive&&q.has('corners')?q.get('corners'):data.config.cornerRadius===18?'round':'square');
- if(!isLive&&q.get('concept')==='acrylic'){const amount=Number(q.get('transparency')??25);stage.style.setProperty('--material-alpha',String(1-Math.max(0,Math.min(30,Number.isFinite(amount)?amount:25))/100));}else stage.style.removeProperty('--material-alpha');
+ stage.style.setProperty('--material-alpha',String(surface.alpha));
  document.querySelector('#safe').classList.toggle('visible',q.get('safe')==='1');
  let html='',next=Infinity;
  if(scene==='scoreboard')html=scoreboard();
