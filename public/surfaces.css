@@ -32,3 +32,15 @@ body[data-corners] button,body[data-corners] input,body[data-corners] select,bod
 .acrylic-prototype .score-team.away,.acrylic-prototype .score-value[data-side="away"],.acrylic-prototype .scorers:last-child{color:#fff;text-shadow:0 1px 4px #10295688}
 .acrylic-prototype .scorers:first-child b{color:#1355fc}.acrylic-prototype .scorers:last-child b{color:#fff}
 .acrylic-prototype .mini-content small,.acrylic-prototype .info-content small{color:#102956}
+
+/* Each side follows its current match kit; white remains the shared centre. */
+.acrylic-prototype[data-material-palette="kits"] .score-row,.acrylic-prototype[data-material-palette="kits"] .bottom-goals{background:linear-gradient(90deg,rgb(var(--home-rgb) / var(--material-alpha)) 0%,rgb(255 255 255 / var(--material-alpha)) 48%,rgb(255 255 255 / var(--material-alpha)) 52%,rgb(var(--away-rgb) / var(--material-alpha)) 100%)}
+.acrylic-prototype[data-material-palette="kits"] .score-team.home,.acrylic-prototype[data-material-palette="kits"] .scorers:first-child{color:var(--home-ink)}
+.acrylic-prototype[data-material-palette="kits"] .score-team.away,.acrylic-prototype[data-material-palette="kits"] .scorers:last-child{color:var(--away-ink)}
+.acrylic-prototype[data-material-palette="kits"] .score-value{color:#102033;text-shadow:none}
+.acrylic-prototype[data-material-palette="kits"] .scorers b{color:inherit}
+.acrylic-prototype[data-material-palette="kits"] .mini-event{background:linear-gradient(105deg,rgb(255 255 255 / var(--material-alpha)),rgb(var(--event-rgb) / var(--material-alpha)));color:#102033}
+.acrylic-prototype[data-material-palette="kits"] .mini-heading>b{color:var(--event-edge-ink)}
+
+.acrylic-prototype[data-material-palette="kits"] .pk-row[data-team="home"]{background:linear-gradient(90deg,rgb(255 255 255 / var(--material-alpha)),rgb(var(--home-rgb) / var(--material-alpha)));color:#102033}
+.acrylic-prototype[data-material-palette="kits"] .pk-row[data-team="away"]{background:linear-gradient(90deg,rgb(255 255 255 / var(--material-alpha)),rgb(var(--away-rgb) / var(--material-alpha)));color:#102033}

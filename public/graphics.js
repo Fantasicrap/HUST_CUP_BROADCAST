@@ -1,3 +1,4 @@
+import {kitSurfaceVariables} from './material-colors.js';
 import {createMotion,ENTER_MS,EXIT_MS} from './motion.js';
 import {scoreboardVisible,scoreboardClock,dismissalMarkers,scoreboardEvent} from './scoreboard.js';
 import {STAT_LABELS,PHASES,goalMarker} from './match.js';
@@ -70,7 +71,7 @@ function kickIcon(value,active=false,unneeded=false){return `<span class="kick $
 function shootout(compact=false){
  const s=data.shootout,status=shootoutStatus(s),count=Math.max(5,s.home.length,s.away.length,status.round);
  const size=compact?8:12,start=Math.max(0,count-size),end=count;
- const rows=['home','away'].map(side=>`<div class="pk-row ${status.next===side&&!status.winner?'current-kicker':''}">${badge(data[side])}<div class="pk-team"><strong>${name(data[side])}</strong>${compact?'':`<small>${esc(data[side].english)}</small>`}</div><b class="pk-score">${status[side]}</b><div class="pk-kicks" style="--round-count:${end-start}">${Array.from({length:end-start},(_,i)=>kickIcon(s[side][start+i],side===status.next&&!status.winner&&start+i===(s[side].indexOf(null)>=0?s[side].indexOf(null):s[side].length),!!status.winner&&s[side][start+i]===undefined)).join('')}</div></div>`).join('');
+ const rows=['home','away'].map(side=>`<div data-team="${side}" class="pk-row ${status.next===side&&!status.winner?'current-kicker':''}">${badge(data[side])}<div class="pk-team"><strong>${name(data[side])}</strong>${compact?'':`<small>${esc(data[side].english)}</small>`}</div><b class="pk-score">${status[side]}</b><div class="pk-kicks" style="--round-count:${end-start}">${Array.from({length:end-start},(_,i)=>kickIcon(s[side][start+i],side===status.next&&!status.winner&&start+i===(s[side].indexOf(null)>=0?s[side].indexOf(null):s[side].length),!!status.winner&&s[side][start+i]===undefined)).join('')}</div></div>`).join('');
  const lastSide=s.home.length===s.away.length?(s.first==='home'?'away':'home'):s.home.length>s.away.length?'home':'away',last=s.players?.[lastSide]?.[s[lastSide].length-1],kickerLine=last?.name?`<div class="pk-kicker-line">上脚罚球 · ${esc(data[lastSide].short)}　${esc(last.number||'')} ${esc(last.name)}</div>`:'';
  const notice=status.winner?(s.confirmed?`${esc(data[status.winner].name)} · 点球获胜`:'已决胜 · 待确认结束'): `${status.suddenDeath?'突然死亡 · ':''}第 ${status.round} 轮 · ${esc(data[status.next].short)}待罚`;
  return compact?`<section class="compact-pk"><div class="compact-pk-title"><span>点球大战</span><b>${notice}</b><small>第 ${start+1}–${end} 轮</small></div>${rows}${kickerLine}</section>`:`<section class="shootout result-pk"><div class="pk-header">${logo()}<div><span>PENALTY SHOOT-OUT</span><strong>点球大战 · 结果</strong></div><div class="pk-match">比赛比分 <b>${data.score.home} : ${data.score.away}</b><small>与点球比分分别保存</small></div></div><div class="rounds"><span>第 ${start+1}–${end} 轮</span><div style="--round-count:${end-start}">${Array.from({length:end-start},(_,i)=>`<span>${start+i+1}</span>`).join('')}</div></div>${rows}<div class="pk-footer"><span>${s.first==='home'?data.home.short:data.away.short}先罚</span><strong>${notice}</strong></div>${kickerLine}</section>`;
@@ -103,6 +104,8 @@ function render(){
  const resolved=isLive?outputScene(session,now):outputScene(session,Date.now());if(isLive&&session.expiresAt&&now<session.expiresAt){resolved.scene=session.scene;}if(isLive&&session.expiresAt&&now>=session.expiresAt){resolved.scene=data.config.restoreScoreboard?'scoreboard':'clear';}if(!isLive&&q.get('hold')==='1'){resolved.scene=previewScene;resolved.elapsed=ENTER_MS+100;}const {scene,elapsed}=resolved;currentElapsed=elapsed;currentScene=scene;
  const theme=isLive?data.config.theme:q.get('theme')||data.config.theme;
  stage.className='stage '+theme+(q.get('transparent')==='1'?' transparent':'')+(!isLive&&q.get('concept')==='acrylic'?' acrylic-prototype':'')+(!isLive&&q.get('backdrop')==='stadium'?' stadium-prototype':'');
+ stage.dataset.materialPalette=!isLive&&q.get('concept')==='acrylic'&&q.get('palette')==='kits'?'kits':'fixed';
+ for(const [key,value] of Object.entries(kitSurfaceVariables(data)))stage.style.setProperty(key,value);
  stage.dataset.corners=(!isLive&&q.has('corners')?q.get('corners'):data.config.cornerRadius===18?'round':'square');
  if(!isLive&&q.get('concept')==='acrylic'){const amount=Number(q.get('transparency')??25);stage.style.setProperty('--material-alpha',String(1-Math.max(0,Math.min(30,Number.isFinite(amount)?amount:25))/100));}else stage.style.removeProperty('--material-alpha');
  document.querySelector('#safe').classList.toggle('visible',q.get('safe')==='1');
