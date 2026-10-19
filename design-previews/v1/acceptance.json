@@ -1,0 +1,21 @@
+{
+  "version": "1.0.0",
+  "date": "2026-10-19",
+  "tests": {
+    "total": 22,
+    "passed": 22,
+    "failed": 0
+  },
+  "browserChecks": 12,
+  "target": "1920x1080 / 60fps design",
+  "obsHardwareBenchmark": "not performed",
+  "evidence": [
+    "validation.json",
+    "edge-cases.json"
+  ],
+  "notes": [
+    "队列使用入队时已确认的资料快照；普通草稿编辑不随比赛记账或自动退场播出",
+    "180MB以上引用素材可停止服务后复制完整程序及runtime移机",
+    "公开发布包不包含runtime"
+  ]
+}

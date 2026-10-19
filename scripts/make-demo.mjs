@@ -1,0 +1,16 @@
+import fs from 'node:fs/promises';
+import {normalizeDraft} from '../public/model.js';
+import {newMatch,changeMatch,deriveMatch} from '../public/match.js';
+const source=JSON.parse(await fs.readFile(new URL('../public/data/demo.json',import.meta.url),'utf8'));
+const draft=normalizeDraft({},source);draft.competition.subtitle='完整流程演示 · 虚构赛况';draft.presentation.referee='王裁判 / 李助理';draft.presentation.commentator='张解说 / 刘嘉宾';draft.formation.players.forEach(p=>p.photo='assets/avatar-demo.svg');draft.awayFormation.players.forEach(p=>p.photo='assets/avatar-demo.svg');
+let match=newMatch(draft);let count=0;
+const run=c=>match=changeMatch(match,c),phase=value=>run({action:'clock',operation:'phase',phase:value}),record=event=>run({action:'record',id:'demo-'+(++count),event});
+phase('first');record({type:'goal',team:'home',name:'陈子昂',number:9,time:'23′'});record({type:'goal',team:'away',name:'周奕辰',number:8,time:'39′'});phase('halftime');phase('second');record({type:'goal',team:'home',name:'陈子昂',number:9,time:'67′',kind:'penalty'});
+record({type:'goal',team:'home',name:'杨天佑',number:7,time:'75′'});record({type:'cancelGoal',goalId:'demo-4',time:'76′'});
+const p=match.initial.lineups.home.players[3];for(const time of ['31′','78′'])record({type:'card',team:'home',playerId:p.id,role:'player',card:'yellow',time});
+const away=match.initial.lineups.away;record({type:'substitution',team:'away',time:'80′',pairs:[{offId:away.players[6].id,onId:away.bench[2].id},{offId:away.players[8].id,onId:away.bench[3].id}]});
+record({type:'goal',team:'away',name:'谢景明',number:11,time:'90+2′'});phase('regulationEnd');phase('extraFirst');record({type:'goal',team:'home',name:'徐知远',number:10,time:'98′'});phase('extraBreak');phase('extraSecond');record({type:'goal',team:'away',name:'许博文',number:3,time:'117′',kind:'own'});
+phase('shootout');const home=[1,1,0,1,0,1,1,1],visitors=[1,0,1,1,0,1,1,0];for(let i=0;i<8;i++){run({action:'pk',operation:'kick',value:home[i],name:'陈子昂',number:9});run({action:'pk',operation:'kick',value:visitors[i],name:'方嘉木',number:1});}run({action:'pk',operation:'confirm'});
+run({action:'stats',stats:{possession:{home:54,away:46},shots:{home:12,away:8},onTarget:{home:6,away:3},corners:{home:4,away:5},fouls:{home:9,away:11},offsides:{home:1,away:2},yellow:{home:2,away:0},red:{home:1,away:0}}});run({action:'tie',enabled:true,home:1,away:1});phase('finished');run({action:'clock',operation:'calibrate',seconds:120*60});run({action:'result',confirmed:false,winner:'home',label:'冠军',mvp:'陈子昂'});
+draft.score=deriveMatch(match).score;draft.goals=deriveMatch(match).goals;draft.shootout=match.shootout;
+await fs.writeFile(new URL('../public/data/full-match-demo.hust.json',import.meta.url),JSON.stringify({format:'HUST_CUP_BROADCAST',version:1,draft,match,assets:{}},null,2));console.log('完整演示存档已生成：3:3、总比分4:4、点球6:5，冠军待确认。');

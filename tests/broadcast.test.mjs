@@ -1,0 +1,30 @@
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import fs from 'node:fs/promises';
+import path from 'node:path';
+import os from 'node:os';
+import {spawn} from 'node:child_process';
+import {once} from 'node:events';
+const sleep=ms=>new Promise(r=>setTimeout(r,ms));
+test('整场服务事务：事件幂等、优先级、统一延迟、清屏、项目移机与计时恢复',async()=>{
+ const folder=await fs.mkdtemp(path.join(os.tmpdir(),'hust-full-'));let child,base;
+ const start=async()=>{child=spawn(process.execPath,['server.mjs'],{cwd:new URL('../',import.meta.url),env:{...process.env,PORT:'0',HUST_DATA_DIR:folder},windowsHide:true,stdio:['ignore','pipe','pipe']});let log='';const port=await new Promise((resolve,reject)=>{const timer=setTimeout(()=>reject(Error(log)),10000);child.stdout.on('data',b=>{log+=b;const m=log.match(/127\.0\.0\.1:(\d+)/);if(m){clearTimeout(timer);resolve(m[1]);}});child.once('error',reject);});base='http://127.0.0.1:'+port;};
+ const stop=async()=>{const p=once(child,'exit');child.kill();await p;};
+ const api=async(route,method='GET',data,expected=200)=>{const r=await fetch(base+route,{method,headers:data?{'Content-Type':'application/json'}:{},body:data?JSON.stringify(data):undefined});const v=await r.json();assert.equal(r.status,expected,JSON.stringify(v));return v;};
+ try{
+  await start();const duplicate=spawn(process.execPath,['server.mjs'],{cwd:new URL('../',import.meta.url),env:{...process.env,PORT:'0',HUST_DATA_DIR:folder},windowsHide:true,stdio:['ignore','pipe','pipe']});let duplicateError='';duplicate.stderr.on('data',b=>duplicateError+=b);const [duplicateCode]=await once(duplicate,'exit');assert.equal(duplicateCode,1);assert(duplicateError.includes('数据目录正在被'));await api('/api/control','POST',{action:'newMatch',confirm:'RESET'});await api('/api/live','POST',{scene:'scoreboard'});
+  const d=(await api('/api/draft')).draft;d.config.delayMs=500;d.config.varEnabled=false;await api('/api/draft','PUT',d);await api('/api/live','POST',{action:'update'});await sleep(550);
+  await api('/api/control','POST',{action:'record',id:'once',event:{type:'goal',team:'home',name:'测试进球者',time:'45+2′'},broadcast:true});
+  let o=await api('/api/output');assert.equal(o.live.data.score.home,0);assert.equal(o.live.scene,'scoreboard');
+  await sleep(620);o=await api('/api/output');assert.equal(o.live.data.score.home,1);assert.equal(o.live.scene,'goal');
+  await api('/api/control','POST',{action:'record',id:'once',event:{type:'goal',team:'home'}});assert.equal((await api('/api/control-state')).derived.score.home,1);
+  await api('/api/live','POST',{scene:'statistics'});await api('/api/live','POST',{scene:'card'});let s=await api('/api/control-state');assert.deepEqual(s.queue.map(q=>q.scene),['card','statistics']);assert.equal(s.live.scene,'goal');
+  const count=s.match.events.length;await api('/api/control','POST',{action:'record',event:{type:'var',subject:'进球'},broadcast:true},400);assert.equal((await api('/api/control-state')).match.events.length,count);
+  await api('/api/live','POST',{action:'clear'});s=await api('/api/control-state');assert.equal(s.queue.length,0);assert.equal(s.output.live.scene,'clear');await sleep(600);assert.equal((await api('/api/output')).live.scene,'clear');
+  await api('/api/control','POST',{action:'record',event:{type:'cancelGoal',goalId:'once'},broadcast:false});assert.equal((await api('/api/control-state')).derived.score.home,0);
+  await api('/api/live','POST',{scene:'opening',force:true});await api('/api/live','POST',{scene:'statistics'});const pending=(await api('/api/draft')).draft,oldName=pending.home.name;pending.home.name='未完成的资料草稿';await api('/api/draft','PUT',pending);await api('/api/control','POST',{action:'clock',operation:'pause'});s=await api('/api/control-state');assert.equal(s.live.data.home.name,oldName);assert.equal(s.queue[0].template.home.name,oldName);await api('/api/queue','POST',{action:'next'});assert.equal((await api('/api/control-state')).live.data.home.name,oldName);await api('/api/queue','POST',{action:'next'});assert.equal((await api('/api/control-state')).live.data.home.name,oldName);
+  const svg=Buffer.from('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 10 10"><path fill="#1355fc" d="M0 0h10v10H0Z"/></svg>');const upload=await fetch(base+'/api/assets?name=x.svg',{method:'POST',body:svg});const asset=(await upload.json()).path;
+  const draft=(await api('/api/draft')).draft;draft.home.badge=asset;await api('/api/draft','PUT',draft);const pack=await api('/api/export');assert(pack.assets[asset.slice(8)]);await api('/api/control','POST',{action:'newMatch',confirm:'RESET'});await api('/api/import','POST',pack);assert.equal((await api('/api/control-state')).match.events.length,2);assert.equal((await api('/api/output')).live.scene,'clear');assert.equal((await fetch(base+'/'+asset)).status,200);
+  await api('/api/control','POST',{action:'clock',operation:'phase',phase:'first'});await api('/api/control','POST',{action:'clock',operation:'start'});await api('/api/live','POST',{scene:'scoreboard'});await sleep(80);await stop();await start();s=await api('/api/control-state');assert.equal(s.match.clock.running,false);assert(s.match.recovery);assert.equal(s.live.scene,'clear');assert.equal(s.queue.length,0);
+ }finally{if(child&&!child.killed)await stop();assert(path.basename(folder).startsWith('hust-full-'));await fs.rm(folder,{recursive:true,force:true,maxRetries:5});}
+});

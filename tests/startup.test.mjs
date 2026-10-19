@@ -9,13 +9,13 @@ import {once} from 'node:events';
 import {fileURLToPath} from 'node:url';
 const project=path.resolve(path.dirname(fileURLToPath(import.meta.url)),'..');
 test('Windows 启动文件保持纯 ASCII 与 CRLF，避免代码页错误解析',async()=>{
- const bytes=await fs.readFile(path.join(project,'启动预览.cmd'));
+ const bytes=await fs.readFile(path.join(project,'启动预览.cmd'));assert.deepEqual(await fs.readFile(path.join(project,'启动系统.cmd')),bytes);
  assert(bytes.every(v=>v<128));const content=bytes.toString('ascii');assert(!/(?<!\r)\n/.test(content));assert(content.includes('scripts\\start.mjs'));assert(content.includes('pause'));
 });
 const freePort=async()=>{const s=net.createServer();await new Promise(r=>s.listen(0,'127.0.0.1',r));const port=s.address().port;await new Promise(r=>s.close(r));return port;};
 test('真实 cmd：中文空格路径、启动就绪、重复打开与缺少 Node 的明确提示',{skip:process.platform!=='win32'},async()=>{
  const tempRoot=path.resolve(os.tmpdir()),base=await fs.mkdtemp(path.join(tempRoot,'hust-launch-')),folder=path.join(base,'足球启动测试 with spaces');await fs.mkdir(folder);
- for(const file of ['server.mjs','package.json','启动预览.cmd','scripts/start.mjs','public/model.js','public/data/demo.json','lib/assets.mjs']){const dest=path.join(folder,file);await fs.mkdir(path.dirname(dest),{recursive:true});await fs.copyFile(path.join(project,file),dest);}
+ for(const file of ['server.mjs','package.json','启动预览.cmd','scripts/start.mjs','public/model.js','public/match.js','public/data/demo.json','lib/assets.mjs']){const dest=path.join(folder,file);await fs.mkdir(path.dirname(dest),{recursive:true});await fs.copyFile(path.join(project,file),dest);}
  const port=await freePort();let batch;const healthUrl=`http://127.0.0.1:${port}/api/health`;
  const env={...process.env,PORT:String(port),HUST_NO_BROWSER:'1',HUST_NO_WAIT:'1'};
  const spawnBatch=(extra={})=>spawn('cmd.exe',['/d','/c','启动预览.cmd'],{cwd:folder,env:{...env,...extra},windowsHide:true,stdio:['ignore','pipe','pipe']});

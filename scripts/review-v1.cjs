@@ -1,0 +1,33 @@
+// Developer-only headless browser acceptance. Does not modify the operator's runtime.
+const {chromium}=require('playwright');
+const sharp=require('sharp');
+const fs=require('node:fs/promises');
+const path=require('node:path');
+const os=require('node:os');
+const {spawn}=require('node:child_process');
+const assert=require('node:assert/strict');
+(async()=>{
+ const root=path.resolve(__dirname,'..'),out=path.join(root,'design-previews/v1'),temp=await fs.mkdtemp(path.join(os.tmpdir(),'hust-browser-'));await fs.mkdir(out,{recursive:true});
+ let child,browser;const errors=[],checks=[];
+ try{
+ child=spawn(process.execPath,['server.mjs'],{cwd:root,env:{...process.env,PORT:'0',HUST_DATA_DIR:temp},windowsHide:true,stdio:['ignore','pipe','pipe']});let logs='';const port=await new Promise((resolve,reject)=>{const timeout=setTimeout(()=>reject(Error(logs)),10000);child.stdout.on('data',b=>{logs+=b;const m=logs.match(/127\.0\.0\.1:(\d+)/);if(m){clearTimeout(timeout);resolve(m[1]);}});child.stderr.on('data',b=>logs+=b);child.on('error',reject);});const base=`http://127.0.0.1:${port}`;
+ const api=async(route,method='GET',data)=>{const r=await fetch(base+route,{method,headers:data?{'Content-Type':'application/json'}:{},body:data?JSON.stringify(data):undefined});const v=await r.json();if(!r.ok)throw Error(v.error);return v;};
+ browser=await chromium.launch({headless:true,executablePath:process.env.HUST_EDGE||'C:/Program Files (x86)/Microsoft/Edge/Application/msedge.exe'});
+ const context=await browser.newContext({viewport:{width:1600,height:1200},deviceScaleFactor:1});const control=await context.newPage();control.on('pageerror',e=>errors.push(e.message));
+ await control.goto(base);await control.waitForSelector('#real-clock');await control.evaluate(()=>document.fonts.ready);await control.screenshot({path:path.join(out,'controller.png'),fullPage:true});checks.push('中文控制台加载无异常，粗黑字体本地载入');
+ const d=(await api('/api/draft')).draft;d.config.varEnabled=true;d.presentation={...d.presentation,referee:'王裁判 / 李助理',commentator:'张解说 / 刘嘉宾',sponsorName:'HUST CUP 校园足球',personName:'王明远',personRole:'主教练'};d.stats={};await api('/api/draft','PUT',d);
+ await api('/api/control','POST',{action:'stats',stats:{possession:{home:54,away:46},shots:{home:12,away:8},onTarget:{home:6,away:3},corners:{home:4,away:5},fouls:{home:9,away:11},offsides:{home:1,away:2},yellow:{home:2,away:1},red:{home:0,away:0}}});
+ const page=await context.newPage();await page.setViewportSize({width:1920,height:1080});page.on('pageerror',e=>errors.push(e.message));
+ const scenes=['scoreboard','goal','substitution','formation','bench','shootoutCompact','shootout','bottomScore','opening','intro','entrance','starters','officials','kickoff','card','cancelGoal','penalty','var','notice','statStrip','statistics','person','halftime','fulltime','summary','sponsor'];
+ for(const theme of ['pulse','nocturne'])for(const scene of scenes){await page.goto(`${base}/overlay.html?scene=${scene}&theme=${theme}${scene==='formation'?'&step=portraits':''}${scene==='bottomScore'?'&context=fulltime':''}`);await page.waitForFunction(()=>document.documentElement.dataset.ready==='1');await page.evaluate(()=>document.fonts.ready);await page.waitForTimeout(700);assert.equal(await page.locator('#stage').getAttribute('data-scene'),scene);assert(await page.locator('#graphics').innerText());await page.screenshot({path:path.join(out,`${theme}-${scene}.png`)});}
+ checks.push('两套主题各 26 模块的 1080p 实际浏览器截图');
+ // Use the UI to start a fresh match, then record and replay an event.
+ control.on('dialog',d=>d.accept());await control.locator('#new-match').click();await control.waitForTimeout(300);await control.selectOption('#phase','first');await control.locator('#clock-phase').click();await control.locator('#clock-start').click();await control.waitForTimeout(1100);let s=await api('/api/control-state');assert(s.match.clock.running);assert.equal(s.derived.score.home,0);
+ await control.locator('#event-preview').click();await control.waitForTimeout(300);assert.equal((await api('/api/control-state')).derived.score.home,0);await control.locator('#event-send').click();await control.waitForTimeout(500);s=await api('/api/control-state');assert.equal(s.derived.score.home,1);const goal=s.match.events.find(e=>e.type==='goal');await control.locator('[data-log="replay"]').first().click();await control.waitForTimeout(300);assert.equal((await api('/api/control-state')).derived.score.home,1);checks.push('实际 UI 开始计时、预览不记账、记账播出和重播不重复加分');
+ await api('/api/live','POST',{action:'clear'});await page.goto(base+'/overlay.html?mode=live&transparent=1');await page.waitForFunction(()=>document.documentElement.dataset.ready==='1');assert.equal(await page.locator('#graphics').innerHTML(),'');assert.equal((await api('/api/control-state')).queue.length,0);checks.push('紧急清屏清队列，透明输出无残留');
+ await api('/api/live','POST',{scene:'scoreboard'});await page.waitForTimeout(250);const bg=await page.evaluate(()=>getComputedStyle(document.querySelector('#backdrop')).display);assert.equal(bg,'none');await page.screenshot({path:path.join(out,'transparent-scoreboard.png'),omitBackground:true});checks.push('透明 OBS 输出背景隐藏');
+ await page.goto(base+'/transition.html');await page.waitForTimeout(700);const covered=await page.screenshot({path:path.join(out,'transition-700ms.png'),omitBackground:true});const pix=await sharp(covered).ensureAlpha().raw().toBuffer({resolveWithObject:true});assert.equal(pix.data[(10*1920+10)*4+3],255);assert.equal(pix.data[(10*1920+1910)*4+3],255);await page.waitForTimeout(800);const revealed=await sharp(await page.screenshot({omitBackground:true})).ensureAlpha().raw().toBuffer();assert.equal(revealed[(10*1920+10)*4+3],0);checks.push('独立回放转场700ms全遮挡、结束后透明');
+ const sources=await Promise.all(['pulse-scoreboard','pulse-goal','pulse-substitution','pulse-formation','pulse-shootoutCompact','pulse-opening','nocturne-scoreboard','nocturne-goal','nocturne-substitution','nocturne-formation','nocturne-shootoutCompact','nocturne-opening'].map(async name=>({input:await sharp(path.join(out,name+'.png')).resize(480,270).toBuffer()})));await sharp({create:{width:1440,height:1080,channels:3,background:'#081329'}}).composite(sources.map((x,i)=>({...x,left:(i%3)*480,top:Math.floor(i/3)*270}))).png().toFile(path.join(out,'contact-sheet.png'));
+ assert.deepEqual(errors,[]);await fs.writeFile(path.join(out,'validation.json'),JSON.stringify({date:new Date().toISOString(),checks,errors},null,2));console.log(JSON.stringify({checks,errors,screenshots:scenes.length*2}));
+ }finally{await browser?.close();child?.kill();await new Promise(r=>setTimeout(r,300));await fs.rm(temp,{recursive:true,force:true,maxRetries:5});}
+})().catch(e=>{console.error(e);process.exitCode=1;});
