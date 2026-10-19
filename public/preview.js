@@ -1,46 +1,90 @@
-const scenes = [
-  ['scoreboard','常驻比分牌','中央 logo，双层比分','96 / 64 px 定位，652 px 宽。球队、logo 与比分固定占位；扩展区在底部展开。比分 48 px，时钟 32 px。','短促展开 · 常驻层','色块从左展开，稳定后保持静止。补时、总比分与红牌预留在底部扩展区，不推动主体。'],
-  ['goal','进球弹窗','比分 + 进球者双层信息','上方比分牌保持可见；下方事件条展示队徽、号码、姓名、英文名及分钟。样例中的 2:1 为固定演示数据。','PULSE 460 ms / 蓝夜 760 ms','入场后保持展示；“顺序预览”停留 5 秒后退场 320 ms。单帧查看不自动撤下，便于评审。重播不修改数据。'],
-  ['substitution','换人弹窗','方向、文字、号码同时出现','换上、换下使用两行结构，箭头和中文标签辅助识别。此画面展示单组换人，正式版在确认后扩展多人记录。','临时信息层 · 与进球排队','事件条与比分牌处于不同区域，单条宽 1060 px。正式版由队列处理互斥与优先级，本预览不实现队列。'],
-  ['formation','球场阵型图','场上位置与球队信息分区','左侧展示球队、阵型及主教练；右侧 4–3–3 阵型，号码与姓名完整显示。门将使用金色球衣，队长标记 C。','大画面 · 隐藏比分与事件','1920×1080 画面独占，安全区左右 96 px、上下 54 px。该画面为战术阵型；首发名单将作为独立模块开发。'],
-  ['shootout','点球大战面板','八轮实例 · 突然死亡','比赛比分 2:2 与点球比分 6:5 分区呈现。罚进用实心点、罚失用叉号；八轮格线等宽，不依赖颜色。','暂不宣告胜者','展示“已满足决胜条件 · 待操作员确认”。本轮为固定视觉样例；提前决胜、撤销、重罚逻辑将在后续实现。'],
-  ['opening','开场对阵画面','双队徽与仪式中心','赛事信息居顶，双队徽分列，原创奖杯图形位于中心，底部展示示例比赛时间与场地。','几何展开 / 光弧显现','两套主题共用数据与结构。PULSE 强调几何色块；NOCTURNE 通过深蓝渐变、细光弧和浅金赛事图形营造仪式感。']
-];
-let theme = 'pulse', current = 0, timer, playing = false;
-const frame = document.querySelector('#output');
-const $ = selector => document.querySelector(selector);
-$('#scenes').innerHTML = scenes.map((s,i) => `<button data-scene="${i}"><span>${String(i+1).padStart(2,'0')}</span>${s[1]}</button>`).join('');
-function url(transparent = $('#transparent').checked) {
-  const q = new URLSearchParams({theme,scene:scenes[current][0]});
-  if (transparent) q.set('transparent','1');
-  if ($('#safe-toggle').checked) q.set('safe','1');
-  if ($('#stress').checked) q.set('stress','1');
-  if ($('#added').checked) q.set('added','1');
-  return 'overlay.html?' + q;
+import {MODULES,CONTEXTS,GROUPS,POSITIONS,SCENES,lineupFor,outputScene,shootoutStatus} from './model.js';
+const $=s=>document.querySelector(s),esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+let draft=(await api('/api/draft')).draft,current='scoreboard',saveTimer,saveChain=Promise.resolve(),sequenceTimer,sequence=false,toastTimer;
+const frame=$('#output');
+async function api(url,method='GET',data){const response=await fetch(url,{method,headers:data?{'Content-Type':'application/json'}:undefined,body:data?JSON.stringify(data):undefined});const value=await response.json();if(!response.ok)throw new Error(value.error||'操作失败');return value;}
+function toast(message){clearTimeout(toastTimer);$('#toast').textContent=message;$('#toast').classList.add('visible');toastTimer=setTimeout(()=>$('#toast').classList.remove('visible'),4200);}
+function get(path){return path.split('.').reduce((v,k)=>v?.[k],draft);}
+function set(path,value){const parts=path.split('.'),key=parts.pop();let object=draft;for(const p of parts)object=object[p];object[key]=value;}
+function save(){clearTimeout(saveTimer);const snapshot=structuredClone(draft);saveChain=saveChain.catch(()=>{}).then(async()=>{await api('/api/draft','PUT',snapshot);$('#save-state').textContent='草稿已保存 · 未自动播出';});return saveChain;}
+function edited(){stopSequence();$('#save-state').textContent='正在保存草稿…';clearTimeout(saveTimer);saveTimer=setTimeout(()=>save().catch(e=>{toast(e.message);$('#save-state').textContent='保存失败，请重试';}),350);frame.contentWindow.postMessage({type:'draft',data:draft},location.origin);updateCounts();updateNav();}
+function viewUrl(){const params=new URLSearchParams({scene:current,theme:draft.config.theme});if($('#transparent').checked)params.set('transparent','1');if($('#safe-toggle').checked)params.set('safe','1');if($('#stress').checked)params.set('stress','1');if($('#added').checked)params.set('added','1');if(current==='bottomScore')params.set('context',$('#bottom-context').value);if(['formation','bench'].includes(current)&&$('#step').value)params.set('step',$('#step').value);return 'overlay.html?'+params;}
+async function show(scene=current){current=scene;await save();frame.src=viewUrl();$('#scene-title').textContent=MODULES[current];$('#scene-number').textContent=String(SCENES.indexOf(current)+1).padStart(2,'0');$('#theme-label').textContent=draft.config.theme.toUpperCase();$('#preview-help').textContent=({formation:'首发右侧放大 · 可按线翻牌 · 照片逐步替换球衣',bench:'与首发相同大小 · 位置、黄牌与队长可独立显示',bottomScore:'底部居中 · 5–6 秒后恢复左上比分牌',shootoutCompact:'点球进行中 · 底部居中简要样式',shootout:'结束后使用的大结果面板',goal:'左下紧凑进球条 · 不修改比分',substitution:'左下紧凑换人条 · 换上/换下分行',scoreboard:'同一行：队名、比分、赛事 logo、对方比分与队名'})[current]||'全屏对阵 · 两套主题可切换';updateNav();}
+function updateNav(){document.querySelectorAll('[data-scene]').forEach(b=>{b.classList.toggle('active',b.dataset.scene===current);b.classList.toggle('off',!draft.config.modules[b.dataset.scene]);});document.querySelectorAll('[data-theme]').forEach(b=>b.classList.toggle('active',b.dataset.theme===draft.config.theme));$('#broadcast').disabled=!draft.config.modules[current];}
+function updateCounts(){$('#home-score').textContent=draft.score.home;$('#away-score').textContent=draft.score.away;$('#home-score-name').textContent=draft.home.name;$('#away-score-name').textContent=draft.away.name;const status=shootoutStatus(draft.shootout);$('#pk-status').textContent=`点球 ${status.home}:${status.away} · ${status.winner?(draft.shootout.confirmed?'已确认结束':'满足决胜条件，待确认'):`第${status.round}轮 ${draft[status.next].short}待罚`}`;}
+function fillPaths(){document.querySelectorAll('[data-path]').forEach(el=>el.value=get(el.dataset.path));document.querySelectorAll('[data-config]').forEach(el=>{if(el.type==='checkbox')el.checked=draft.config[el.dataset.config];else el.value=draft.config[el.dataset.config];});}
+function renderTeams(){
+ $('#team-forms').innerHTML=['home','away'].map(side=>`<div class="team-form"><h3>${side==='home'?'主队':'客队'} ${draft[side].badge?`<img src="${esc(draft[side].badge)}" alt="当前队徽">`:''}</h3><label>队伍名称<input data-path="${side}.name" value="${esc(draft[side].name)}" maxlength="60"></label><label>简称<input data-path="${side}.short" value="${esc(draft[side].short)}" maxlength="12"></label><label>英文名<input data-path="${side}.english" value="${esc(draft[side].english)}" maxlength="80"></label><label>场上球衣颜色<input type="color" data-path="${side}.kitColor" value="${draft[side].kitColor}"></label><label>门将球衣颜色<input type="color" data-path="${side}.goalkeeperColor" value="${draft[side].goalkeeperColor}"></label><div class="asset-row"><label class="upload-button">上传队伍 logo<input type="file" accept="image/png,image/jpeg,image/webp,image/svg+xml" data-asset="${side}.badge"></label><button data-remove-asset="${side}.badge">清除队徽</button><small class="asset-note">${draft[side].badge?'已配置':'显示简称替代图形'}</small></div></div>`).join('');
+ $('#competition-asset').textContent=draft.competition.logo==='assets/competition.svg'?'原创赛事标识':draft.competition.logo?'已上传自定义 logo':'使用原创替代标识';
 }
-function update() {
-  frame.src = url();
-  $('#output-link').href = url(true);
-  $('#scene-number').textContent = String(current+1).padStart(2,'0');
-  $('#scene-title').textContent = scenes[current][1];
-  $('#theme-label').textContent = theme.toUpperCase();
-  $('#detail-title').textContent = scenes[current][2];
-  $('#detail').textContent = scenes[current][3];
-  $('#motion-title').textContent = scenes[current][4];
-  $('#motion').textContent = scenes[current][5];
-  document.querySelectorAll('[data-theme]').forEach(b => b.classList.toggle('active',b.dataset.theme === theme));
-  document.querySelectorAll('[data-scene]').forEach(b => b.classList.toggle('active',Number(b.dataset.scene) === current));
+function renderRoster(){
+ const l=lineupFor(draft);$('#lineup-team').value=draft.config.team;$('#formation-name').value=l.name;$('#coach').value=l.coach;
+ const input=(field,value,type='text')=>`<input type="${type}" data-field="${field}" value="${esc(value)}" ${type==='number'?`min="0" max="${field==='yellowCards'?99:999}"`:''}>`;
+ const media=(p,key)=>`<div class="media-actions"><label class="upload-button ${p[key]?'has-media':''}">${p[key]?'已传':'上传'}${key==='photo'?'照片':'视频'}<input type="file" aria-label="${esc(p.name)}上传${key==='photo'?'照片':'视频'}" accept="${key==='photo'?'image/png,image/jpeg,image/webp,image/svg+xml':'video/mp4,video/webm'}" data-player-asset="${key}"></label>${p[key]?`<button data-clear-media="${key}" aria-label="清除${esc(p.name)}${key}">×</button>`:''}</div>`;
+ $('#starters').innerHTML=l.players.map((p,i)=>`<tr data-roster="players" data-index="${i}"><td>${input('number',p.number,'number')}</td><td>${input('name',p.name)}</td><td><select data-field="group">${Object.entries(GROUPS).map(([k,v])=>`<option value="${k}" ${p.group===k?'selected':''}>${v}</option>`).join('')}</select></td><td><input data-field="position" list="positions" value="${esc(p.position)}"></td><td><input type="color" aria-label="${esc(p.name)}球衣颜色" data-field="shirtColor" value="${p.shirtColor||(p.goalkeeper?draft[draft.config.team].goalkeeperColor:draft[draft.config.team].kitColor)}"><button data-inherit>跟随</button></td><td>${input('yellowCards',p.yellowCards,'number')}</td><td><input type="checkbox" aria-label="${esc(p.name)}队长" data-field="captain" ${p.captain?'checked':''}></td><td>${media(p,'photo')}</td><td>${media(p,'video')}</td></tr>`).join('');
+ $('#bench').innerHTML=l.bench.map((p,i)=>`<tr data-roster="bench" data-index="${i}"><td>${input('number',p.number,'number')}</td><td>${input('name',p.name)}</td><td><input data-field="position" list="positions" value="${esc(p.position)}"></td><td>${input('yellowCards',p.yellowCards,'number')}</td><td><input type="checkbox" aria-label="${esc(p.name)}队长" data-field="captain" ${p.captain?'checked':''}></td><td><button data-delete-bench>删除</button></td></tr>`).join('');
 }
-function stop() { clearTimeout(timer); playing = false; $('#play').textContent = '▷ 顺序预览六个画面'; }
-document.querySelectorAll('[data-theme]').forEach(b => b.addEventListener('click',() => {stop();theme=b.dataset.theme;update();}));
-document.querySelectorAll('[data-scene]').forEach(b => b.addEventListener('click',() => {stop();current=Number(b.dataset.scene);update();}));
-document.querySelectorAll('.tools input').forEach(b => b.addEventListener('change',() => {stop();update();}));
-$('#replay').addEventListener('click',() => {stop();update();});
-$('#play').addEventListener('click',() => {
-  if (playing) {stop();return;}
-  playing = true; current=0; update(); $('#play').textContent = 'Ⅱ 停止顺序预览';
-  function next() { timer = setTimeout(() => { frame.contentWindow.postMessage({type:'exit'},location.origin); timer = setTimeout(() => { current++;if(current>=scenes.length){current=0;stop();update();return;}update();next(); },350); },6000); }
-  next();
+function renderGoals(){$('#goal-history').innerHTML=draft.goals.map((g,i)=>`<div class="${g.cancelled?'cancelled':''}"><span>${esc(draft[g.team].short)}</span><b>${g.number} ${esc(g.name)}</b><span>${esc(g.time)}${g.kind==='penalty'?' (P)':g.kind==='own'?' (OG)':''}</span><span>${g.period==='first'?'上半场':g.period==='extra'?'加时赛':'下半场'}</span><button data-cancel-goal="${i}">${g.cancelled?'恢复进球并 +1':'取消进球并 −1'}</button></div>`).join('')||'<p class="hint">尚无进球记录</p>';}
+function renderPK(){$('#pk-first').value=draft.shootout.first;$('#pk-history').innerHTML=['home','away'].map(side=>`<div class="pk-edit-row"><span>${esc(draft[side].name)}</span>${draft.shootout[side].map((v,i)=>`<button data-kick="${side},${i}" class="${v===1?'made':v===0?'missed':'pending'}" title="第${i+1}轮，点击修改"><small>${i+1}</small>${v===1?'●':v===0?'×':'—'}</button>`).join('')}</div>`).join('');updateCounts();}
+function stopSequence(){clearTimeout(sequenceTimer);sequence=false;$('#play').textContent='▷ 顺播已启用模块';}
+async function broadcast(scene=current){stopSequence();await save();await api('/api/live','POST',{scene,context:$('#bottom-context').value});toast('已播出：'+MODULES[scene]);await poll();}
+$('#scenes').innerHTML=SCENES.map((key,i)=>`<button data-scene="${key}"><span>${String(i+1).padStart(2,'0')}</span>${MODULES[key]}</button>`).join('');
+$('#modules').innerHTML=Object.entries(MODULES).map(([k,v])=>`<label><input type="checkbox" data-module="${k}" ${draft.config.modules[k]?'checked':''}>${v}</label>`).join('');
+$('#contexts').innerHTML=Object.entries(CONTEXTS).map(([k,v])=>`<label><input type="checkbox" data-context="${k}" ${draft.config.contexts[k]?'checked':''}>${v}</label>`).join('');
+$('#formation-options').innerHTML=Object.entries({reveal:'逐线介绍动画',flip:'3D 翻转效果',benchAfter:'介绍后翻至替补',usePhotos:'采用球员照片',useVideos:'采用球员静音视频',showYellow:'显示累计黄牌',showCaptain:'显示队长标记'}).map(([k,v])=>`<label><input type="checkbox" data-config="${k}">${v}</label>`).join('');
+$('#group-options').innerHTML=Object.entries(GROUPS).map(([k,v])=>`<label><input type="checkbox" data-group="${k}" ${draft.config.revealGroups[k]?'checked':''}>${v}</label>`).join('');
+$('#positions').innerHTML=POSITIONS.map(p=>`<option value="${p}"></option>`).join('');
+$('#bottom-context').innerHTML=Object.entries(CONTEXTS).map(([k,v])=>`<option value="${k}">${v}</option>`).join('');
+$('#bottom-hold').value=draft.config.bottomHoldMs/1000;$('#event-hold').value=draft.config.eventHoldMs/1000;$('#formation-hold').value=draft.config.formationHoldMs/1000;$('#media-hold').value=draft.config.mediaHoldMs/1000;
+renderTeams();renderRoster();fillPaths();renderGoals();renderPK();
+document.addEventListener('input',event=>{
+ const el=event.target;if(el.dataset.path){set(el.dataset.path,el.type==='number'?Math.max(0,Number(el.value)):el.value);edited();}
+ const row=el.closest('[data-roster]');if(row&&el.dataset.field){const p=lineupFor(draft)[row.dataset.roster][Number(row.dataset.index)];p[el.dataset.field]=el.type==='checkbox'?el.checked:el.type==='number'?Math.max(0,Math.min(el.dataset.field==='yellowCards'?99:999,Number(el.value))):el.value;if(el.dataset.field==='group')p.goalkeeper=el.value==='goalkeeper';edited();}
 });
-new ResizeObserver(() => { frame.style.transform = `scale(${$('#viewport').clientWidth/1920})`; }).observe($('#viewport'));
-update();
+document.addEventListener('change',async event=>{const el=event.target;
+ try{
+  if(el.dataset.config){draft.config[el.dataset.config]=el.type==='checkbox'?el.checked:Number(el.value);edited();}
+  if(el.dataset.module){draft.config.modules[el.dataset.module]=el.checked;edited();}
+  if(el.dataset.context){draft.config.contexts[el.dataset.context]=el.checked;edited();}
+  if(el.dataset.group){draft.config.revealGroups[el.dataset.group]=el.checked;edited();}
+  if(el.dataset.asset||el.dataset.playerAsset){const file=el.files[0];if(!file)return;toast('正在上传：'+file.name);const response=await fetch('/api/assets?name='+encodeURIComponent(file.name),{method:'POST',headers:{'Content-Type':'application/octet-stream'},body:file});const value=await response.json();if(!response.ok)throw new Error(value.error);if(el.dataset.asset)set(el.dataset.asset,value.path);else{const row=el.closest('[data-roster]');lineupFor(draft)[row.dataset.roster][Number(row.dataset.index)][el.dataset.playerAsset]=value.path;}edited();await save();renderTeams();renderRoster();toast('素材已保存到本地 · 尚未应用到实播');}
+ }catch(error){toast(error.message);}
+});
+document.addEventListener('click',async event=>{const b=event.target.closest('button');if(!b)return;
+ try{
+  if(b.dataset.theme){draft.config.theme=b.dataset.theme;edited();await show();}
+  if(b.dataset.scene){stopSequence();await show(b.dataset.scene);}
+  if(b.dataset.score){const [side,delta]=b.dataset.score.split(',');draft.score[side]=Math.max(0,Math.min(999,draft.score[side]+Number(delta)));edited();}
+  if(b.dataset.removeAsset){set(b.dataset.removeAsset,b.dataset.removeAsset==='competition.logo'?'assets/competition.svg':'');edited();renderTeams();}
+  const row=b.closest('[data-roster]');
+  if(b.hasAttribute('data-inherit')){lineupFor(draft).players[Number(row.dataset.index)].shirtColor='';edited();renderRoster();}
+  if(b.dataset.clearMedia){lineupFor(draft)[row.dataset.roster][Number(row.dataset.index)][b.dataset.clearMedia]='';edited();renderRoster();}
+  if(b.hasAttribute('data-delete-bench')){lineupFor(draft).bench.splice(Number(row.dataset.index),1);edited();renderRoster();}
+  if(b.dataset.cancelGoal!==undefined){const g=draft.goals[Number(b.dataset.cancelGoal)];g.cancelled=!g.cancelled;draft.score[g.team]=Math.max(0,draft.score[g.team]+(g.cancelled?-1:1));edited();renderGoals();}
+  if(b.dataset.kick){const [side,index]=b.dataset.kick.split(',');const v=draft.shootout[side][index];draft.shootout[side][index]=v===1?0:v===0?null:1;draft.shootout.confirmed=false;edited();renderPK();}
+ }catch(error){toast(error.message);}
+});
+$('#replay').onclick=()=>{stopSequence();show().catch(e=>toast(e.message));};
+for(const id of ['transparent','safe-toggle','stress','added','step','bottom-context'])$('#'+id).onchange=()=>{stopSequence();show().catch(e=>toast(e.message));};
+for(const [id,key] of [['bottom-hold','bottomHoldMs'],['event-hold','eventHoldMs'],['formation-hold','formationHoldMs'],['media-hold','mediaHoldMs']])$('#'+id).onchange=()=>{const el=$('#'+id),n=Number(el.value);el.value=Math.max(Number(el.min),Math.min(Number(el.max),n));draft.config[key]=Number(el.value)*1000;edited();};
+$('#lineup-team').onchange=()=>{draft.config.team=$('#lineup-team').value;edited();renderRoster();show().catch(e=>toast(e.message));};
+$('#formation-name').oninput=()=>{lineupFor(draft).name=$('#formation-name').value;edited();};$('#coach').oninput=()=>{lineupFor(draft).coach=$('#coach').value;edited();};
+$('#demo-portraits').onclick=()=>{lineupFor(draft).players.forEach(p=>p.photo='assets/avatar-demo.svg');edited();renderRoster();toast('已填充原创演示剪影，供翻牌检查；可逐人替换为真实照片');};
+$('#clear-portraits').onclick=()=>{lineupFor(draft).players.forEach(p=>{p.photo='';p.video='';});edited();renderRoster();};
+$('#add-bench').onclick=()=>{if(lineupFor(draft).bench.length>=24){toast('替补名单最多 24 人');return;}lineupFor(draft).bench.push({number:0,name:'新球员',position:'中前卫',yellowCards:0,captain:false,photo:'',video:''});edited();renderRoster();};
+$('#record-goal').onclick=()=>{const g=draft.goal;draft.goals.push({id:crypto.randomUUID(),team:g.team,number:g.number,name:g.name,time:g.time,period:$('#goal-period').value,kind:g.kind.includes('点球')?'penalty':g.kind.includes('乌龙')?'own':'normal',cancelled:false});draft.score[g.team]++;edited();renderGoals();toast('已记录并加分，未自动播放动画');};
+$('#broadcast').onclick=()=>broadcast().catch(e=>toast(e.message));$('#broadcast-bottom').onclick=()=>broadcast('bottomScore').catch(e=>toast(e.message));$('#preview-bottom').onclick=()=>show('bottomScore').catch(e=>toast(e.message));
+$('#apply-live').onclick=async()=>{try{await save();await api('/api/live','POST',{action:'update'});toast('资料已应用到实播；动画不重新开始');poll();}catch(e){toast(e.message);}};
+$('#clear').onclick=async()=>{stopSequence();try{await api('/api/live','POST',{action:'clear'});toast('已清空实播，当前计时流程取消');poll();}catch(e){toast(e.message);}};
+$('#restore').onclick=()=>broadcast('scoreboard').catch(e=>toast(e.message));
+$('#play').onclick=async()=>{if(sequence){stopSequence();return;}const keys=SCENES.filter(k=>draft.config.modules[k]&&(k!=='bottomScore'||draft.config.contexts[$('#bottom-context').value]));if(!keys.length){toast('请先启用至少一个模块');return;}sequence=true;$('#play').textContent='Ⅱ 停止顺播';let i=0;const next=async()=>{if(!sequence)return;if(i===keys.length){stopSequence();return;}await show(keys[i++]);sequenceTimer=setTimeout(next,6500);};next().catch(e=>{stopSequence();toast(e.message);});};
+$('#pk-first').onchange=()=>{draft.shootout.first=$('#pk-first').value;draft.shootout.confirmed=false;edited();renderPK();};
+function takeKick(v){const s=shootoutStatus(draft.shootout);if(s.winner){toast('已满足决胜条件，可先修正或撤销记录');return;}const side=s.next;const pending=draft.shootout[side].indexOf(null);if(pending>=0)draft.shootout[side][pending]=v;else draft.shootout[side].push(v);draft.shootout.confirmed=false;edited();renderPK();}
+$('#pk-made').onclick=()=>takeKick(1);$('#pk-miss').onclick=()=>takeKick(0);
+$('#pk-undo').onclick=()=>{const s=draft.shootout,first=s.first,last=s.home.length===s.away.length?(first==='home'?'away':'home'):s.home.length>s.away.length?'home':'away';s[last].pop();s.confirmed=false;edited();renderPK();};
+$('#pk-reset').onclick=()=>{draft.shootout.home=[];draft.shootout.away=[];draft.shootout.confirmed=false;edited();renderPK();};
+$('#pk-confirm').onclick=()=>{if(!shootoutStatus(draft.shootout).winner){toast('尚未满足决胜条件');return;}draft.shootout.confirmed=true;edited();renderPK();};
+addEventListener('message',e=>{if(e.origin!==location.origin||e.source!==frame.contentWindow)return;if(e.data?.type==='playerPosition'){const p=lineupFor(draft).players.find(p=>p.id===e.data.id);if(p){p.x=e.data.x;p.y=e.data.y;edited();}}});
+new ResizeObserver(()=>frame.style.transform=`scale(${$('#viewport').clientWidth/1920})`).observe($('#viewport'));
+async function poll(){try{const [o,c]=await Promise.all([api('/api/output'),api('/api/connections')]);const s=outputScene(o.live,o.serverNow);$('#live-state').textContent=s.scene==='clear'?'已清屏':`${MODULES[s.scene]}${s.scene==='bottomScore'?' · '+CONTEXTS[o.live.context]:''}`;$('#connection').textContent=`本地服务已连接 · 输出 ${c.outputs} 路`;$('#connection').classList.remove('offline');}catch{$('#connection').textContent='服务断开 · 请检查启动窗口';$('#connection').classList.add('offline');}}
+poll();setInterval(poll,2000);show().catch(e=>toast(e.message));

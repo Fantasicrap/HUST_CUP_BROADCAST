@@ -1,64 +1,127 @@
-const q = new URLSearchParams(location.search);
-const theme = q.get('theme') === 'nocturne' ? 'nocturne' : 'pulse';
-const allowed = ['scoreboard','goal','substitution','formation','shootout','opening'];
-let scene = allowed.includes(q.get('scene')) ? q.get('scene') : 'scoreboard';
-const data = await fetch('data/demo.json').then(r => r.json());
-const stage = document.querySelector('#stage');
-const layer = document.querySelector('#graphics');
-stage.classList.add(theme);
-stage.classList.toggle('stress', q.get('stress') === '1');
-const escape = value => String(value ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
-const trophy = (className = '') => `<svg class="trophy ${className}" viewBox="0 0 120 120" aria-label="HUST CUP"><g fill="none" stroke="currentColor" stroke-width="8"><path d="M30 18v48l30 24 30-24V18M30 45h60M43 18v23m34-23v23M60 90v14m-22 0h44"/><path d="M30 26H15v26l17 14m58-40h15v26L88 66" stroke-width="6"/></g></svg>`;
-const badge = (team, className = '') => `<span class="badge ${className}">${q.get('stress') === '1' && team === data.away ? `<span class="badge-fallback">远<br>航</span>` : `<img src="${escape(team.badge)}" alt="${escape(team.name)}队徽">`}</span>`;
-const teamName = team => q.get('stress') === '1' ? (team === data.home ? '华中科技大学星火足球队' : '东湖国际学院远航足球队') : team.name;
-const kit = team => `<i class="kit" style="--kit:${escape(team.kitColor)}" title="球衣颜色"></i>`;
-const competition = () => `<div class="competition">${trophy()}<div><b>${escape(data.competition.name)}</b><span>${escape(data.competition.subtitle)} · ${escape(data.competition.round)}</span></div></div>`;
-
-function scoreboard() {
-  const expanded = q.get('added') === '1';
-  return `<section class="scorebug enter" aria-label="常驻比分牌"><div class="bug-main"><div class="bug-team home">${kit(data.home)}${badge(data.home)}<span>${escape(teamName(data.home))}</span></div><div class="bug-logo">${trophy()}</div><div class="bug-team away"><span>${escape(teamName(data.away))}</span>${badge(data.away)}${kit(data.away)}</div><div class="bug-scores"><strong>${data.score.home}</strong><span>:</span><strong>${data.score.away}</strong></div></div><div class="bug-clock"><span class="phase">${expanded ? '下半场' : escape(data.clock.phase)}</span><strong>${expanded ? '90:00' : escape(data.clock.display)}</strong>${expanded ? '<span class="added-announced">+4</span>' : '<span class="live-dot"></span>'}</div>${expanded ? '<div class="bug-extensions"><span><i class="red-mark"></i> 远航 1</span><span>总比分 <b>3 : 3</b></span><span>实际补时 <b>02:16</b></span></div>' : ''}</section>`;
+import {SCENES,CONTEXTS,GROUPS,lineupFor,formationAt,goalRows,outputScene,shootoutStatus} from './model.js';
+const q=new URLSearchParams(location.search),isLive=q.get('mode')==='live';
+let data=isLive?null:(await fetch('api/draft').then(r=>r.json())).draft;
+let live=null,offset=0,startedAt=Date.now(),timer,previewScene=SCENES.includes(q.get('scene'))?q.get('scene'):'scoreboard';
+const stage=document.querySelector('#stage'),layer=document.querySelector('#graphics');
+const esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const trophy=()=>'<svg class="trophy" viewBox="0 0 120 120" aria-label="HUST CUP"><g fill="none" stroke="currentColor" stroke-width="8"><path d="M30 18v48l30 24 30-24V18M30 45h60M43 18v23m34-23v23M60 90v14m-22 0h44"/><path d="M30 26H15v26l17 14m58-40h15v26L88 66" stroke-width="6"/></g></svg>';
+const logo=()=>!data.competition.logo||data.competition.logo==='assets/competition.svg'?trophy():`<span class="custom-logo"><span class="logo-fallback">${trophy()}</span><img src="${esc(data.competition.logo)}" alt="赛事 logo"></span>`;
+const badge=(team,extra='')=>`<span class="badge ${extra}"><span class="badge-fallback">${esc(team.short||team.name.slice(0,2))}</span>${team.badge?`<img src="${esc(team.badge)}" alt="${esc(team.name)}队徽">`:''}</span>`;
+const kit=t=>`<i class="kit" style="--kit:${esc(t.kitColor)}"></i>`;
+const name=t=>esc(t.name);
+const compactName=t=>esc(t.name.length>8&&t.short?t.short:t.name);
+const competition=()=>`<div class="competition">${logo()}<div><b>${esc(data.competition.name)}</b><span>${esc(data.competition.subtitle)} · ${esc(data.competition.round)}</span></div></div>`;
+const safeImgError=()=>layer.querySelectorAll('img').forEach(img=>{const failed=()=>img.remove();img.addEventListener('error',failed,{once:true});if(img.complete&&!img.naturalWidth)failed();});
+function scoreRow(extra='',scores=data.score){
+ return `<div class="score-row ${extra}"><div class="score-team home">${kit(data.home)}${badge(data.home)}<strong title="${name(data.home)}">${compactName(data.home)}</strong></div><b class="score-value" data-side="home">${scores.home}</b><div class="score-logo">${logo()}</div><b class="score-value" data-side="away">${scores.away}</b><div class="score-team away"><strong title="${name(data.away)}">${compactName(data.away)}</strong>${badge(data.away)}${kit(data.away)}</div></div>`;
 }
-function event(type) {
-  const goal = type === 'goal';
-  const team = goal ? data.home : data.away;
-  const label = goal ? 'GOAL' : 'SUBSTITUTION';
-  const content = goal ? `<div class="goal-name"><b>${data.goal.number}</b><strong>${escape(data.goal.name)}</strong><span>${escape(data.goal.english)}</span></div><div class="event-caption">${escape(team.name)}<span>运动战进球</span></div>` : `<div class="sub-rows"><div class="sub-in"><span class="direction">↑</span><label>换上 IN</label><b>${data.substitution.on.number}</b><strong>${escape(data.substitution.on.name)}</strong></div><div class="sub-out"><span class="direction">↓</span><label>换下 OUT</label><b>${data.substitution.off.number}</b><strong>${escape(data.substitution.off.name)}</strong></div></div>`;
-  return `${scoreboard()}<section class="event enter ${goal ? 'goal-event' : 'sub-event'}"><div class="event-brand">${badge(team)}<span>${goal ? '进球' : '换人'}</span></div><div class="event-body"><div class="event-heading"><b>${label}</b><span>${goal ? data.goal.time : data.substitution.time}</span></div>${content}</div><div class="event-edge">${trophy()}<span>HUST CUP</span></div></section>`;
+function scoreboard(){
+ if(!data.config.modules.scoreboard)return '';
+ return `<section class="slim-score" style="left:${data.config.x}px;top:${data.config.y}px;--scale:${data.config.scale}" aria-label="单行常驻比分牌">${scoreRow()}<div class="slim-clock"><b>${q.get('added')==='1'?'90:00':esc(data.clock.display)}</b><span>${esc(data.clock.phase)}</span></div>${q.get('added')==='1'?'<div class="slim-extension"><span>宣布补时 +4</span><span>实际补时 02:16</span><span>总比分 3 : 3</span><span>▰ 远航 1</span></div>':''}</section>`;
 }
-function fullBase(extra = '') { return `<div class="full-bg ${extra}"><div class="light-arc arc-one"></div><div class="light-arc arc-two"></div><div class="grid-lines"></div><div class="ghost-mark">${trophy()}</div></div>`; }
-function formation() {
-  return `${fullBase()}<section class="full formation enter"><header class="full-header">${competition()}<span>TEAM LINE-UP / 战术阵型</span></header><div class="formation-info"><div class="overline">STARTING XI</div>${badge(data.home,'formation-badge')}<h1>${escape(teamName(data.home))}</h1><p>${escape(data.home.english)}</p><div class="formation-number">${data.formation.name}</div><div class="coach"><small>HEAD COACH / 主教练</small><strong>${escape(data.formation.coach)}</strong></div><div class="formation-legend"><span><i class="legend-gk"></i> 门将 GK</span><span><i class="legend-c">C</i> 队长</span></div></div><div class="pitch"><div class="pitch-line border"></div><div class="pitch-line halfway"></div><div class="pitch-line center-circle"></div><div class="pitch-line box top"></div><div class="pitch-line box bottom"></div><div class="pitch-line small-box top"></div><div class="pitch-line small-box bottom"></div>${data.formation.players.map(p => `<div class="player ${p.goalkeeper ? 'goalkeeper' : ''}" style="left:${p.x}%;top:${p.y}%"><div class="shirt"><span>${p.number}</span>${p.captain ? '<i class="captain">C</i>' : ''}</div><strong>${escape(p.name)}</strong></div>`).join('')}</div><footer class="full-footer"><span>HUST CUP · ${escape(data.competition.round)}</span><span>首发阵型 · 演示名单</span></footer></section>`;
+function event(type){
+ const goal=type==='goal',item=goal?data.goal:data.substitution,team=data[item.team]||data.home;
+ const content=goal?`<div class="mini-heading"><span>进球 / GOAL</span><b>${esc(item.time)}</b></div><div class="mini-player"><b>${esc(item.number)}</b><strong>${esc(item.name)}</strong><span>${esc(item.kind)}</span></div>`:`<div class="mini-heading"><span>换人 / SUBSTITUTION</span><b>${esc(item.time)}</b></div><div class="mini-sub"><span class="in">↑ 换上</span><b>${esc(item.on.number)}</b><strong>${esc(item.on.name)}</strong></div><div class="mini-sub"><span class="out">↓ 换下</span><b>${esc(item.off.number)}</b><strong>${esc(item.off.name)}</strong></div>`;
+ return `${scoreboard()}<section class="mini-event ${goal?'mini-goal':'mini-substitution'}"><div class="mini-badge">${badge(team)}</div><div class="mini-content">${content}</div></section>`;
 }
-function shootout() {
-  const kicks = data.shootout;
-  const rounds = Math.max(kicks.home.length, kicks.away.length, 5);
-  const score = side => kicks[side].filter(n => n === 1).length;
-  const row = (side, team) => `<div class="pk-row">${badge(team)}<div class="pk-team"><strong>${escape(teamName(team))}</strong><small>${escape(team.english)}</small></div><b class="pk-score">${score(side)}</b><div class="pk-kicks">${Array.from({length:rounds}, (_, i) => `<span class="kick ${kicks[side][i] === 1 ? 'made' : kicks[side][i] === 0 ? 'missed' : 'pending'}" aria-label="第${i+1}轮${kicks[side][i] === 1 ? '罚进' : kicks[side][i] === 0 ? '罚失' : '待罚'}">${kicks[side][i] === 1 ? '●' : kicks[side][i] === 0 ? '×' : '—'}</span>`).join('')}</div></div>`;
-  return `<section class="shootout enter"><div class="pk-header">${trophy()}<div><span>PENALTY SHOOT-OUT</span><strong>点球大战</strong></div><div class="pk-match">比赛比分 <b>2 : 2</b><small>加时赛结束</small></div></div><div class="rounds"><span>罚球顺序 · 星火先罚</span><div>${Array.from({length:rounds}, (_,i) => `<span>${String(i+1).padStart(2,'0')}</span>`).join('')}</div></div>${row('home',data.home)}${row('away',data.away)}<div class="pk-footer"><span><i></i> 第 8 轮 · 突然死亡</span><strong>已满足决胜条件 · 待操作员确认</strong></div></section>`;
+const fullBase=()=>`<div class="full-bg"><div class="light-arc arc-one"></div><div class="light-arc arc-two"></div><div class="grid-lines"></div><div class="ghost-mark">${trophy()}</div></div>`;
+function marks(p){return `<span class="player-marks">${data.config.showCaptain&&p.captain?'<i class="captain-mark" title="队长">C</i>':''}${data.config.showYellow&&p.yellowCards?`<i class="yellow-mark" title="累计黄牌 ${p.yellowCards}"><em></em>${p.yellowCards}</i>`:''}</span>`;}
+function shirt(p){const team=data[data.config.team],color=p.shirtColor||(p.goalkeeper?team.goalkeeperColor:team.kitColor);const rgb=color.slice(1).match(/../g).map(x=>parseInt(x,16));const ink=rgb[0]*.299+rgb[1]*.587+rgb[2]*.114>155?'#142033':'#ffffff';return `<span class="jersey" style="--shirt:${esc(color)};--number-ink:${ink}"><b>${p.number}</b></span>`;}
+function media(p,small=false,origin=0){const photo=data.config.usePhotos&&p.photo,video=!small&&data.config.useVideos&&p.video;return `<span class="player-media">${shirt(p)}${photo?`<img src="${esc(p.photo)}" alt="${esc(p.name)}定妆照">`:''}${video?`<video src="${esc(p.video)}" data-origin="${origin}" loop muted playsinline preload="auto" aria-label="${esc(p.name)}球员视频"></video>`:''}</span>`;}
+function field(revealed=[]){
+ const players=lineupFor(data).players;
+ return `<div class="formation-pitch"><div class="field-line field-border"></div><div class="field-line field-half"></div><div class="field-line field-circle"></div><div class="field-line field-box top"></div><div class="field-line field-box bottom"></div>${players.map(p=>`<div class="lineup-player" data-player="${p.id}" style="left:${p.x}%;top:${p.y}%"><div class="player-avatar">${revealed.includes(p.group)?media(p,true):shirt(p)}${marks(p)}</div><strong>${esc(p.name)}</strong><small>${p.number}</small></div>`).join('')}</div>`;
 }
-function opening() {
-  const team = (t, position) => `<div class="opening-team ${position}">${badge(t)}<h1>${escape(teamName(t))}</h1><p>${escape(t.english)}</p><div class="team-rule" style="--brand:${escape(t.brandColor)}"></div></div>`;
-  return `${fullBase('opening-bg')}<section class="opening full enter"><header class="full-header">${competition()}<span>THE FINAL / 决赛</span></header><div class="opening-title"><span>THIS IS OUR GAME.</span><h2>为热爱而战</h2></div><div class="opening-versus">${team(data.home,'home')}<div class="opening-center">${trophy()}<span>VS</span><small>HUST CUP 2026</small></div>${team(data.away,'away')}</div><div class="opening-location"><b>${escape(data.competition.kickoff)}</b><span>${escape(data.competition.venue)} · ${escape(data.competition.subtitle)}</span></div><footer class="full-footer"><span>HUST CUP ORIGINAL BROADCAST IDENTITY</span><span>赛前对阵 / MATCH PREVIEW</span></footer></section>`;
+function benchPanel(){
+ const bench=lineupFor(data).bench;
+ return `<div class="bench-panel"><div class="panel-kicker">SUBSTITUTES / 替补球员 <small>${bench.length} 人</small></div><div class="bench-grid ${bench.length>10?'two-cols':''}">${bench.map(p=>`<div class="bench-row"><b>${p.number}</b><strong>${esc(p.name)}</strong><span class="bench-position">（${esc(p.position)}）</span><span class="bench-marks">${marks(p)}</span></div>`).join('')}</div>${!bench.length?'<div class="empty-bench">未录入替补名单</div>':''}</div>`;
 }
-function backdrop() {
-  return `<svg class="field-backdrop" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1920 1080"><defs><linearGradient id="field" x2="0" y2="1"><stop stop-color="#142b32"/><stop offset="1" stop-color="#174b43"/></linearGradient><pattern id="stripes" width="360" height="1080" patternUnits="userSpaceOnUse"><path d="M0 0h180v1080H0Z" fill="#fff" opacity=".025"/></pattern></defs><path fill="url(#field)" d="M0 0h1920v1080H0Z"/><path fill="url(#stripes)" d="M0 0h1920v1080H0Z"/><g fill="none" stroke="#a9d5c0" opacity=".14" stroke-width="3"><path d="M-110 100H2030v930H-110ZM960 100v930"/><ellipse cx="960" cy="565" rx="185" ry="166"/><path d="M-100 340h350v460H-100m2130-460h-350v460h350"/></g><g fill="#bfe7d2" opacity=".2"><circle cx="625" cy="300" r="11"/><circle cx="1210" cy="370" r="11"/><circle cx="1410" cy="740" r="11"/><circle cx="730" cy="830" r="11"/><circle cx="1120" cy="620" r="11"/></g><g fill="#d8b8c1" opacity=".22"><circle cx="430" cy="525" r="11"/><circle cx="810" cy="430" r="11"/><circle cx="1320" cy="520" r="11"/><circle cx="1000" cy="815" r="11"/></g></svg><div class="backdrop-label">示意比赛底图 · 仅用于检查叠加效果</div>`;
+function focus(step,elapsed){
+ const players=lineupFor(data).players.filter(p=>p.group===step.group),back=step.kind==='media';
+ const origin=step.forced?0:step.kind==='shirts'?step.end+(data.config.flip?360:0):step.kind==='flip'?step.start+360:step.start-(data.config.flip?360:0);
+ return `<div class="focus-panel"><div class="panel-kicker">${esc(GROUPS[step.group])} <small>PLAYER INTRODUCTION</small></div><div class="focus-cards" style="--cards:${players.length}">${players.map(p=>`<article class="focus-card"><div class="flip-space"><div class="flip-card ${step.kind==='flip'?'turning':back?'turned':''}" style="--flip-age:-${Math.max(0,elapsed-step.start)}ms"><div class="card-face card-front">${shirt(p)}</div><div class="card-face card-back">${media(p,false,origin)}</div></div>${marks(p)}</div><div class="focus-name"><b>${p.number}</b><strong>${esc(p.name)}</strong></div><small>${esc(p.position)}</small></article>`).join('')}</div></div>`;
 }
-function render() {
-  stage.classList.toggle('transparent', q.get('transparent') === '1');
-  document.querySelector('#backdrop').innerHTML = backdrop();
-  document.querySelector('#safe').classList.toggle('visible', q.get('safe') === '1');
-  layer.innerHTML = scene === 'scoreboard' ? scoreboard() : scene === 'goal' || scene === 'substitution' ? event(scene) : scene === 'formation' ? formation() : scene === 'shootout' ? shootout() : opening();
-  layer.querySelectorAll('.badge img').forEach(img => {
-    const fallback = () => { const span = document.createElement('span'); span.className = 'badge-fallback'; span.textContent = img.alt.startsWith(data.home.name) ? data.home.short : data.away.short; img.replaceWith(span); };
-    img.addEventListener('error',fallback,{once:true});
-    if(img.complete && img.naturalWidth === 0) fallback();
-  });
-  document.title = `HUST CUP · ${theme} · ${scene}`;
-  document.documentElement.dataset.ready = '1';
+function leftTeam(bench=false){
+ const t=data[data.config.team],lineup=lineupFor(data);
+ return `<div class="lineup-team"><div class="overline">${bench?'SUBSTITUTES':'STARTING XI'}</div>${badge(t,'lineup-badge')}<h1>${name(t)}</h1><p>${esc(t.english)}</p><div class="lineup-shape">${bench?`${lineup.bench.length} 人`:esc(lineup.name)}</div><div class="coach"><small>HEAD COACH / 主教练</small><strong>${esc(lineup.coach)}</strong></div><div class="lineup-legend">${data.config.showCaptain?'<span><i class="captain-mark">C</i> 队长</span>':''}${data.config.showYellow?'<span><i class="yellow-mark"><em></em>1</i> 累计黄牌</span>':''}</div></div>`;
 }
-render();
-addEventListener('message', e => {
-  if (e.origin !== location.origin || e.source !== parent) return;
-  if (e.data?.type === 'replay') render();
-  if (e.data?.type === 'exit') layer.classList.add('exiting');
+function formation(elapsed,standaloneBench=false){
+ let step=standaloneBench?{kind:'bench',revealed:[],start:0,end:Infinity}:formationAt(data,elapsed);
+ const force=isLive?'':q.get('step')||'';
+ if(force==='initial')step={kind:'formation',revealed:[],start:0,end:Infinity};
+ if(force==='portraits')step={kind:'formation',revealed:Object.keys(GROUPS),start:0,end:Infinity};
+ if(force==='bench')step={kind:'bench',revealed:Object.keys(GROUPS),start:0,end:Infinity};
+ if(force?.startsWith('media-'))step={kind:'media',group:force.slice(6),revealed:[],start:0,end:Infinity,forced:true};
+ const isBench=step.kind==='bench';let content;
+ if(isBench)content=benchPanel();
+ else if(step.kind==='benchFlip')content=`<div class="panel-flip-space"><div class="panel-flipper" style="--flip-age:-${elapsed-step.start}ms"><div class="panel-face">${field(step.revealed)}</div><div class="panel-face panel-back">${benchPanel()}</div></div></div>`;
+ else if(step.kind==='formation')content=field(step.revealed);
+ else content=focus(step,elapsed);
+ return {html:`${fullBase()}<section class="full lineup-screen"><header class="full-header">${competition()}<span>${isBench?'SUBSTITUTES / 替补名单':'TEAM LINE-UP / 首发阵型'}</span></header>${leftTeam(isBench)}<div class="lineup-panel" data-step="${step.kind}" data-group="${step.group||''}">${content}</div><footer class="full-footer"><span>${esc(data.competition.name)} · ${esc(data.competition.round)}</span><span>${!isLive?'预览可拖动球员位置 · ':''}${isBench?'替补名单':step.kind==='formation'?'首发阵容':GROUPS[step.group]||'替补翻页'}</span></footer></section>`,next:Number.isFinite(step.end)?step.end-elapsed:Infinity};
+}
+function kickIcon(value){return `<span class="kick ${value===1?'made':value===0?'missed':'pending'}" aria-label="${value===1?'罚进':value===0?'罚失':'待罚'}">${value===1?'●':value===0?'×':'—'}</span>`;}
+function shootout(compact=false){
+ const s=data.shootout,status=shootoutStatus(s),count=Math.max(5,s.home.length,s.away.length,status.round);
+ const size=compact?8:12,start=Math.max(0,count-size),end=count;
+ const rows=['home','away'].map(side=>`<div class="pk-row ${status.next===side&&!status.winner?'current-kicker':''}">${badge(data[side])}<div class="pk-team"><strong>${name(data[side])}</strong>${compact?'':`<small>${esc(data[side].english)}</small>`}</div><b class="pk-score">${status[side]}</b><div class="pk-kicks" style="--round-count:${end-start}">${Array.from({length:end-start},(_,i)=>kickIcon(s[side][start+i])).join('')}</div></div>`).join('');
+ const notice=status.winner?(s.confirmed?'操作员已确认结束':'满足决胜条件 · 待确认'): `第 ${status.round} 轮 · ${esc(data[status.next].short)}待罚`;
+ return compact?`<section class="compact-pk"><div class="compact-pk-title"><span>点球大战</span><b>${notice}</b><small>第 ${start+1}–${end} 轮</small></div>${rows}</section>`:`<section class="shootout result-pk"><div class="pk-header">${logo()}<div><span>PENALTY SHOOT-OUT</span><strong>点球大战 · 结果</strong></div><div class="pk-match">比赛比分 <b>${data.score.home} : ${data.score.away}</b><small>与点球比分分别保存</small></div></div><div class="rounds"><span>第 ${start+1}–${end} 轮</span><div style="--round-count:${end-start}">${Array.from({length:end-start},(_,i)=>`<span>${start+i+1}</span>`).join('')}</div></div>${rows}<div class="pk-footer"><span>${s.first==='home'?data.home.short:data.away.short}先罚</span><strong>${notice}</strong></div></section>`;
+}
+function bottomScore(context,elapsed){
+ const goals=goalRows(data,context),sides={home:goals.filter(g=>g.team==='home'),away:goals.filter(g=>g.team==='away')};
+ const pages=Math.max(1,Math.ceil(Math.max(sides.home.length,sides.away.length)/4)),period=data.config.bottomHoldMs/pages,page=Math.min(pages-1,Math.floor(elapsed/period));
+ const goalText=g=>`<span>${esc(g.name)}${g.kind==='penalty'?' (P)':g.kind==='own'?' (OG)':''}<b>${esc(g.time)}</b></span>`;
+ const expansion=goals.length?`<div class="bottom-goals ${context==='restart'?'last-goal':''}">${context==='restart'?`<div>${badge(data[goals[0].team])}<small>刚刚进球</small>${goalText(goals[0])}</div>`:`<div>${['home','away'].map(side=>`<div class="scorers">${sides[side].slice(page*4,page*4+4).map(goalText).join('')||'<span class="no-goals">—</span>'}</div>`).join('')}</div>`}${pages>1?`<small class="goal-page">进球记录 ${page+1} / ${pages}</small>`:''}</div>`:'';
+ return {html:`<section class="bottom-score"><div class="bottom-context">${esc(CONTEXTS[context])}${context==='halftime'?' / HALF-TIME':context==='fulltime'?' / FULL-TIME':''}</div>${expansion}${scoreRow('bottom-row',context==='halftime'?data.halftimeScore:data.score)}</section>`,next:pages>1?(page+1)*period-elapsed:Infinity};
+}
+function opening(){
+ const t=(team,side)=>`<div class="opening-team ${side}">${badge(team)}<h1>${name(team)}</h1><p>${esc(team.english)}</p><div class="team-rule" style="--brand:${esc(team.brandColor)}"></div></div>`;
+ return `${fullBase()}<section class="opening full"><header class="full-header">${competition()}<span>THE MATCH / ${esc(data.competition.round)}</span></header><div class="opening-title"><span>THIS IS OUR GAME.</span><h2>为热爱而战</h2></div><div class="opening-versus">${t(data.home,'home')}<div class="opening-center">${logo()}<span>VS</span><small>${esc(data.competition.name)}</small></div>${t(data.away,'away')}</div><div class="opening-location"><b>${esc(data.competition.kickoff)}</b><span>${esc(data.competition.venue)} · ${esc(data.competition.subtitle)}</span></div><footer class="full-footer"><span>HUST CUP ORIGINAL BROADCAST IDENTITY</span><span>赛前对阵 / MATCH PREVIEW</span></footer></section>`;
+}
+function setupDragging(){
+ if(isLive)return;
+ layer.querySelectorAll('.lineup-player').forEach(el=>el.addEventListener('pointerdown',event=>{
+  event.preventDefault();const pitch=el.closest('.formation-pitch'),rect=pitch.getBoundingClientRect();el.setPointerCapture(event.pointerId);
+  const move=e=>{const x=Math.max(8,Math.min(92,(e.clientX-rect.left)/rect.width*100)),y=Math.max(10,Math.min(89,(e.clientY-rect.top)/rect.height*100));el.style.left=x+'%';el.style.top=y+'%';el.dataset.x=x;el.dataset.y=y;};
+  const up=e=>{el.removeEventListener('pointermove',move);el.removeEventListener('pointerup',up);el.removeEventListener('pointercancel',up);if(el.hasPointerCapture(e.pointerId))el.releasePointerCapture(e.pointerId);if(el.dataset.x)parent.postMessage({type:'playerPosition',id:el.dataset.player,x:Number(el.dataset.x),y:Number(el.dataset.y)},location.origin);};
+  el.addEventListener('pointermove',move);el.addEventListener('pointerup',up);el.addEventListener('pointercancel',up);
+ }));
+}
+function render(){
+ clearTimeout(timer);layer.classList.remove('exiting');
+ const previousScores=Object.fromEntries([...layer.querySelectorAll('.slim-score .score-value')].map(e=>[e.dataset.side,e.textContent]));
+ const now=Date.now()+offset,session=live||{data,scene:previewScene,context:q.get('context')||'pregame',startedAt};
+ const resolved=isLive?outputScene(session,now):outputScene(session,Date.now());const {scene,elapsed}=resolved;
+ const theme=isLive?data.config.theme:q.get('theme')||data.config.theme;
+ stage.className='stage '+theme+(q.get('transparent')==='1'?' transparent':'');
+ document.querySelector('#safe').classList.toggle('visible',q.get('safe')==='1');
+ let html='',next=Infinity;
+ if(scene==='scoreboard')html=scoreboard();
+ if(scene==='goal'||scene==='substitution')html=event(scene);
+ if(scene==='opening')html=opening();
+ if(scene==='formation'||scene==='bench'){const result=formation(elapsed,scene==='bench');html=result.html;next=result.next;}
+ if(scene==='shootout'||scene==='shootoutCompact')html=shootout(scene==='shootoutCompact');
+ if(scene==='bottomScore'){const result=bottomScore(session.context,elapsed);html=result.html;next=Math.min(result.next,data.config.bottomHoldMs-elapsed);}
+ if(['goal','substitution'].includes(scene))next=Math.min(next,data.config.eventHoldMs-elapsed);
+ layer.innerHTML=html;safeImgError();setupDragging();
+ const eventGraphic=layer.querySelector('.mini-event');if(eventGraphic)eventGraphic.style.animationDelay=`-${elapsed}ms`;
+ layer.querySelectorAll('.slim-score .score-value').forEach(e=>{if(previousScores[e.dataset.side]!==undefined&&previousScores[e.dataset.side]!==e.textContent)e.classList.add('changed');});
+ layer.querySelectorAll('video').forEach(video=>{video.muted=true;video.volume=0;video.addEventListener('error',()=>video.remove(),{once:true});const seek=()=>{const age=elapsed-Number(video.dataset.origin||0);if(Number.isFinite(video.duration)&&video.duration>0)video.currentTime=(Math.max(0,age)/1000)%video.duration;const play=()=>{if(video.isConnected)video.play().catch(()=>video.remove());};if(age<0)setTimeout(play,-age);else play();};if(video.readyState>=1)seek();else video.addEventListener('loadedmetadata',seek,{once:true});});
+ stage.dataset.scene=scene;stage.dataset.elapsed=String(Math.round(elapsed));document.documentElement.dataset.ready='1';
+ parent.postMessage({type:'previewState',scene,step:layer.querySelector('.lineup-panel')?.dataset.step},location.origin);
+ if(Number.isFinite(next))timer=setTimeout(render,Math.max(16,next+5));
+}
+document.querySelector('#backdrop').innerHTML='<div class="sample-field"><span></span><i></i><small>示意球场 · 透明输出不包含底图</small></div>';
+if(!isLive&&q.get('stress')==='1'){data.home.name='华中科技大学星火足球队';data.away.name='东湖国际学院远航足球队';data.away.badge='';}
+if(isLive){
+ const accept=message=>{live=message.live;data=live.data;offset=message.serverNow-Date.now();render();};
+ accept(await fetch('api/output').then(r=>r.json()));
+ const events=new EventSource('api/events');events.onmessage=e=>accept(JSON.parse(e.data));events.onerror=()=>{stage.dataset.connected='false';};events.onopen=()=>{stage.dataset.connected='true';};
+}else render();
+addEventListener('message',async event=>{
+ if(event.origin!==location.origin||event.source!==parent||isLive)return;
+ if(event.data?.type==='draft'){data=event.data.data;render();}
+ if(event.data?.type==='replay'){startedAt=Date.now();render();}
+ if(event.data?.type==='exit')layer.classList.add('exiting');
 });
+document.addEventListener('visibilitychange',()=>{if(!document.hidden&&data)render();});

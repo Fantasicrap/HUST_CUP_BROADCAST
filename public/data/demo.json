@@ -9,7 +9,7 @@
   "formation": { "name": "4–3–3", "coach": "王明远", "players": [
     { "number": 1, "name": "林浩", "x": 50, "y": 86, "goalkeeper": true },
     { "number": 3, "name": "许博文", "x": 15, "y": 65 }, { "number": 4, "name": "赵启航", "x": 38, "y": 69 },
-    { "number": 5, "name": "吴承泽", "x": 62, "y": 69, "captain": true }, { "number": 2, "name": "张宇轩", "x": 85, "y": 65 },
+    { "number": 5, "name": "吴承泽", "x": 62, "y": 69, "captain": true, "yellowCards": 1 }, { "number": 2, "name": "张宇轩", "x": 85, "y": 65 },
     { "number": 6, "name": "黄梓铭", "x": 50, "y": 48 }, { "number": 8, "name": "刘景行", "x": 27, "y": 38 }, { "number": 10, "name": "徐知远", "x": 73, "y": 38 },
     { "number": 11, "name": "何一鸣", "x": 18, "y": 17 }, { "number": 9, "name": "陈子昂", "x": 50, "y": 12 }, { "number": 7, "name": "杨天佑", "x": 82, "y": 17 }
   ] },

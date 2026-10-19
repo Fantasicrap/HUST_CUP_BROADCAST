@@ -1,0 +1,10 @@
+{
+  "verifiedOn": "2026-10-19",
+  "quickMediaPassed": true,
+  "checks": ["视频从翻牌媒体面开始而非整段阵容开头计时", "视频强制静音", "实播刷新保留当前阵容时间位置"],
+  "clipTimeSeconds": 0.237597,
+  "mediaOriginMs": 6680,
+  "elapsedBeforeRefreshMs": 6335,
+  "elapsedAfterRefreshMs": 6974,
+  "errors": []
+}

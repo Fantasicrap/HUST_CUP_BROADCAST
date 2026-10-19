@@ -1,0 +1,2 @@
+.broadcast-bar{position:sticky;top:0;z-index:20;background:#111319f5;backdrop-filter:blur(8px)}
+@media(min-width:681px){.workspace>aside{position:sticky;top:0;align-self:start;max-height:100vh;overflow-y:auto}}
