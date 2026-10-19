@@ -1,0 +1,29 @@
+/* Corner preference is published with the draft. Never clip the scoreboard's overhang. */
+.stage{--panel-radius:0px;--small-radius:0px}
+.stage[data-corners="round"]{--panel-radius:18px;--small-radius:9px}
+.stage .mini-event,.stage .info-strip,.stage .referee-panel,.stage .compact-pk,.stage .shootout,.stage .entrance-bar,.stage .lineup-panel{border-radius:var(--panel-radius);overflow:hidden}
+.stage .score-row{border-radius:var(--panel-radius) 0 0 var(--panel-radius)}
+.stage .score-team.home{border-radius:var(--panel-radius) 0 0 var(--panel-radius)}
+.stage .slim-clock{border-radius:0 var(--panel-radius) var(--panel-radius) 0}
+.stage .slim-score:has(.added-time-block) .slim-clock{border-radius:0}
+.stage .added-time-block{border-radius:0 var(--panel-radius) var(--panel-radius) 0}
+.stage .team-event-extension,.stage .score-context{border-radius:0 0 var(--small-radius) var(--small-radius)}
+.stage .bottom-row{border-radius:var(--panel-radius)}
+.stage .bottom-score:has(.bottom-goals) .bottom-row{border-radius:0 0 var(--panel-radius) var(--panel-radius)}
+.stage .bottom-goals,.stage .bottom-context{border-radius:var(--small-radius) var(--small-radius) 0 0}
+.stage .lineup-legend{border-radius:var(--small-radius)}
+body[data-corners]{--control-radius:0px;--field-radius:0px}
+body[data-corners="round"]{--control-radius:14px;--field-radius:8px}
+body[data-corners] .desk-card,body[data-corners] .workflow-drawer,body[data-corners] .event-dialog,body[data-corners] #viewport,body[data-corners] .workflow-monitor{border-radius:var(--control-radius)}
+body[data-corners] button,body[data-corners] input,body[data-corners] select,body[data-corners] textarea{border-radius:var(--field-radius)}
+.corner-setting{display:flex;gap:20px;align-items:center;margin-top:18px}.corner-setting select{min-width:180px;padding:10px}.material-preview-link{display:inline-block;margin-top:8px;color:#85c9fc}
+
+/* Tinted acrylic proposal only. Never enabled by mode=live. */
+.acrylic-prototype{--material-alpha:.75;--acrylic:linear-gradient(125deg,rgb(39 73 117 / var(--material-alpha)),rgb(22 51 91 / var(--material-alpha)) 42%,rgb(35 62 116 / var(--material-alpha)));--acrylic-dark:linear-gradient(135deg,rgb(54 105 252 / var(--material-alpha)),rgb(21 55 122 / var(--material-alpha)) 60%,rgb(22 44 87 / var(--material-alpha)))}
+.acrylic-prototype .score-row,.acrylic-prototype .mini-event,.acrylic-prototype .info-content,.acrylic-prototype .bottom-goals,.acrylic-prototype .compact-pk,.acrylic-prototype .referee-panel,.acrylic-prototype .shootout{background:var(--acrylic);color:#fff;box-shadow:inset 0 1px 0 #c5ecff,inset 0 -1px 0 #426fa0,0 12px 36px #04183d55;text-shadow:0 2px 8px #04183d55}
+.acrylic-prototype .score-logo,.acrylic-prototype .slim-clock,.acrylic-prototype .info-label,.acrylic-prototype .bottom-context,.acrylic-prototype .mini-badge,.acrylic-prototype .entrance-bar>div:first-child,.acrylic-prototype .entrance-bar>small{background:var(--acrylic-dark);color:#fff;box-shadow:inset 0 1px 0 #a3d5ff}
+.acrylic-prototype .mini-content{background:transparent}
+.acrylic-prototype .mini-content small,.acrylic-prototype .info-content small{color:#bcefff}
+.acrylic-prototype .team-event-extension{background:var(--acrylic-dark);color:#fff}
+.stadium-prototype .sample-field{background:radial-gradient(ellipse at 70% 14%,#86effc50,transparent 45%),linear-gradient(170deg,#071834 0 18%,#132f56 18% 25%,#265b57 25% 100%)}
+.stadium-prototype .sample-field:before{inset:300px -150px 80px;border-color:#d6ffff45;transform:perspective(750px) rotateX(30deg);background:repeating-linear-gradient(90deg,#173c3644 0 160px,#658c7044 160px 320px)}

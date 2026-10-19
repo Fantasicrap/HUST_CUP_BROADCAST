@@ -129,14 +129,11 @@ body{font-family:var(--font-ui);font-weight:900}button,input,select,textarea{fon
 @keyframes chipReveal{from{clip-path:inset(0 50% 0 50%)}to{clip-path:inset(0)}}
 @media(prefers-reduced-motion:reduce){.slim-score,.team-event-extension,.added-time-block,.score-context,.score-row>.dismissal-flags{animation-duration:1ms!important}}
 
-/* Symmetric panels open around the centre of their core, then reveal extensions. */
-.bottom-score,.compact-pk,.entrance-bar.cue-graphic,.mini-event,.info-strip.cue-graphic,.referee-panel,.slim-score,.opening,.intro-screen,.shootout{animation-name:centerReveal;animation-duration:820ms;animation-timing-function:cubic-bezier(.25,.7,.25,1);animation-fill-mode:both}
+/* Horizontal core: 330ms open, 330ms hold, 440ms extensions. */
+.stage .bottom-score,.stage .compact-pk,.stage .entrance-bar.cue-graphic,.stage .mini-event,.stage .info-strip.cue-graphic,.stage .referee-panel,.stage .slim-score,.stage .opening,.stage .intro-screen,.stage .shootout{animation-name:centerReveal;animation-duration:1100ms;animation-timing-function:cubic-bezier(.25,.7,.25,1);animation-fill-mode:both}
 @keyframes centerReveal{
- 0%{clip-path:inset(var(--center-top,50%) 50% var(--center-bottom,50%) 50%);opacity:1}
- 46%{clip-path:inset(var(--core-top,0px) 0 var(--core-bottom,0px) 0);opacity:1}
- 58%{clip-path:inset(var(--core-top,0px) 0 var(--core-bottom,0px) 0);opacity:1}
+ 0%{clip-path:inset(var(--core-top,0px) 50% var(--core-bottom,0px) 50%);opacity:1}
+ 30%,60%{clip-path:inset(var(--core-top,0px) 0 var(--core-bottom,0px) 0);opacity:1}
  100%{clip-path:inset(calc(-1 * var(--spill-top,8px)) -8px calc(-1 * var(--spill-bottom,8px)) -8px);opacity:1}
 }
-@keyframes topReveal{0%{clip-path:inset(50% 50% 50% 50%)}100%{clip-path:inset(0)}}
-@keyframes chipReveal{from{clip-path:inset(50% 50% 50% 50%)}to{clip-path:inset(0)}}
 @media(prefers-reduced-motion:reduce){.opening,.intro-screen,.shootout{animation-duration:1ms!important}}

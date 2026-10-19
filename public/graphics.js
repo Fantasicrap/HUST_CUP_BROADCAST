@@ -1,4 +1,4 @@
-import {createMotion,EXIT_MS} from './motion.js';
+import {createMotion,ENTER_MS,EXIT_MS} from './motion.js';
 import {scoreboardVisible,scoreboardClock,dismissalMarkers,scoreboardEvent} from './scoreboard.js';
 import {STAT_LABELS,PHASES,goalMarker} from './match.js';
 import {MAX_BENCH,REFEREE_ROLES,SCENES,CONTEXTS,GROUPS,lineupFor,formationAt,goalRows,bottomScores,outputScene,shootoutStatus} from './model.js';
@@ -100,9 +100,11 @@ function render(){
  clearTimeout(timer);layer.classList.remove('exiting');
  const previousScores=Object.fromEntries([...layer.querySelectorAll('.slim-score .score-value')].map(e=>[e.dataset.side,e.textContent]));
  const now=Date.now()+offset,session=live||{data,scene:previewScene,context:q.get('context')||'pregame',startedAt};
- const resolved=isLive?outputScene(session,now):outputScene(session,Date.now());if(isLive&&session.expiresAt&&now<session.expiresAt){resolved.scene=session.scene;}if(isLive&&session.expiresAt&&now>=session.expiresAt){resolved.scene=data.config.restoreScoreboard?'scoreboard':'clear';}if(!isLive&&q.get('hold')==='1'){resolved.scene=previewScene;resolved.elapsed=900;}const {scene,elapsed}=resolved;currentElapsed=elapsed;currentScene=scene;
+ const resolved=isLive?outputScene(session,now):outputScene(session,Date.now());if(isLive&&session.expiresAt&&now<session.expiresAt){resolved.scene=session.scene;}if(isLive&&session.expiresAt&&now>=session.expiresAt){resolved.scene=data.config.restoreScoreboard?'scoreboard':'clear';}if(!isLive&&q.get('hold')==='1'){resolved.scene=previewScene;resolved.elapsed=ENTER_MS+100;}const {scene,elapsed}=resolved;currentElapsed=elapsed;currentScene=scene;
  const theme=isLive?data.config.theme:q.get('theme')||data.config.theme;
- stage.className='stage '+theme+(q.get('transparent')==='1'?' transparent':'');
+ stage.className='stage '+theme+(q.get('transparent')==='1'?' transparent':'')+(!isLive&&q.get('concept')==='acrylic'?' acrylic-prototype':'')+(!isLive&&q.get('backdrop')==='stadium'?' stadium-prototype':'');
+ stage.dataset.corners=(!isLive&&q.has('corners')?q.get('corners'):data.config.cornerRadius===18?'round':'square');
+ if(!isLive&&q.get('concept')==='acrylic'){const amount=Number(q.get('transparency')??25);stage.style.setProperty('--material-alpha',String(1-Math.max(0,Math.min(30,Number.isFinite(amount)?amount:25))/100));}else stage.style.removeProperty('--material-alpha');
  document.querySelector('#safe').classList.toggle('visible',q.get('safe')==='1');
  let html='',next=Infinity;
  if(scene==='scoreboard')html=scoreboard();

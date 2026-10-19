@@ -1,5 +1,5 @@
 // Reuse the original controls and their listeners; navigating never changes match state.
-export function mountWorkflow({showLive}) {
+export function mountWorkflow({showLive,getDraft}) {
  const $=s=>document.querySelector(s), root=$('#match-desk'), main=$('.main');
  const stages=[
   ['pregame','赛前准备','球队、阵容与入场','开播前完成资料和素材检查，确认后再正式播出。'],
@@ -36,7 +36,10 @@ export function mountWorkflow({showLive}) {
  const draftScores=drawer('草稿比分检查（不生成比赛记录）',panes.settings);move('.score-controls',draftScores);
  const layout=drawer('比分牌位置与显示',panes.settings);move(teams.querySelector('[data-config="x"]').closest('.inline-fields'),layout);
  move(teams,panes.pregame);move(roster,panes.pregame);move(modules,panes.settings);
- const themeCard=card('视觉主题',panes.settings);move(themes,themeCard);
+ const themeCard=card('视觉主题与边角',panes.settings);move(themes,themeCard);
+ const corners=make('label','corner-setting','包装与操作界面边角 <select data-config="cornerRadius"><option value="0">方角 · 几何</option><option value="18">圆角 · 柔和</option></select>');themeCard.append(corners);corners.querySelector('select').value=getDraft().config.cornerRadius||0;
+ themeCard.append(make('p','hint','边角修改立即用于操作界面和草稿预览；点击“更新直播资料”后才进入 OBS。'));
+ const concept=make('a','material-preview-link','查看渐变亚克力材质示意 ↗');concept.href='material-preview.html';concept.target='_blank';concept.rel='noopener';themeCard.append(concept);
  const cards=key=>[...$(`[data-desk-panel="${key}"]`).querySelectorAll('.desk-card')];
  const eventPanel=$('[data-desk-panel="events"]');eventPanel.hidden=false;move(eventPanel,panes.live);
  const eventForm=$('#event-type').closest('.desk-card'), corrections=drawer('修正姓名、号码与所属半场',eventForm);

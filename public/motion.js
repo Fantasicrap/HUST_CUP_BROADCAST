@@ -1,5 +1,6 @@
 // Presentation only. Never delays a match update or writes the event ledger.
-export const EXIT_MS=360;
+export const ENTER_MS=1100;
+export const EXIT_MS=900;
 const selector='.slim-score,.bottom-score,.compact-pk,.entrance-bar,.mini-event,.info-strip,.referee-panel,.team-event-extension,.added-time-block,.score-context,.dismissal-flags,.opening,.intro-screen,.shootout';
 function identity(node,run){
  if(node.matches('.slim-score'))return 'scoreboard';
@@ -22,8 +23,8 @@ function geometry(node){
 function exitFrames(node){
  const css=getComputedStyle(node),v=(name,fallback)=>css.getPropertyValue(name).trim()||fallback;
  const core=`inset(${v('--core-top','0px')} 0 ${v('--core-bottom','0px')} 0)`;
- const closed=`inset(${v('--center-top','50%')} 50% ${v('--center-bottom','50%')} 50%)`;
- return [{clipPath:css.clipPath==='none'?'inset(-64px -8px -64px -8px)':css.clipPath,opacity:1},{clipPath:core,opacity:1,offset:.55},{clipPath:closed,opacity:0}];
+ const closed=`inset(${v('--core-top','0px')} 50% ${v('--core-bottom','0px')} 50%)`;
+ return [{clipPath:css.clipPath==='none'?'inset(-64px -8px -64px -8px)':css.clipPath,opacity:1},{clipPath:core,opacity:1,offset:1/3},{clipPath:core,opacity:1,offset:2/3},{clipPath:closed,opacity:0}];
 }
 export function createMotion(layer){
  const departures=document.createElement('div');departures.id='motion-departures';departures.setAttribute('aria-hidden','true');layer.after(departures);
