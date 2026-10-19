@@ -48,10 +48,13 @@ export function changeMatch(original,command,now=Date.now()){
  const m=clone(original),a=deriveMatch(m),c=command,clock=m.clock;
  if(c.action==='clock'){
   clock.elapsedMs=clockMs(clock,now);clock.anchor=now;
-  if(c.operation==='start') {if(!['first','second','extraFirst','extraSecond'].includes(clock.phase))throw Error('请先选择正在比赛的阶段');clock.running=true;m.recovery=null;}
+  const setPhase=()=>{if(!PHASES[c.phase])throw Error('比赛阶段无效');const resuming=clock.phase==='interrupted'&&clock.previousPhase===c.phase;if(c.phase==='interrupted'){clock.previousPhase=clock.phase;clock.previousAnnounced=clock.announced;}if(resuming)clock.announced=clock.previousAnnounced||0;clock.phase=c.phase;clock.running=false;if(!resuming){clock.announced=0;if(['first','second','extraFirst','extraSecond'].includes(c.phase))clock.elapsedMs=phaseBounds(clock)[0];}if(c.phase==='halftime'){m.halftimeScore=clone(a.halftimeScore);m.halftimeStats=clone(m.stats);}};
+  if(c.operation==='apply'){if(!PHASES[c.phase])throw Error('比赛阶段无效');if(c.phase!==clock.phase)setPhase();clock.running=['first','second','extraFirst','extraSecond'].includes(clock.phase);if(clock.running)m.recovery=null;}
+  else if(c.operation==='start'){if(!['first','second','extraFirst','extraSecond'].includes(clock.phase))throw Error('请先选择正在比赛的阶段');clock.running=true;m.recovery=null;}
   else if(c.operation==='pause')clock.running=false;
-  else if(c.operation==='calibrate'){clock.elapsedMs=integer(c.seconds,0,99999)*1000;}
-  else if(c.operation==='phase'){if(!PHASES[c.phase])throw Error('比赛阶段无效');const resuming=clock.phase==='interrupted'&&clock.previousPhase===c.phase;if(c.phase==='interrupted'){clock.previousPhase=clock.phase;clock.previousAnnounced=clock.announced;}if(resuming)clock.announced=clock.previousAnnounced||0;clock.phase=c.phase;clock.running=false;if(!resuming){clock.announced=0;if(['first','second','extraFirst','extraSecond'].includes(c.phase))clock.elapsedMs=phaseBounds(clock)[0];}if(c.phase==='halftime'){m.halftimeScore=clone(a.halftimeScore);m.halftimeStats=clone(m.stats);}}
+  else if(c.operation==='reset'){if(c.confirm!=='RESET_CLOCK')throw Error('计时清零需要确认');clock.elapsedMs=0;clock.running=false;m.recovery=null;}
+  else if(c.operation==='calibrate'){clock.elapsedMs=c.deltaSeconds!==undefined?Math.max(0,Math.min(99999000,clock.elapsedMs+integer(c.deltaSeconds,-99999,99999)*1000)):integer(c.seconds,0,99999)*1000;}
+  else if(c.operation==='phase')setPhase();
   else if(c.operation==='settings'){if(clock.running)throw Error('请暂停后修改赛制时长');clock.halfMinutes=integer(c.halfMinutes,1,120);clock.extraMinutes=integer(c.extraMinutes,1,60);clock.displayMode=c.displayMode==='separate'?'separate':'cumulative';}
   else if(c.operation==='added')clock.announced=integer(c.minutes,0,30);
   else if(c.operation==='recover'){if(m.recovery&&c.includeDowntime)clock.elapsedMs+=Math.max(0,now-m.recovery.savedAt);clock.running=false;m.recovery=null;}

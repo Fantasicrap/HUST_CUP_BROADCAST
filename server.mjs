@@ -97,6 +97,10 @@ const server=http.createServer(async(req,res)=>{
    const command=JSON.parse((await body(req)).toString('utf8'));
    await mutate(async()=>{
     if(command.action==='clear'){state.queue=[];state.live={...state.live,scene:'clear',runId:randomUUID(),startedAt:Date.now(),expiresAt:null,eventId:null};publish({immediate:true});}
+    else if(command.action==='scoreboard'){
+     if(!state.publishedDraft.config.modules.scoreboard)throw Error('直播中的常驻比分牌未启用，请在系统设置启用后更新直播资料');
+     state.queue=[];startCue({id:randomUUID(),template:structuredClone(state.publishedDraft),scene:'scoreboard',context:'pregame',team:state.publishedDraft.config.team,eventId:null,holdMs:null,priority:50});
+    }
     else if(command.action==='update'){
      state.publishedDraft=structuredClone(state.draft);state.outputDelayMs=state.draft.config.delayMs;state.queue=state.queue.filter(q=>state.draft.config.modules[q.scene]).map(q=>({...q,template:structuredClone(state.draft)}));
      const current=deriveMatch(state.match).score;for(const team of ['home','away'])if(state.draft.score[team]!==current[team])state.match=changeMatch(state.match,{action:'record',event:{type:'adjustment',team,delta:state.draft.score[team]-current[team],text:'手动比分校正'}});

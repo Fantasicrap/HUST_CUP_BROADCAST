@@ -1,14 +1,14 @@
 {
   "name": "hust-cup-broadcast",
-  "version": "1.2.0",
+  "version": "1.3.0",
   "type": "module",
   "private": true,
   "description": "HUST_CUP_BROADCAST 本地足球图文播出系统",
   "scripts": {
     "start": "node server.mjs",
     "test": "node --test tests/*.test.mjs",
-    "review": "node scripts/review-workflow.cjs",
-    "check": "node --check server.mjs && node --check public/graphics.js && node --check public/preview.js && node --check public/model.js && node --check public/match.js && node --check public/desk.js && node --check public/workflow.js"
+    "review": "node scripts/review-operator-controls.cjs",
+    "check": "node --check server.mjs && node --check public/graphics.js && node --check public/preview.js && node --check public/model.js && node --check public/match.js && node --check public/desk.js && node --check public/workflow.js && node --check public/roster-search.js && node --check public/clock-input.js"
   },
   "devDependencies": {
     "playwright": "1.62.1",
