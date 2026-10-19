@@ -14,9 +14,9 @@ const name=t=>esc(t.name);
 const compactName=t=>esc(t.name.length>8&&t.short?t.short:t.name);
 const competition=()=>`<div class="competition">${logo()}<div><b>${esc(data.competition.name)}</b><span>${esc(data.competition.subtitle)} · ${esc(data.competition.round)}</span></div></div>`;
 const safeImgError=()=>layer.querySelectorAll('img').forEach(img=>{const failed=()=>img.remove();img.addEventListener('error',failed,{once:true});if(img.complete&&!img.naturalWidth)failed();});
-const scoreBadge=(team,side)=>{const count=dismissalMarkers(data,side);return `<span class="score-badge-shell">${badge(team)}${count?`<span class="dismissal-flags" aria-label="${esc(team.name)}场上红牌标记 ${count} 张">${'<i></i>'.repeat(count)}</span>`:''}</span>`;};
+const scoreFlags=(team,side)=>{const count=dismissalMarkers(data,side);return count?`<span class="dismissal-flags ${side}" data-red-team="${side}" aria-label="${esc(team.name)}场上红牌 ${count} 张">${'<i></i>'.repeat(count)}</span>`:'';};
 function scoreRow(extra='',scores=data.score){
- return `<div class="score-row ${extra}"><div class="score-team home">${kit(data.home)}${scoreBadge(data.home,'home')}<strong title="${name(data.home)}">${compactName(data.home)}</strong></div><b class="score-value" data-side="home">${scores.home}</b><div class="score-logo">${logo()}</div><b class="score-value" data-side="away">${scores.away}</b><div class="score-team away"><strong title="${name(data.away)}">${compactName(data.away)}</strong>${scoreBadge(data.away,'away')}${kit(data.away)}</div></div>`;
+ return `<div class="score-row ${extra}"><div class="score-team home">${kit(data.home)}${badge(data.home)}<strong title="${name(data.home)}">${compactName(data.home)}</strong></div><b class="score-value" data-side="home">${scores.home}</b><div class="score-logo">${logo()}</div><b class="score-value" data-side="away">${scores.away}</b><div class="score-team away"><strong title="${name(data.away)}">${compactName(data.away)}</strong>${badge(data.away)}${kit(data.away)}</div>${scoreFlags(data.home,'home')}${scoreFlags(data.away,'away')}</div>`;
 }
 function scoreboard(){
  if(!data.config.modules.scoreboard)return '';
