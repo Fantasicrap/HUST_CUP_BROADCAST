@@ -7,6 +7,7 @@ import {fileURLToPath} from 'node:url';
 import {normalizeDraft,SCENES,CONTEXTS} from './public/model.js';
 import {inspectAsset} from './lib/assets.mjs';
 const project=path.dirname(fileURLToPath(import.meta.url));
+const applicationVersion=JSON.parse(await fs.readFile(path.join(project,'package.json'),'utf8')).version;
 const root=path.join(project,'public');
 const runtime=path.resolve(process.env.HUST_DATA_DIR||path.join(project,'runtime'));
 const assetFolder=path.join(runtime,'assets');
@@ -32,6 +33,7 @@ const server=http.createServer(async(req,res)=>{
    if(!/^(127\.0\.0\.1|localhost):\d+$/.test(req.headers.host||'')||(req.headers.origin&&req.headers.origin!==expected))return json(res,{error:'仅接受本机同源请求'},403);
   }
   if(url.pathname==='/favicon.ico'){res.writeHead(204).end();return;}
+  if(url.pathname==='/api/health'&&req.method==='GET')return json(res,{application:'HUST_CUP_BROADCAST',version:applicationVersion});
   if(url.pathname==='/api/draft'&&req.method==='GET')return json(res,{draft:state.draft,serverNow:Date.now()});
   if(url.pathname==='/api/draft'&&req.method==='PUT'){state.draft=normalizeDraft(JSON.parse((await body(req)).toString('utf8')),sample);await save();return json(res,{draft:state.draft});}
   if(url.pathname==='/api/output'&&req.method==='GET')return json(res,snapshot());
@@ -71,4 +73,4 @@ const server=http.createServer(async(req,res)=>{
 });
 const heartbeat=setInterval(()=>{for(const res of clients)res.write(': heartbeat\n\n');},15000);heartbeat.unref();
 server.on('error',error=>{console.error(error.code==='EADDRINUSE'?`端口 ${port} 已占用，请停止旧服务或设置 PORT。`:error.message);process.exitCode=1;});
-server.listen(port,'127.0.0.1',()=>{const activePort=server.address().port;console.log(`HUST_CUP_BROADCAST v0.2\n后台：http://127.0.0.1:${activePort}/\nOBS：http://127.0.0.1:${activePort}/overlay.html?mode=live&transparent=1\n按 Ctrl+C 停止。计时仍为示例；资料编辑与正式播出已分离。`);});
+server.listen(port,'127.0.0.1',()=>{const activePort=server.address().port;console.log(`HUST_CUP_BROADCAST ${applicationVersion}\n后台：http://127.0.0.1:${activePort}/\nOBS：http://127.0.0.1:${activePort}/overlay.html?mode=live&transparent=1\n按 Ctrl+C 停止。计时仍为示例；资料编辑与正式播出已分离。`);});

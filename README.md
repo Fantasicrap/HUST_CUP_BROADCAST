@@ -1,6 +1,6 @@
 # HUST_CUP_BROADCAST
 
-本地运行的足球 OBS 浏览器源图文包装，提供 PULSE「几何竞技」与 NOCTURNE「蓝夜杯赛」两套主题。当前 **v0.2.0-review** 按用户七项反馈重做紧凑比分、事件条、阵容媒体动画及底部面板，并提供中文操作后台。
+本地运行的足球 OBS 浏览器源图文包装，提供 PULSE「几何竞技」与 NOCTURNE「蓝夜杯赛」两套主题。当前 **v0.2.1-startup-fix** 修复 Windows 启动脚本闪退；v0.2 的七项修订和两套主题均保留。
 
 原版已保存在私有仓库 [Fantasicrap/HUST_CUP_BROADCAST](https://github.com/Fantasicrap/HUST_CUP_BROADCAST) 的 `v0.1.0-preview` 标签。本次修订的本地代码与原标签分别保留；上传情况以实际发布记录为准。
 
@@ -8,7 +8,7 @@
 
 需要 Node.js 20 或更新版本。无需 npm install，无运行时第三方包，不需联网加载素材。
 
-双击 `启动预览.cmd`，或在本目录执行：
+完整解压后双击 `启动预览.cmd`。等待窗口显示 `[READY]` 后会自动打开网页，**保持服务窗口打开**。失败时窗口会保留，日志在 `runtime/startup.log`。也可在本目录执行：
 
 ```powershell
 node server.mjs
@@ -19,6 +19,8 @@ node server.mjs
 - 独立草稿预览例：<http://127.0.0.1:3210/overlay.html?scene=formation>
 
 OBS 添加浏览器源，宽 1920、高 1080，置于比赛视频上方。需要动画时可设置 60fps。OBS 必须使用带 `mode=live` 的地址，后台内部预览不会直接播出。
+
+遇到双击闪退、Node 未找到或端口占用，见 [Windows 启动说明](docs/Windows-startup.md)。新启动器不修改安全中心或系统执行策略。
 
 若端口占用，停止旧版服务后重新启动；也可设置 `$env:PORT='3211'` 再运行 `node server.mjs`，并将所有地址中的端口改成 3211。不要同时运行两个服务写同一份存档。按 Ctrl+C 停止。
 

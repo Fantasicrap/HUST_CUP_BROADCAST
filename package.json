@@ -1,6 +1,6 @@
 {
   "name": "hust-cup-broadcast",
-  "version": "0.2.0-review",
+  "version": "0.2.1-startup-fix",
   "type": "module",
   "private": true,
   "description": "HUST_CUP_BROADCAST 足球直播包装 · 第一阶段视觉预览",
