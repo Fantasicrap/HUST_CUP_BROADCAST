@@ -117,7 +117,7 @@ function render(){
  if(data.config.replay&&scene!=='clear'&&outputPart!=='persistent')html+='<div class="replay-corner">回放 / REPLAY</div>';
  const frozen=!isLive&&q.get('hold')==='1',transient=['goal','substitution','card','cancelGoal','penalty','notice','var','person','statStrip','officials','commentators','entrance','kickoff','sponsor'].includes(scene),remaining=frozen?null:isLive&&session.expiresAt?session.expiresAt-now:scene==='bottomScore'?data.config.bottomHoldMs-elapsed:transient?data.config.eventHoldMs-elapsed:null;
  motion.paint(html,{run:session.runId||`${previewScene}:${startedAt}`,elapsed,remaining,immediate:scene==='clear'||frozen});safeImgError();setupDragging();applyFont();
- const isRefresh=lastRun===session.runId;if(isRefresh)layer.querySelectorAll('.full,.full-bg,.shootout').forEach(e=>e.style.animation='none');lastRun=session.runId;
+ const isRefresh=lastRun===session.runId;if(isRefresh)layer.querySelectorAll('.full,.full-bg,.shootout').forEach(e=>{if(!e.matches('.opening,.shootout'))e.style.animation='none';});lastRun=session.runId;
  if(remaining!==null&&remaining>0)next=Math.min(next,remaining>EXIT_MS?remaining-EXIT_MS:remaining);
  if(data.matchClock)updateClock();
  layer.querySelectorAll('.slim-score .score-value').forEach(e=>{if(previousScores[e.dataset.side]!==undefined&&previousScores[e.dataset.side]!==e.textContent)e.classList.add('changed');});
