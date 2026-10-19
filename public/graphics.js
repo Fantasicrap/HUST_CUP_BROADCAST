@@ -1,3 +1,4 @@
+import {createMotion,EXIT_MS} from './motion.js';
 import {scoreboardVisible,scoreboardClock,dismissalMarkers,scoreboardEvent} from './scoreboard.js';
 import {STAT_LABELS,PHASES,goalMarker} from './match.js';
 import {MAX_BENCH,REFEREE_ROLES,SCENES,CONTEXTS,GROUPS,lineupFor,formationAt,goalRows,bottomScores,outputScene,shootoutStatus} from './model.js';
@@ -5,6 +6,7 @@ const q=new URLSearchParams(location.search),isLive=q.get('mode')==='live';
 let data=isLive?null:(await fetch('api/preview').then(r=>r.json())).data;
 let currentScene='scoreboard',currentElapsed=0;let live=null,offset=0,startedAt=Date.now(),timer,previewScene=SCENES.includes(q.get('scene'))?q.get('scene'):'scoreboard';
 const stage=document.querySelector('#stage'),layer=document.querySelector('#graphics');
+const motion=createMotion(layer);
 const esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const trophy=()=>'<svg class="trophy" viewBox="0 0 120 120" aria-label="HUST CUP"><g fill="none" stroke="currentColor" stroke-width="8"><path d="M30 18v48l30 24 30-24V18M30 45h60M43 18v23m34-23v23M60 90v14m-22 0h44"/><path d="M30 26H15v26l17 14m58-40h15v26L88 66" stroke-width="6"/></g></svg>';
 const logo=()=>!data.competition.logo||data.competition.logo==='assets/competition.svg'?trophy():`<span class="custom-logo"><span class="logo-fallback">${trophy()}</span><img src="${esc(data.competition.logo)}" alt="赛事 logo"></span>`;
@@ -113,12 +115,11 @@ function render(){
  if(extraScenes[scene])html=extraScenes[scene](session,elapsed);
  const outputPart=q.get('part');if(outputPart==='persistent')html=['scoreboard','goal','substitution','card','cancelGoal','notice','var','penalty','statStrip','person','officials','commentators','sponsor'].includes(scene)?scoreboard():'';if(outputPart==='temporary'){const temp=document.createElement('div');temp.innerHTML=html;temp.querySelectorAll('.slim-score').forEach(e=>e.remove());html=temp.innerHTML;}
  if(data.config.replay&&scene!=='clear'&&outputPart!=='persistent')html+='<div class="replay-corner">回放 / REPLAY</div>';
- layer.innerHTML=html;safeImgError();setupDragging();applyFont();
+ const frozen=!isLive&&q.get('hold')==='1',transient=['goal','substitution','card','cancelGoal','penalty','notice','var','person','statStrip','officials','commentators','entrance','kickoff','sponsor'].includes(scene),remaining=frozen?null:isLive&&session.expiresAt?session.expiresAt-now:scene==='bottomScore'?data.config.bottomHoldMs-elapsed:transient?data.config.eventHoldMs-elapsed:null;
+ motion.paint(html,{run:session.runId||`${previewScene}:${startedAt}`,elapsed,remaining,immediate:scene==='clear'||frozen});safeImgError();setupDragging();applyFont();
  const isRefresh=lastRun===session.runId;if(isRefresh)layer.querySelectorAll('.full,.full-bg,.shootout').forEach(e=>e.style.animation='none');lastRun=session.runId;
- const age=Math.max(0,elapsed);layer.querySelectorAll('.cue-graphic,.bottom-score,.compact-pk,.mini-event').forEach(e=>e.style.animationDelay=`-${age}ms`);layer.querySelectorAll('.team-event-extension').forEach(e=>e.style.animationDelay=`-${age}ms`);
- if(isLive&&session.expiresAt){const remaining=session.expiresAt-now;if(remaining<=300&&remaining>0)layer.classList.add('exiting');next=Math.min(next,remaining>300?remaining-300:remaining);}
+ if(remaining!==null&&remaining>0)next=Math.min(next,remaining>EXIT_MS?remaining-EXIT_MS:remaining);
  if(data.matchClock)updateClock();
- const eventGraphic=layer.querySelector('.mini-event');if(eventGraphic)eventGraphic.style.animationDelay=`-${elapsed}ms`;
  layer.querySelectorAll('.slim-score .score-value').forEach(e=>{if(previousScores[e.dataset.side]!==undefined&&previousScores[e.dataset.side]!==e.textContent)e.classList.add('changed');});
  layer.querySelectorAll('video').forEach(video=>{video.muted=true;video.volume=0;video.addEventListener('error',()=>video.remove(),{once:true});const seek=()=>{const age=elapsed-Number(video.dataset.origin||0);if(Number.isFinite(video.duration)&&video.duration>0)video.currentTime=(Math.max(0,age)/1000)%video.duration;const play=()=>{if(video.isConnected)video.play().catch(()=>video.remove());};if(age<0)setTimeout(play,-age);else play();};if(video.readyState>=1)seek();else video.addEventListener('loadedmetadata',seek,{once:true});});
  if(data.config.sound&&scene!=='clear'&&soundRun!==session.runId){soundRun=session.runId;const sound=new Audio('assets/cue.wav');sound.volume=data.config.volume;sound.play().catch(()=>{});}
@@ -167,6 +168,6 @@ addEventListener('message',async event=>{
  if(event.data?.type==='draft'){const matchClock=data.matchClock;data={...data,...event.data.data,matchClock};render();}if(event.data?.type==='clock'){data.matchClock=event.data.clock;render();}
  if(event.data?.type==='cue'){data=event.data.data;previewScene=event.data.scene;startedAt=Date.now();render();}
  if(event.data?.type==='replay'){startedAt=Date.now();render();}
- if(event.data?.type==='exit')layer.classList.add('exiting');
+ if(event.data?.type==='exit')motion.withdraw();
 });
 document.addEventListener('visibilitychange',()=>{if(!document.hidden&&data)render();});

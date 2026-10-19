@@ -1,7 +1,7 @@
 // Shared, deterministic match ledger. Rendering never writes this ledger.
 export const PHASES={pregame:'赛前',first:'上半场',halftime:'中场',second:'下半场',regulationEnd:'常规时间结束',extraFirst:'加时赛上半场',extraBreak:'加时赛中场',extraSecond:'加时赛下半场',shootout:'点球大战',finished:'全场结束',interrupted:'比赛暂时中断'};
 export const STAT_LABELS={possession:'控球率',shots:'射门',onTarget:'射正',corners:'角球',fouls:'犯规',offsides:'越位',yellow:'黄牌',red:'红牌'};
-export const EVENT_LABELS={goal:'进球',cancelGoal:'进球无效',card:'给牌',substitution:'换人',penalty:'点球判罚 / 罚失',var:'判罚审核',notice:'通用通知',adjustment:'比分校正'};
+export const EVENT_LABELS={goal:'进球',cancelGoal:'进球无效',card:'给牌',substitution:'换人',penalty:'点球判罚 / 罚失',var:'判罚审核',notice:'通用通知',adjustment:'手动改比分'};
 const clone=v=>structuredClone(v),side=v=>v==='away'?'away':'home';
 const integer=(v,min=0,max=999)=>{const n=Number(v);if(!Number.isInteger(n)||n<min||n>max)throw Error(`请输入 ${min}–${max} 的整数`);return n;};
 const txt=(v,max=100)=>String(v??'').trim().slice(0,max);
@@ -85,6 +85,8 @@ export function changeMatch(original,command,now=Date.now()){
   deriveMatch(m);
  }else if(c.action==='lineups'){
   if(!c.lineups?.home?.players||!c.lineups?.away?.players)throw Error('阵容无效');m.initial.lineups=clone(c.lineups);deriveMatch(m);
+ }else if(c.action==='clearLog'){
+  if(c.confirm!=='CLEAR_LOG')throw Error('清理日志需要确认');m.logStartIndex=m.events.length;
  }else if(c.action==='stats'){
   m.stats={};for(const key of Object.keys(STAT_LABELS)){const v=c.stats?.[key]||{};const clean=v=>v===''||v===null||v===undefined?null:integer(v,0,key==='possession'?100:999);m.stats[key]={home:clean(v.home),away:clean(v.away)};}if(m.clock.phase==='halftime')m.halftimeStats=clone(m.stats);
  }else if(c.action==='tie'){m.tie={enabled:!!c.enabled,firstLeg:{home:integer(c.home||0),away:integer(c.away||0)},awayGoals:!!c.awayGoals,firstLegAway:side(c.firstLegAway)};m.result.confirmed=false;

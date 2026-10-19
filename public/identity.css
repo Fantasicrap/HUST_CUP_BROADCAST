@@ -119,3 +119,12 @@ body{font-family:var(--font-ui);font-weight:900}button,input,select,textarea{fon
 .var-logo{display:inline-flex;align-items:center;justify-content:center;flex:0 0 76px;width:76px;height:48px;border:3px solid #1355fc;border-radius:3px;font-size:26px;letter-spacing:1px;font-family:var(--font-num);color:#1355fc}.nocturne .var-logo{color:#86effc;border-color:#86effc}.var-logo.checking{animation:varPulse 1400ms ease-in-out infinite}.var-copy{min-width:0;flex:1}.var-copy>strong{display:block;font-size:28px;line-height:1.4;overflow-wrap:anywhere}.var-copy>small{display:block;font-size:17px;line-height:1.5;overflow-wrap:anywhere}.var-strip{width:760px}@keyframes varPulse{50%{opacity:.5}}
 
 .sponsor-strip{width:900px;max-width:calc(100% - 192px)}.sponsor-strip .info-label{font-size:22px;padding:10px 26px}.sponsor-strip .info-content{min-height:142px;padding:20px 28px;gap:30px}.sponsor-strip .sponsor-logo{width:220px;height:110px;max-width:220px;max-height:110px;object-fit:contain;flex-shrink:0}.sponsor-strip .info-content>strong{font-size:36px;line-height:1.45;flex:1;min-width:0;overflow-wrap:anywhere}
+
+/* Expansion and withdrawal share the same clipped geometry; transforms stay intact. */
+#motion-departures{position:absolute;inset:0;pointer-events:none;z-index:4}
+.slim-score{animation:bottomReveal 680ms cubic-bezier(.25,.7,.25,1) both;--bottom-overhang:64px}
+.team-event-extension{animation:topReveal 540ms cubic-bezier(.25,.7,.25,1) both}
+.added-time-block,.score-context,.score-row>.dismissal-flags{animation:chipReveal 420ms cubic-bezier(.25,.7,.25,1) both}
+@keyframes topReveal{0%{clip-path:inset(0 50% calc(100% - 3px) 50%)}40%{clip-path:inset(0 0 calc(100% - 3px) 0)}100%{clip-path:inset(0)}}
+@keyframes chipReveal{from{clip-path:inset(0 50% 0 50%)}to{clip-path:inset(0)}}
+@media(prefers-reduced-motion:reduce){.slim-score,.team-event-extension,.added-time-block,.score-context,.score-row>.dismissal-flags{animation-duration:1ms!important}}

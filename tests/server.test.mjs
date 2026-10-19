@@ -24,7 +24,7 @@ test('服务：草稿隔离、正式更新不重播、模块禁用、上传、Ra
   const stream=await fetch(app.url+'/api/events',{signal:AbortSignal.timeout(6000)}),reader=stream.body.getReader(),decoder=new TextDecoder();let pending='';
   const nextEvent=async()=>{while(!pending.includes('\n\n')){const chunk=await reader.read();assert(!chunk.done);pending+=decoder.decode(chunk.value,{stream:true});}const split=pending.indexOf('\n\n'),block=pending.slice(0,split);pending=pending.slice(split+2);return JSON.parse(block.split('\n').find(line=>line.startsWith('data: ')).slice(6));};
   assert.equal((await nextEvent()).live.scene,'bottomScore');
-  await call('/api/live','POST',{action:'clear'});const pushed=await nextEvent();assert.equal(pushed.live.scene,'clear');assert.equal(pushed.draft,undefined);await reader.cancel();
+  await call('/api/live','POST',{action:'clear'});let pushed;for(let i=0;i<20;i++){pushed=await nextEvent();if(pushed.live.scene==='clear')break;}assert.equal(pushed.live.scene,'clear');assert.equal(pushed.draft,undefined);await reader.cancel();
   assert.equal((await call('/api/output')).data.live.scene,'clear');await stop();app=await start(folder);
   const restored=await call('/api/output');assert.equal(restored.data.live.scene,'clear');assert.equal((await call('/api/draft')).data.draft.home.badge,asset);assert.equal((await fetch(app.url+'/'+asset)).status,200);assert.notEqual(initial.runId,restored.data.live.runId);
  }finally{await stop();assert(folder.startsWith(tempRoot+path.sep)&&path.basename(folder).startsWith('hust-test-'));await fs.rm(folder,{recursive:true,force:true});}

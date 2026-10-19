@@ -78,7 +78,7 @@ const server=http.createServer(async(req,res)=>{
   if(url.pathname==='/api/events'&&req.method==='GET'){res.writeHead(200,{'Content-Type':'text/event-stream','Cache-Control':'no-store','Connection':'keep-alive','X-Accel-Buffering':'no'});res.write(`data: ${JSON.stringify(snapshot())}\n\n`);clients.set(res,{key:''});res.on('close',()=>clients.delete(res));return;}
   if(url.pathname==='/api/control-state'&&req.method==='GET')return json(res,controller());
   if(url.pathname==='/api/preview-event'&&req.method==='POST'){
-   const command=JSON.parse((await body(req)).toString('utf8'));const m=recordMatchEvent(state.match,{...command,action:'record'});const e=command.id?m.events.find(e=>e.id===command.id):m.events.findLast(e=>!e.parentEventId);return json(res,{scene:eventScene(e),baseRevision:state.match.revision,data:composeData(state.draft,m,e)});
+   const command=JSON.parse((await body(req)).toString('utf8'));const m=recordMatchEvent(state.match,{...command,action:'record'});const e=command.id?m.events.find(e=>e.id===command.id):m.events.findLast(e=>!e.parentEventId);return json(res,{scene:e.type==='adjustment'?'scoreboard':eventScene(e),baseRevision:state.match.revision,data:composeData(state.draft,m,e)});
   }
   if(url.pathname==='/api/control'&&req.method==='POST'){
    const command=JSON.parse((await body(req)).toString('utf8'));
