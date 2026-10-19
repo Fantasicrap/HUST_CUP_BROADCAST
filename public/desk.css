@@ -3,3 +3,5 @@ body{background:#081329;color:#fff;font-size:13px}body>header{background:#0c1c3d
 
 .primary,button.primary,button#broadcast{background:#1355fc!important;color:#fff!important;border-color:#4e60fc!important}.clock-actions button.primary{background:#fff!important;color:#1355fc!important}.preview-help #save-state{color:#85c9fc}
 .red-marker-controls{display:flex;gap:6px;align-items:center;flex-wrap:wrap;margin-top:13px;padding-top:12px;border-top:1px solid #85c9fc25}.red-marker-controls>span{font-size:11px;margin-right:auto;color:#85c9fc}.red-marker-controls>small{display:block;width:100%;color:#85c9fc99;font-size:10px}.red-marker-controls button{padding:5px 8px}
+
+.toolbar{gap:10px}.toolbar>div{margin-right:auto}#view-live{color:#86effc;border-color:#85c9fc80}.event-output-status{font-style:normal;font-size:10px;color:#86effc;background:#1355fc33;padding:2px 5px;white-space:nowrap}
