@@ -1,6 +1,6 @@
 {
   "name": "hust-cup-broadcast",
-  "version": "1.8.4",
+  "version": "1.8.5",
   "type": "module",
   "private": true,
   "description": "HUST_CUP_BROADCAST 本地足球图文播出系统",

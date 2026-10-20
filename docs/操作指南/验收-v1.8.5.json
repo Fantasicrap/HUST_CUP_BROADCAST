@@ -1,0 +1,36 @@
+{
+  "version": "1.8.5",
+  "pages": 20,
+  "chapters": 17,
+  "figures": 8,
+  "tables": 11,
+  "bytes": 2496371,
+  "sha256": "8a7114720a3ac42fa2e9870a9fc3ec826b2f5147ed2f6b15113375547221663f",
+  "visualReviewedPages": [
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10,
+    11,
+    12,
+    13,
+    14,
+    15,
+    16,
+    17,
+    18,
+    19,
+    20
+  ],
+  "changedPageImages": [
+    "page-17.png"
+  ],
+  "renderer": "Microsoft Word native export; pypdfium2 page PNGs",
+  "oldManualRetained": true
+}

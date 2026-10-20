@@ -1,0 +1,32 @@
+{
+  "version": "1.8.5",
+  "scenes": [
+    {
+      "scene": "scoreboard",
+      "theme": "pulse"
+    },
+    {
+      "scene": "goal",
+      "theme": "nocturne"
+    },
+    {
+      "scene": "substitution",
+      "theme": "pulse"
+    },
+    {
+      "scene": "formation",
+      "theme": "nocturne"
+    },
+    {
+      "scene": "shootout",
+      "theme": "pulse"
+    },
+    {
+      "scene": "opening",
+      "theme": "nocturne"
+    }
+  ],
+  "actualBrowserScreens": true,
+  "isolatedData": true,
+  "errors": []
+}
