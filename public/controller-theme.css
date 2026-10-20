@@ -1,0 +1,81 @@
+/* Loaded only by index.html; iframe/OBS documents have their own stylesheets. */
+html{color-scheme:dark}
+html[data-control-theme="light"]{color-scheme:light;--ui-page:#f5f7fb;--ui-panel:#fff;--ui-soft:#edf2fa;--ui-ink:#18202d;--ui-muted:#526079;--ui-line:#cbd5e5;--ui-blue:#1355fc}
+body>header .control-theme-toggle{flex-shrink:0;min-width:106px;padding:7px 12px;font-size:11px;border:1px solid #85c9fc66;background:#132b50;color:#e5f1ff;white-space:nowrap}
+html[data-control-theme="light"] body{background:var(--ui-page);color:var(--ui-ink)}
+html[data-control-theme="light"] body>header{background:var(--ui-panel);border-color:var(--ui-line)}
+html[data-control-theme="light"] .wordmark,html[data-control-theme="light"] .wordmark small{color:var(--ui-ink)}
+html[data-control-theme="light"] .wordmark>span{color:var(--ui-blue)}
+html[data-control-theme="light"] body>header .control-theme-toggle{background:#eaf0ff;color:#123fa6;border-color:#9bb7f7}
+html[data-control-theme="light"] aside{background:var(--ui-panel);border-color:var(--ui-line)}
+html[data-control-theme="light"] .workflow-brand,html[data-control-theme="light"] .workflow-brand span{color:#234981}
+html[data-control-theme="light"] .workflow-nav button strong{color:#26354c}
+html[data-control-theme="light"] .workflow-nav button small,html[data-control-theme="light"] .workflow-nav button>span{color:var(--ui-muted)}
+html[data-control-theme="light"] .workflow-nav button.active{background:#eaf0ff;border-color:#a4bffa}
+html[data-control-theme="light"] .workflow-nav button.active strong,html[data-control-theme="light"] .workflow-nav button.active>span{color:#1149cd}
+html[data-control-theme="light"] nav button{color:#35465e}
+html[data-control-theme="light"] nav button.active{background:#eaf0ff;color:#1149cd}
+html[data-control-theme="light"] nav button.active span{color:#1149cd}
+html[data-control-theme="light"] .workflow-heading p,html[data-control-theme="light"] .workflow-heading span,html[data-control-theme="light"] .project>span,html[data-control-theme="light"] .status,html[data-control-theme="light"] .workflow-nav-hint,html[data-control-theme="light"] .sidebar-note,html[data-control-theme="light"] .eyebrow{color:var(--ui-muted);border-color:var(--ui-line)}
+html[data-control-theme="light"] a,html[data-control-theme="light"] .obs-link,html[data-control-theme="light"] footer a{color:#164dcc}
+html[data-control-theme="light"] .status.offline{color:#b42332}
+html[data-control-theme="light"] .status i,html[data-control-theme="light"] .broadcast-bar i{background:#176b4b}
+html[data-control-theme="light"] .workflow-monitor,html[data-control-theme="light"] .clock-desk,html[data-control-theme="light"] .desk-card,html[data-control-theme="light"] .workflow-drawer,html[data-control-theme="light"] .control-section,html[data-control-theme="light"] .team-form{background:var(--ui-panel);color:var(--ui-ink);border-color:var(--ui-line);box-shadow:0 2px 8px #12345b06}
+html[data-control-theme="light"] .workflow-monitor .workflow-drawer,html[data-control-theme="light"] .event-corrections{background:transparent;box-shadow:none}
+html[data-control-theme="light"] .broadcast-bar{background:#fffffff5;border-color:var(--ui-line)}
+html[data-control-theme="light"] .broadcast-bar>span,html[data-control-theme="light"] .broadcast-bar b{color:var(--ui-ink)}
+html[data-control-theme="light"] .broadcast-explanation,html[data-control-theme="light"] .broadcast-help,html[data-control-theme="light"] .broadcast-help p{color:var(--ui-muted)}
+html[data-control-theme="light"] .broadcast-help strong{color:#143e96}
+html[data-control-theme="light"] button,html[data-control-theme="light"] .control-section button,html[data-control-theme="light"] .broadcast-bar button,html[data-control-theme="light"] .roster-actions button,html[data-control-theme="light"] button#play,html[data-control-theme="light"] button#replay{background:#f4f7fc;color:#24344d;border-color:#bdcce2}
+html[data-control-theme="light"] button:hover{background:#e5edfc;border-color:#8baef3}
+html[data-control-theme="light"] .primary,html[data-control-theme="light"] button.primary,html[data-control-theme="light"] button#broadcast,html[data-control-theme="light"] .clock-actions button.primary{background:#1355fc!important;color:#fff!important;border-color:#1355fc!important}
+html[data-control-theme="light"] .danger,html[data-control-theme="light"] button.danger{background:#fff1f2!important;color:#ae2034!important;border-color:#e4a1ad!important}
+html[data-control-theme="light"] input,html[data-control-theme="light"] select,html[data-control-theme="light"] textarea,html[data-control-theme="light"] .control-section input,html[data-control-theme="light"] .control-section select{background:#fff;color:#18202d;border-color:#aebed5;accent-color:#1355fc}
+html[data-control-theme="light"] input::placeholder,html[data-control-theme="light"] textarea::placeholder{color:#69758a;opacity:1}
+html[data-control-theme="light"] input:focus,html[data-control-theme="light"] select:focus,html[data-control-theme="light"] textarea:focus{border-color:#1355fc}
+html[data-control-theme="light"] :focus-visible{outline-color:#1355fc}
+html[data-control-theme="light"] label,html[data-control-theme="light"] .check-grid label,html[data-control-theme="light"] .inline-fields label,html[data-control-theme="light"] .team-form label,html[data-control-theme="light"] .clock-actions>label,html[data-control-theme="light"] .clock-settings label{color:#34435a}
+html[data-control-theme="light"] .hint,html[data-control-theme="light"] .subheading,html[data-control-theme="light"] .asset-note,html[data-control-theme="light"] .preview-help,html[data-control-theme="light"] .score-controls p,html[data-control-theme="light"] .tools,html[data-control-theme="light"] footer{color:var(--ui-muted);border-color:var(--ui-line)}
+html[data-control-theme="light"] .workflow-monitor #save-state,html[data-control-theme="light"] .preview-help #save-state{color:#285d89}
+html[data-control-theme="light"] .workflow-drawer>summary,html[data-control-theme="light"] .control-section summary,html[data-control-theme="light"] .workflow-monitor .workflow-drawer>summary,html[data-control-theme="light"] .event-corrections>summary{color:#234779}
+html[data-control-theme="light"] .clock-display{border-color:var(--ui-line)}
+html[data-control-theme="light"] .clock-display>strong,html[data-control-theme="light"] .live-scorebar b,html[data-control-theme="light"] .desk-title h2{color:var(--ui-ink)}
+html[data-control-theme="light"] .clock-display>small,html[data-control-theme="light"] .clock-display>small span,html[data-control-theme="light"] .clock-display>span,html[data-control-theme="light"] .clock-input-help,html[data-control-theme="light"] .clock-apply-note,html[data-control-theme="light"] .live-scorebar>small,html[data-control-theme="light"] .workflow-operations #match-revision{color:var(--ui-muted)}
+html[data-control-theme="light"] .desk-card>h3 small,html[data-control-theme="light"] .desk-card h4,html[data-control-theme="light"] .desk-title small,html[data-control-theme="light"] .desk-title>span{color:#285385}
+html[data-control-theme="light"] .actual-cue,html[data-control-theme="light"] .workflow-operations .actual-cue,html[data-control-theme="light"] .event-output-status,html[data-control-theme="light"] .adjustment-summary{background:#edf2ff;color:#193f84;border-color:#a9bfec}
+html[data-control-theme="light"] .event-log{background:#f5f7fb}
+html[data-control-theme="light"] .log-entry,html[data-control-theme="light"] .queue-item,html[data-control-theme="light"] #sub-pairs>div{background:#fff;border-color:var(--ui-line);color:var(--ui-ink)}
+html[data-control-theme="light"] .log-entry b,html[data-control-theme="light"] .queue-item b{color:#18202d}
+html[data-control-theme="light"] .log-entry time,html[data-control-theme="light"] .log-entry div>span,html[data-control-theme="light"] .queue-item small{color:var(--ui-muted)}
+html[data-control-theme="light"] .upload-button{background:#edf3ff;border-color:#afc5ef;color:#1546b5}
+html[data-control-theme="light"] .roster caption,html[data-control-theme="light"] .roster th{color:#364964}
+html[data-control-theme="light"] .roster td,html[data-control-theme="light"] .roster th,html[data-control-theme="light"] .crew-fields,html[data-control-theme="light"] .red-marker-controls{border-color:var(--ui-line)}
+html[data-control-theme="light"] .roster .has-media{color:#135c45}
+html[data-control-theme="light"] .red-marker-controls>span,html[data-control-theme="light"] .red-marker-controls>small{color:#58677d}
+html[data-control-theme="light"] .theme-switch button{background:#fff;border-color:var(--ui-line);color:#24344d}
+html[data-control-theme="light"] .theme-switch button.active{background:#eaf0ff;border-color:#7fa4f0}
+html[data-control-theme="light"] .theme-switch small{color:#526079}
+html[data-control-theme="light"] .toolbar small{background:#edf2fa;border-color:var(--ui-line);color:#344b6a}
+html[data-control-theme="light"] #view-live{color:#164dcc;border-color:#9cb8ed}
+html[data-control-theme="light"] .workflow-stage #flow-opening,html[data-control-theme="light"] .workflow-stage #flow-halftime,html[data-control-theme="light"] .workflow-stage #flow-fulltime{background:#eaf0ff;color:#164dcc;border-color:#a4bcf0}
+html[data-control-theme="light"] .stat-input-head{color:#345785}
+html[data-control-theme="light"] .pk-desk-score{color:#124cbe}
+html[data-control-theme="light"] .shootout-rounds button.made,html[data-control-theme="light"] .pk-edit-row .made{background:#def1f4;color:#12495c;border-color:#80bbc9}
+html[data-control-theme="light"] .shootout-rounds button.missed,html[data-control-theme="light"] .pk-edit-row .missed{background:#fff0f2;color:#aa2b40;border-color:#e3a5b1}
+html[data-control-theme="light"] .pk-edit-row .pending,html[data-control-theme="light"] .pk-edit-row button small{color:#526079}
+html[data-control-theme="light"] .recovery-banner{background:#e5f4ee;color:#1b523f;border:1px solid #a2cfbe}
+html[data-control-theme="light"] .event-dialog,html[data-control-theme="light"] .portrait-dialog{background:#fff;color:var(--ui-ink);border-color:#aebed5;box-shadow:0 20px 75px #132b5040}
+html[data-control-theme="light"] .event-dialog::backdrop,html[data-control-theme="light"] .portrait-dialog::backdrop{background:#15213d70}
+html[data-control-theme="light"] .event-dialog>header{border-color:var(--ui-line)}
+html[data-control-theme="light"] .event-dialog small,html[data-control-theme="light"] .event-modal-preview p,html[data-control-theme="light"] .goal-kind-help{color:var(--ui-muted)}
+html[data-control-theme="light"] .event-dialog .action-row{background:#fff}
+html[data-control-theme="light"] .event-dialog #penalty-card-fields{border-color:var(--ui-line)}
+html[data-control-theme="light"] .roster-search-results{background:#fff;border-color:#a7bce1;box-shadow:0 8px 24px #18345626}
+html[data-control-theme="light"] .roster-search-results>button{background:#fff;color:#18202d}
+html[data-control-theme="light"] .roster-search-results>button:hover,html[data-control-theme="light"] .roster-search-results>button.active{background:#e7efff;color:#134bbf}
+html[data-control-theme="light"] .roster-search-results>p{color:#526079}
+html[data-control-theme="light"] .portrait-setup{background:#eff4ff;border-color:#b6c9ec}
+html[data-control-theme="light"] .portrait-setup span,html[data-control-theme="light"] .portrait-dialog #portrait-message{color:#34517d}
+html[data-control-theme="light"] .portrait-setup a{color:#164dcc}
+html[data-control-theme="light"] #toast{background:#e7f0ff;color:#163c7d;border-color:#9fbbe9;box-shadow:0 8px 30px #18345626}
+@media(max-width:700px){body>header{gap:10px}body>header .control-theme-toggle{min-width:95px;padding:7px 8px;font-size:10px}body>header .status{min-width:0;flex:1;overflow:hidden;white-space:nowrap;font-size:9px;gap:4px}}

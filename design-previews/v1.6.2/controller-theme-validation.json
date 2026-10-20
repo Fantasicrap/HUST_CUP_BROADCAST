@@ -1,0 +1,27 @@
+{
+  "checks": [
+    "light live readable shell and panels, no horizontal overflow",
+    "light pregame readable shell and panels, no horizontal overflow",
+    "light halftime readable shell and panels, no horizontal overflow",
+    "light extra readable shell and panels, no horizontal overflow",
+    "light postgame readable shell and panels, no horizontal overflow",
+    "light settings readable shell and panels, no horizontal overflow",
+    "dark live readable shell and panels, no horizontal overflow",
+    "dark pregame readable shell and panels, no horizontal overflow",
+    "dark halftime readable shell and panels, no horizontal overflow",
+    "dark extra readable shell and panels, no horizontal overflow",
+    "dark postgame readable shell and panels, no horizontal overflow",
+    "dark settings readable shell and panels, no horizontal overflow",
+    "Controller toggle does not change match, broadcast theme or live run",
+    "Light and dark choices survive reload",
+    "Other controller tabs follow saved preference",
+    "Event form and action footer use light background",
+    "Toggle accessible at 980px without page overflow",
+    "Toggle accessible at 720px without page overflow",
+    "Toggle accessible at 390px without page overflow",
+    "Main headings, navigation, clock, labels and explanations meet 4.5:1 text contrast",
+    "Switch still works when browser storage is blocked",
+    "Theme toggle works independently when match API is unavailable"
+  ],
+  "errors": []
+}
