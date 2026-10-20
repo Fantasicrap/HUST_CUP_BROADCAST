@@ -137,3 +137,11 @@ body{font-family:var(--font-ui);font-weight:900}button,input,select,textarea{fon
  100%{clip-path:inset(calc(-1 * var(--spill-top,8px)) -8px calc(-1 * var(--spill-bottom,8px)) -8px);opacity:1}
 }
 @media(prefers-reduced-motion:reduce){.opening,.intro-screen,.shootout{animation-duration:1ms!important}}
+
+/* Lower-left packages: establish the vertical line, hold, then reveal to the right. */
+.stage .mini-event,.stage .info-strip.cue-graphic{animation-name:leftLineReveal}
+@keyframes leftLineReveal{
+ 0%{clip-path:inset(0 calc(100% - 4px) 0 0);opacity:0}
+ 14%,40%{clip-path:inset(0 calc(100% - 4px) 0 0);opacity:1}
+ 100%{clip-path:inset(calc(-1 * var(--spill-top,8px)) -8px calc(-1 * var(--spill-bottom,8px)) -8px);opacity:1}
+}

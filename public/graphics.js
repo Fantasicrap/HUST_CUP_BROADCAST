@@ -19,8 +19,8 @@ const compactName=t=>esc(t.name.length>8&&t.short?t.short:t.name);
 const competition=()=>`<div class="competition">${logo()}<div><b>${esc(data.competition.name)}</b><span>${esc(data.competition.subtitle)} · ${esc(data.competition.round)}</span></div></div>`;
 const safeImgError=()=>layer.querySelectorAll('img').forEach(img=>{const failed=()=>img.remove();img.addEventListener('error',failed,{once:true});if(img.complete&&!img.naturalWidth)failed();});
 const scoreFlags=(team,side)=>{const count=dismissalMarkers(data,side);return count?`<span class="dismissal-flags ${side}" data-red-team="${side}" aria-label="${esc(team.name)}场上红牌 ${count} 张">${'<i></i>'.repeat(count)}</span>`:'';};
-function scoreRow(extra='',scores=data.score){
- return `<div class="score-row ${extra}"><div class="score-team home">${kit(data.home)}${badge(data.home)}<strong title="${name(data.home)}">${compactName(data.home)}</strong></div><b class="score-value" data-side="home">${scores.home}</b><div class="score-logo">${logo()}</div><b class="score-value" data-side="away">${scores.away}</b><div class="score-team away"><strong title="${name(data.away)}">${compactName(data.away)}</strong>${badge(data.away)}${kit(data.away)}</div>${scoreFlags(data.home,'home')}${scoreFlags(data.away,'away')}</div>`;
+function scoreRow(extra='',scores=data.score,center=null){
+ return `<div class="score-row ${extra}"><div class="score-team home">${kit(data.home)}${badge(data.home)}<strong title="${name(data.home)}">${compactName(data.home)}</strong></div><b class="score-value" data-side="home">${scores.home}</b>${center||`<div class="score-logo">${logo()}</div>`}<b class="score-value" data-side="away">${scores.away}</b><div class="score-team away"><strong title="${name(data.away)}">${compactName(data.away)}</strong>${badge(data.away)}${kit(data.away)}</div>${scoreFlags(data.home,'home')}${scoreFlags(data.away,'away')}</div>`;
 }
 function scoreboard(){
  if(!data.config.modules.scoreboard||!scoreboardVisible(data)&&currentScene!=='cancelGoal')return '';
@@ -28,7 +28,9 @@ function scoreboard(){
  if(data.tie?.enabled)context.push(`总比分 ${data.aggregate.home} : ${data.aggregate.away}`);
  if(data.matchClock?.phase==='shootout')context.push(`点球 ${shootoutStatus(data.shootout).home} : ${shootoutStatus(data.shootout).away}`);
  const extension=item?`<div class="team-event-extensions"><div class="team-event-extension ${item.team}" data-event-team="${item.team}"><div><i class="bug-event-symbol ${item.symbol}">${item.symbol==='goal'?'●':item.symbol==='cancel'?'×':''}</i><span>${esc(data[item.team].short||data[item.team].name)} · ${esc(item.label)}</span><b>${esc(item.time||'')}</b></div><strong>${esc(item.number||'')} ${esc(item.name)}${item.goalMark?' '+esc(item.goalMark):''}</strong>${item.reason?`<p class="cancel-reason">${esc(item.reason)}</p>`:''}</div></div>`:'';
- return `<section class="slim-score" style="width:${width}px;left:${Math.min(data.config.x,1920-54-width*data.config.scale)}px;top:${Math.min(data.config.y,1080-54-125*data.config.scale)}px;--scale:${data.config.scale}" aria-label="单行常驻比分牌">${scoreRow()}<div class="slim-clock"><b>${esc(cv.display)}</b><span>${esc(cv.phase)}</span></div>${cv.announced?`<div class="added-time-block" aria-label="补时 ${cv.announced} 分钟"><strong>+${cv.announced}</strong><small>分钟</small></div>`:''}${context.length?`<div class="score-context">${context.map(v=>`<span>${v}</span>`).join('')}</div>`:''}${extension}</section>`;
+ const swapped=data.config.scoreboardLayout==='clock-center',clock=`<div class="slim-clock"><b>${esc(cv.display)}</b><span>${esc(cv.phase)}</span></div>`,added=cv.announced?`<div class="added-time-block" aria-label="补时 ${cv.announced} 分钟"><strong>+${cv.announced}</strong><small>分钟</small></div>`:'';
+ const rowWidth=swapped?732+(cv.announced?60:0):660;
+ return `<section class="slim-score ${swapped?'clock-center':''}" style="width:${width}px;left:${Math.min(data.config.x,1920-54-width*data.config.scale)}px;top:${Math.min(data.config.y,1080-54-125*data.config.scale)}px;--scale:${data.config.scale};--score-row-width:${rowWidth}px;--clock-slot-width:${122+(cv.announced?60:0)}px" aria-label="单行常驻比分牌">${swapped?scoreRow('',data.score,`<div class="score-clock-slot">${clock}${added}</div>`)+`<div class="score-logo score-end-logo">${logo()}</div>`:scoreRow()+clock+added}${context.length?`<div class="score-context">${context.map(v=>`<span>${v}</span>`).join('')}</div>`:''}${extension}</section>`;
 }
 function event(type){
  const goal=type==='goal';let item=goal?data.goal:data.substitution;if(!goal&&item.pairs?.length){const index=Math.min(item.pairs.length-1,Math.floor(currentElapsed/Math.max(1200,data.config.eventHoldMs/item.pairs.length)));item={...item,...item.pairs[index]};}const team=data[item.team]||data.home;
@@ -56,7 +58,8 @@ function positionRibbon(step,elapsed){
  const english={goalkeeper:'GOALKEEPER',defenders:'DEFENDERS',midfielders:'MIDFIELDERS',forwards:'FORWARDS'};
  const origin=step.forced?elapsed:step.kind==='shirts'?step.start:step.kind==='flip'?step.start-1000:step.start-1000-(data.config.flip?720:0);
  const age=step.forced?1200:Math.max(0,elapsed-origin),remaining=step.end-elapsed;
- return `<div class="position-ribbon ${step.kind==='media'&&remaining<=450?'ribbon-leaving':''}" data-position="${step.group}" style="--ribbon-age:-${age}ms;--ribbon-exit-age:-${Math.max(0,450-remaining)}ms"><span>${esc(GROUPS[step.group])}</span><b>${english[step.group]}</b><i></i></div>`;
+ const groupRemaining=remaining+(step.kind==='shirts'?(data.config.flip?720:0)+data.config.mediaHoldMs:step.kind==='flip'?data.config.mediaHoldMs:0);
+ return `<div class="position-ribbon ${step.kind==='media'&&remaining<=450?'ribbon-leaving':''}" data-position="${step.group}" ${Number.isFinite(groupRemaining)?`data-motion-remaining="${groupRemaining}"`:""} style="--ribbon-age:-${age}ms;--ribbon-exit-age:-${Math.max(0,450-remaining)}ms"><span>${esc(GROUPS[step.group])}</span><b>${english[step.group]}</b><i></i></div>`;
 }
 function fitFormationNames(){
  layer.querySelectorAll('.formation-name,.focus-name>strong').forEach(el=>{el.style.fontSize='';let size=parseFloat(getComputedStyle(el).fontSize);while(el.scrollWidth>el.clientWidth+1&&size>14){size--;el.style.fontSize=size+'px';}});

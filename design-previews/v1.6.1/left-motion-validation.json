@@ -1,0 +1,33 @@
+{
+  "checks": [
+    "pulse goal left line/hold/right reveal and reversed withdrawal",
+    "pulse substitution left line/hold/right reveal and reversed withdrawal",
+    "pulse card left line/hold/right reveal and reversed withdrawal",
+    "pulse penalty left line/hold/right reveal and reversed withdrawal",
+    "pulse notice left line/hold/right reveal and reversed withdrawal",
+    "pulse var left line/hold/right reveal and reversed withdrawal",
+    "pulse person left line/hold/right reveal and reversed withdrawal",
+    "pulse statStrip left line/hold/right reveal and reversed withdrawal",
+    "pulse sponsor left line/hold/right reveal and reversed withdrawal",
+    "pulse commentators left line/hold/right reveal and reversed withdrawal",
+    "pulse kickoff left line/hold/right reveal and reversed withdrawal",
+    "nocturne goal left line/hold/right reveal and reversed withdrawal",
+    "nocturne substitution left line/hold/right reveal and reversed withdrawal",
+    "nocturne card left line/hold/right reveal and reversed withdrawal",
+    "nocturne penalty left line/hold/right reveal and reversed withdrawal",
+    "nocturne notice left line/hold/right reveal and reversed withdrawal",
+    "nocturne var left line/hold/right reveal and reversed withdrawal",
+    "nocturne person left line/hold/right reveal and reversed withdrawal",
+    "nocturne statStrip left line/hold/right reveal and reversed withdrawal",
+    "nocturne sponsor left line/hold/right reveal and reversed withdrawal",
+    "nocturne commentators left line/hold/right reveal and reversed withdrawal",
+    "nocturne kickoff left line/hold/right reveal and reversed withdrawal",
+    "New formation position ribbon also withdraws back towards its left edge",
+    "opening reverse collapse on explicit withdrawal",
+    "intro reverse collapse on explicit withdrawal",
+    "shootout reverse collapse on explicit withdrawal",
+    "scoreboard reverse collapse on explicit withdrawal",
+    "Team event extension retracts upwards, reversing its downward expansion"
+  ],
+  "errors": []
+}

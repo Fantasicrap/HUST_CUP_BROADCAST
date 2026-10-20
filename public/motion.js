@@ -1,9 +1,10 @@
 // Presentation only. Never delays a match update or writes the event ledger.
 export const ENTER_MS=1100;
 export const EXIT_MS=900;
-const selector='.slim-score,.bottom-score,.compact-pk,.entrance-bar,.mini-event,.info-strip,.referee-panel,.team-event-extension,.added-time-block,.score-context,.dismissal-flags,.opening,.intro-screen,.shootout';
+const selector='.slim-score,.bottom-score,.compact-pk,.entrance-bar,.mini-event,.info-strip,.referee-panel,.team-event-extension,.added-time-block,.score-context,.dismissal-flags,.opening,.intro-screen,.shootout,.position-ribbon';
 function identity(node,run){
  if(node.matches('.slim-score'))return 'scoreboard';
+ if(node.matches('.position-ribbon'))return `ribbon:${run}:${node.dataset.position}`;
  if(node.matches('.team-event-extension'))return `event:${run}:${node.dataset.eventTeam}`;
  if(node.matches('.added-time-block,.score-context,.dismissal-flags'))return `chip:${node.className}:${node.textContent}:${node.childElementCount}`;
  return `panel:${run}:${[...node.classList].find(c=>c!=='cue-graphic')}`;
@@ -22,6 +23,13 @@ function geometry(node){
 }
 function exitFrames(node){
  const css=getComputedStyle(node),v=(name,fallback)=>css.getPropertyValue(name).trim()||fallback;
+ const open=css.clipPath==='none'?'inset(-64px -8px -64px -8px)':css.clipPath;
+ if(node.matches('.mini-event,.info-strip')){
+  const line='inset(0px calc(100% - 4px) 0px 0px)';
+  return [{clipPath:open,opacity:1},{clipPath:line,opacity:1,offset:.6},{clipPath:line,opacity:1,offset:.86},{clipPath:line,opacity:0}];
+ }
+ if(node.matches('.team-event-extension'))return [{clipPath:open,opacity:1},{clipPath:'inset(0px 0px 100% 0px)',opacity:0}];
+ if(node.matches('.position-ribbon'))return [{clipPath:open,opacity:1},{clipPath:'inset(0px 100% 0px 0px)',opacity:0}];
  const core=`inset(${v('--core-top','0px')} 0 ${v('--core-bottom','0px')} 0)`;
  const closed=`inset(${v('--core-top','0px')} 50% ${v('--core-bottom','0px')} 50%)`;
  return [{clipPath:css.clipPath==='none'?'inset(-64px -8px -64px -8px)':css.clipPath,opacity:1},{clipPath:core,opacity:1,offset:1/3},{clipPath:core,opacity:1,offset:2/3},{clipPath:closed,opacity:0}];
@@ -61,11 +69,12 @@ export function createMotion(layer){
    const entered=previous?.entered??(active.size&&[...active.values()].some(v=>v.run===run)?now:now-elapsed);
    // Persistent base survives event changes; its extensions animate independently.
    if(node.matches('.slim-score')&&previous)node.style.animation='none';
-   else node.style.animationDelay=`-${Math.max(0,now-entered)}ms`;
+   else if(!node.matches('.position-ribbon'))node.style.animationDelay=`-${Math.max(0,now-entered)}ms`;
    if(remaining!==null&&remaining>0&&remaining<=EXIT_MS&&!node.matches('.slim-score,.added-time-block,.score-context,.dismissal-flags')&&!reduced()){
     const a=node.animate(exitFrames(node),{duration:EXIT_MS,easing:'cubic-bezier(.4,0,.7,1)',fill:'both'});a.currentTime=EXIT_MS-remaining;
    }
-   updated.set(key,{node,entered:previous&&sameRun?previous.entered:entered,run,deadline:remaining===null?null:now+remaining});
+   const ownRemaining=node.dataset.motionRemaining?Number(node.dataset.motionRemaining):remaining;
+   updated.set(key,{node,entered:previous&&sameRun?previous.entered:entered,run,deadline:ownRemaining===null?null:now+ownRemaining});
   }
   active=updated;
  }
