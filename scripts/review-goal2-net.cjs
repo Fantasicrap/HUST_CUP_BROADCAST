@@ -3,7 +3,7 @@ const fs=require('node:fs/promises'),path=require('node:path'),os=require('node:
 const {spawn}=require('node:child_process');
 const assert=require('node:assert/strict');
 (async()=>{
- const root=path.resolve(__dirname,'..'),temp=await fs.mkdtemp(path.join(os.tmpdir(),'hust-goal-net-')),out=path.join(root,'design-previews/v1.8.3');
+ const root=path.resolve(__dirname,'..'),temp=await fs.mkdtemp(path.join(os.tmpdir(),'hust-goal-net-')),out=path.join(root,'design-previews/v1.8.4');
  await fs.mkdir(out,{recursive:true});let child,browser;
  const errors=[],checks=[];
  try{
@@ -30,6 +30,7 @@ const assert=require('node:assert/strict');
    await page.evaluate(p=>window.postMessage({type:'goal2Preview',payload:p},location.origin),{...payload,phaseMs:seconds*1000});
    await page.waitForFunction(()=>document.querySelector('#canvas').dataset.kit);
    const ms=seconds*1000;
+   if(seconds===4){await frame(600);await page.screenshot({path:path.join(out,'goal-largest-clearance.png')});}
    const apex=await frame(ms*.38);assert(apex.aboveText,'Ball must fly above GOAL '+JSON.stringify(apex));
    assert((await frame(ms*.70)).leftOfMouth,'Approach must start outside the opening');
    assert((await frame(ms*.77)).mouth,'The full ball must cross through the mouth');
