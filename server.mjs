@@ -4,8 +4,9 @@ import fs from 'node:fs/promises';
 import {createReadStream,unlinkSync} from 'node:fs';
 import {randomUUID} from 'node:crypto';
 import {fileURLToPath} from 'node:url';
-import {normalizeDraft,SCENES,CONTEXTS,assertBenchLimit} from './public/model.js';
+import {normalizeDraft,SCENES,CONTEXTS,assertBenchLimit,formationDuration} from './public/model.js';
 import {inspectAsset} from './lib/assets.mjs';
+import {createPortraitProcessor} from './lib/portraits.mjs';
 import {newMatch,changeMatch,recordMatchEvent,composeData,deriveMatch,eventScene,clockMs,PHASES,EVENT_LABELS} from './public/match.js';
 const project=path.dirname(fileURLToPath(import.meta.url));
 const applicationVersion=JSON.parse(await fs.readFile(path.join(project,'package.json'),'utf8')).version;
@@ -13,6 +14,7 @@ const root=path.join(project,'public');
 const runtime=path.resolve(process.env.HUST_DATA_DIR||path.join(project,'runtime'));
 const assetFolder=path.join(runtime,'assets');
 await fs.mkdir(assetFolder,{recursive:true});
+const portraits=createPortraitProcessor({project,runtime});
 const lockPath=path.join(runtime,'service.lock');
 let lock;
 try{lock=await fs.open(lockPath,'wx');}catch(error){
@@ -47,10 +49,11 @@ const priority=scene=>['goal','cancelGoal','card','var'].includes(scene)?90:['su
 const isFulltimeCue=item=>item.scene==='fulltime'||['bottomScore','summary'].includes(item.scene)&&item.context==='fulltime';
 function cue(command){
  const scene=command.scene,template=structuredClone(command.eventId?state.publishedDraft:state.draft);if(!SCENES.includes(scene)||!template.config.modules[scene])throw Error('该模块未启用，不能播出');if(scene==='var'&&!template.config.varEnabled)throw Error('VAR 默认关闭，请先启用');
+ if(command.singleTeam)template.config.lineupBoth=false;
  const context=Object.hasOwn(CONTEXTS,command.context)?command.context:'pregame';if(scene==='bottomScore'&&!template.config.contexts[context])throw Error('该底部比分场景未启用');
  if(state.match.clock.running&&isFulltimeCue({scene,context}))throw Error('计时仍在运行，请先暂停计时或切换全场结束阶段，再播出全场画面');
  const event=command.eventId?state.match.events.find(e=>e.id===command.eventId&&e.active!==false):null;if(command.eventId&&!event)throw Error('事件不存在或已撤销');if(event&&eventScene(event)!==scene)throw Error('事件与播出模块不匹配');if(event?.type==='goal'&&deriveMatch(state.match).goals.find(g=>g.id===event.id)?.cancelled)throw Error('该进球已取消，不能作为有效进球重播');
- return {id:randomUUID(),template,scene,context,eventId:event?.id||null,team:command.team==='away'?'away':command.team==='home'?'home':state.draft.config.team,priority:priority(scene),holdMs:scene==='scoreboard'?null:Math.max(1200,Math.min(120000,Number(command.holdMs)||(scene==='bottomScore'?state.draft.config.bottomHoldMs:scene==='transition'?1400:scene==='formation'?45000:transient.has(scene)?state.draft.config.eventHoldMs:15000))),createdAt:Date.now()};
+ return {id:randomUUID(),template,scene,context,eventId:event?.id||null,team:command.team==='away'?'away':command.team==='home'?'home':state.draft.config.team,priority:priority(scene),holdMs:scene==='scoreboard'?null:Math.max(1200,Math.min(scene==='formation'?300000:120000,Number(command.holdMs)||(scene==='bottomScore'?state.draft.config.bottomHoldMs:scene==='transition'?1400:scene==='formation'?formationDuration({...template,config:{...template.config,team:command.team||template.config.team}}):transient.has(scene)?state.draft.config.eventHoldMs:15000))),createdAt:Date.now()};
 }
 function startCue(item){if(state.match.clock.running&&isFulltimeCue(item))return finishCue();const event=item.eventId?state.match.events.find(e=>e.id===item.eventId):null;state.publishedDraft=structuredClone(item.template||state.publishedDraft);const data=composeData(state.publishedDraft,state.match,event);data.config.team=item.team;state.live={data,scene:item.scene,context:item.context,startedAt:Date.now(),runId:item.id,revision:state.live.revision,expiresAt:item.holdMs?Date.now()+item.holdMs:null,priority:item.priority,eventId:item.eventId};publish();}
 function enqueue(item,force=false){const busy=state.live.expiresAt&&state.live.expiresAt>Date.now();if(busy&&!force){if(state.queue.length>=200)throw Error('待播队列已满，请先移除旧画面');state.queue.push(item);state.queue.sort((a,b)=>b.priority-a.priority||a.createdAt-b.createdAt);}else startCue(item);}
@@ -68,6 +71,7 @@ const server=http.createServer(async(req,res)=>{
    const expected=`http://${req.headers.host}`;
    if(!/^(127\.0\.0\.1|localhost):\d+$/.test(req.headers.host||'')||(req.headers.origin&&req.headers.origin!==expected))return json(res,{error:'仅接受本机同源请求'},403);
   }
+  if(url.pathname==='/help/portrait'&&req.method==='GET'){res.writeHead(200,{'Content-Type':'text/plain; charset=utf-8'}).end(await fs.readFile(path.join(project,'docs/赛前人像抠图.md'),'utf8'));return;}
   if(url.pathname==='/favicon.ico'){res.writeHead(204).end();return;}
   if(url.pathname==='/api/health'&&req.method==='GET')return json(res,{application:'HUST_CUP_BROADCAST',version:applicationVersion});
   if(url.pathname==='/api/preview'&&req.method==='GET')return json(res,{data:composeData(state.draft,state.match),serverNow:Date.now()});
@@ -121,6 +125,8 @@ const server=http.createServer(async(req,res)=>{
    for(const [name,value] of entries){if(!/^[a-f0-9]{64}\.[a-z0-9]+$/.test(name)||typeof value!=='string')throw Error('素材名称无效');const bytes=Buffer.from(value,'base64');if(inspectAsset(bytes,name)!==name)throw Error('素材校验失败');checked.push([name,bytes]);}
    await mutate(async()=>{for(const [name,bytes] of checked)await fs.writeFile(path.join(assetFolder,name),bytes);state.draft=clean;state.publishedDraft=structuredClone(clean);state.outputDelayMs=clean.config.delayMs;state.match=match;state.match.clock.running=false;state.match.clock.anchor=Date.now();state.match.recovery=null;state.queue=[];state.live={...state.live,scene:'clear',expiresAt:null,eventId:null};state.live.data=composeData(clean,match);publish({immediate:true});await save();});return json(res,controller());
   }
+  if(url.pathname==='/api/portraits/status'&&req.method==='GET')return json(res,await portraits.status());
+  if(url.pathname==='/api/portraits/cutout'&&req.method==='POST'){const command=JSON.parse((await body(req)).toString('utf8'));return json(res,await portraits.processPortrait(command.path));}
   if(url.pathname==='/api/assets'&&req.method==='POST'){const bytes=await body(req,100*1024*1024);const name=inspectAsset(bytes,url.searchParams.get('name')||'');await fs.writeFile(path.join(assetFolder,name),bytes);return json(res,{path:'uploads/'+name});}
   if(url.pathname.startsWith('/api/'))return json(res,{error:'接口不存在'},404);
   const uploaded=url.pathname.startsWith('/uploads/');

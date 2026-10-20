@@ -1,3 +1,4 @@
+import {decoratePanels} from './woven.js';
 import {kitSurfaceVariables,materialSettings} from './material-colors.js';
 import {createMotion,ENTER_MS,EXIT_MS} from './motion.js';
 import {scoreboardVisible,scoreboardClock,dismissalMarkers,scoreboardEvent} from './scoreboard.js';
@@ -37,10 +38,10 @@ function event(type){
 const fullBase=()=>`<div class="full-bg"><div class="light-arc arc-one"></div><div class="light-arc arc-two"></div><div class="grid-lines"></div><div class="ghost-mark">${trophy()}</div></div>`;
 function marks(p){return `<span class="player-marks">${data.config.showCaptain&&p.captain?'<i class="captain-mark" title="队长">C</i>':''}${data.config.showYellow&&p.yellowCards?`<i class="yellow-mark" title="累计黄牌 ${p.yellowCards}"><em></em>${p.yellowCards}</i>`:''}</span>`;}
 function shirt(p){const team=data[data.config.team],color=p.shirtColor||(p.goalkeeper?team.goalkeeperColor:team.kitColor);const rgb=color.slice(1).match(/../g).map(x=>parseInt(x,16));const ink=rgb[0]*.299+rgb[1]*.587+rgb[2]*.114>155?'#142033':'#ffffff';return `<span class="jersey" style="--shirt:${esc(color)};--number-ink:${ink}"><b>${p.number}</b></span>`;}
-function media(p,small=false,origin=0){const photo=data.config.usePhotos&&p.photo,video=!small&&data.config.useVideos&&p.video;return `<span class="player-media">${shirt(p)}${photo?`<img src="${esc(p.photo)}" alt="${esc(p.name)}定妆照">`:''}${video?`<video src="${esc(p.video)}" data-origin="${origin}" loop muted playsinline preload="auto" aria-label="${esc(p.name)}球员视频"></video>`:''}</span>`;}
+function media(p,small=false,origin=0){const photo=data.config.usePhotos&&p.photo,video=!small&&data.config.useVideos&&p.video;return `<span class="player-media">${shirt(p)}${photo?`<img class="portrait-cutout" src="${esc(p.photo)}" alt="${esc(p.name)}定妆照">`:''}${video?`<video src="${esc(p.video)}" data-origin="${origin}" loop muted playsinline preload="auto" aria-label="${esc(p.name)}球员视频"></video>`:''}</span>`;}
 function field(revealed=[]){
- const players=lineupFor(data).players;
- return `<div class="formation-pitch"><div class="field-line field-border"></div><div class="field-line field-half"></div><div class="field-line field-circle"></div><div class="field-line field-box top"></div><div class="field-line field-box bottom"></div>${players.map(p=>`<div class="lineup-player" data-player="${esc(p.id)}" style="left:${p.x}%;top:${p.y}%"><div class="player-avatar">${revealed.includes(p.group)?media(p,true):shirt(p)}${marks(p)}</div><strong>${esc(p.name)}</strong><small>${p.number}</small></div>`).join('')}</div>`;
+ const players=lineupFor(data).players,dense=lineupFor(data).name.split('-').length>=4;
+ return `<div class="formation-pitch ${dense?'dense-formation':''}"><div class="field-line field-border"></div><div class="field-line field-half"></div><div class="field-line field-circle"></div><div class="field-line field-box top"></div><div class="field-line field-box bottom"></div>${players.map(p=>`<div class="lineup-player" data-player="${esc(p.id)}" data-team="${data.config.team}" style="left:${p.x}%;top:${p.y}%"><div class="player-avatar">${revealed.includes(p.group)?media(p,true):shirt(p)}${marks(p)}</div><strong class="formation-name" title="${esc(p.name)}">${esc(p.name)}</strong><small>${p.number}</small></div>`).join('')}</div>`;
 }
 function benchPanel(){
  const bench=lineupFor(data).bench.slice(0,MAX_BENCH);
@@ -49,23 +50,34 @@ function benchPanel(){
 function focus(step,elapsed){
  const players=lineupFor(data).players.filter(p=>p.group===step.group),back=step.kind==='media';
  const origin=step.forced?0:step.kind==='shirts'?step.end+(data.config.flip?360:0):step.kind==='flip'?step.start+360:step.start-(data.config.flip?360:0);
- return `<div class="focus-panel"><div class="panel-kicker">${esc(GROUPS[step.group])} <small>PLAYER INTRODUCTION</small></div><div class="focus-cards" style="--cards:${players.length};--focus-card-width:${players.length===1?440:players.length===2?410:players.length===3?360:players.length===4?300:240}px;--focus-media-height:${players.length<=2?500:players.length===3?480:450}px">${players.map(p=>`<article class="focus-card"><div class="flip-space"><div class="flip-card ${step.kind==='flip'?'turning':back?'turned':''}" style="--flip-age:-${Math.max(0,elapsed-step.start)}ms"><div class="card-face card-front">${shirt(p)}</div><div class="card-face card-back">${media(p,false,origin)}</div></div>${marks(p)}</div><div class="focus-name"><b>${p.number}</b><strong>${esc(p.name)}</strong></div><small>${esc(p.position)}</small></article>`).join('')}</div></div>`;
+ return `<div class="focus-panel ${data.config.positionRibbon?'has-position-ribbon':''}"><div class="panel-kicker">${esc(GROUPS[step.group])} <small>PLAYER INTRODUCTION</small></div><div class="focus-cards" style="--cards:${players.length};--focus-card-width:${players.length===1?440:players.length===2?410:players.length===3?360:players.length===4?300:240}px;--focus-media-height:${players.length<=2?500:players.length===3?480:450}px">${players.map(p=>`<article class="focus-card"><div class="flip-space"><div class="flip-card ${step.kind==='flip'?'turning':back?'turned':''}" style="--flip-age:-${Math.max(0,elapsed-step.start)}ms"><div class="card-face card-front">${shirt(p)}</div><div class="card-face card-back">${media(p,false,origin)}</div></div>${marks(p)}</div><div class="focus-name"><b>${p.number}</b><strong>${esc(p.name)}</strong></div><small>${esc(p.position)}</small></article>`).join('')}</div>${data.config.positionRibbon?positionRibbon(step,elapsed):''}</div>`;
+}
+function positionRibbon(step,elapsed){
+ const english={goalkeeper:'GOALKEEPER',defenders:'DEFENDERS',midfielders:'MIDFIELDERS',forwards:'FORWARDS'};
+ const origin=step.forced?elapsed:step.kind==='shirts'?step.start:step.kind==='flip'?step.start-1000:step.start-1000-(data.config.flip?720:0);
+ const age=step.forced?1200:Math.max(0,elapsed-origin),remaining=step.end-elapsed;
+ return `<div class="position-ribbon ${step.kind==='media'&&remaining<=450?'ribbon-leaving':''}" data-position="${step.group}" style="--ribbon-age:-${age}ms;--ribbon-exit-age:-${Math.max(0,450-remaining)}ms"><span>${esc(GROUPS[step.group])}</span><b>${english[step.group]}</b><i></i></div>`;
+}
+function fitFormationNames(){
+ layer.querySelectorAll('.formation-name,.focus-name>strong').forEach(el=>{el.style.fontSize='';let size=parseFloat(getComputedStyle(el).fontSize);while(el.scrollWidth>el.clientWidth+1&&size>14){size--;el.style.fontSize=size+'px';}});
 }
 function lineupLegend(){return `<div class="lineup-legend">${data.config.showCaptain?'<span><i class="captain-mark">C</i> 队长</span>':''}${data.config.showYellow?'<span><i class="yellow-mark"><em></em>1</i> 累计黄牌</span>':''}</div>`;}
-function leftTeam(bench=false){const t=data[data.config.team],l=lineupFor(data),officials=[['coach','主教练','HEAD COACH'],['assistantCoach','助理教练','ASSISTANT COACH'],['manager','领队','TEAM MANAGER'],['medic','队医','TEAM DOCTOR']].filter(([key])=>l[key]?.trim());return `<div class="lineup-team ${t.name.length>10?'long-name':''}"><div class="overline">${bench?'SUBSTITUTES':'STARTING XI'}</div>${badge(t,'lineup-badge')}<h1>${name(t)}</h1><p>${esc(t.english)}</p><div class="lineup-shape">${bench?`${Math.min(MAX_BENCH,l.bench.length)} 人`:esc(l.name)}</div><div class="team-officials">${officials.map(([key,label,en])=>`<div class="team-official ${key==='coach'?'head-coach':''}" data-official="${key}"><small>${label} / ${en}</small><strong>${esc(l[key])}</strong></div>`).join('')}</div></div>`;}
-function formation(elapsed,standaloneBench=false){
- let step=standaloneBench?{kind:'bench',revealed:[],start:0,end:Infinity}:formationAt(data,elapsed);
+function leftTeam(bench=false){const t=data[data.config.team],l=lineupFor(data),officials=[['coach','主教练','HEAD COACH'],['assistantCoach','助理教练','ASSISTANT COACH'],['manager','领队','TEAM MANAGER'],['medic','队医','TEAM DOCTOR']].filter(([key])=>l[key]?.trim());return `<div class="lineup-team ${t.name.length>10?'long-name':''}"><div class="overline">${bench?'SUBSTITUTES':'STARTING XI'}</div>${badge(t,'lineup-badge')}<h1>${name(t)}</h1><p>${esc(t.english)}</p><div class="lineup-shape" style="font-size:${bench?64:Math.min(60,270/(l.name.replace(/\s/g,'').length*.95))}px;white-space:nowrap;letter-spacing:1px">${bench?`${Math.min(MAX_BENCH,l.bench.length)} 人`:esc(l.name)}</div><div class="team-officials">${officials.map(([key,label,en])=>`<div class="team-official ${key==='coach'?'head-coach':''}" data-official="${key}"><small>${label} / ${en}</small><strong>${esc(l[key])}</strong></div>`).join('')}</div></div>`;}
+function formation(elapsed,standaloneBench=false,single=false){
+ let step=standaloneBench?{kind:'bench',revealed:[],start:0,end:Infinity}:formationAt(single?{...data,config:{...data.config,lineupBoth:false}}:data,elapsed);
  const force=isLive?'':q.get('step')||'';
  if(force==='initial')step={kind:'formation',revealed:[],start:0,end:Infinity};
  if(force==='portraits')step={kind:'formation',revealed:Object.keys(GROUPS),start:0,end:Infinity};
  if(force==='bench')step={kind:'bench',revealed:Object.keys(GROUPS),start:0,end:Infinity};
  if(force?.startsWith('media-'))step={kind:'media',group:force.slice(6),revealed:[],start:0,end:Infinity,forced:true};
+ if(step.kind==='teamFlip'){const saved=data.config.team;data.config.team=step.fromTeam;const front=formation(step.start-1,false,true).html;data.config.team=step.team;const back=formation(0,false,true).html;data.config.team=saved;return {html:`<div class="team-turn-space"><div class="team-turn" style="--team-turn-age:-${Math.max(0,elapsed-step.start)}ms"><div class="team-turn-face">${front}</div><div class="team-turn-face team-turn-back">${back}</div></div></div>`,next:step.end-elapsed};}
+ const savedTeam=data.config.team;if(step.team)data.config.team=step.team;
  const isBench=step.kind==='bench';let content;
  if(isBench)content=benchPanel();
  else if(step.kind==='benchFlip')content=`<div class="panel-flip-space"><div class="panel-flipper" style="--flip-age:-${elapsed-step.start}ms"><div class="panel-face">${field(step.revealed)}</div><div class="panel-face panel-back">${benchPanel()}</div></div></div>`;
  else if(step.kind==='formation')content=field(step.revealed);
  else content=focus(step,elapsed);
- return {html:`${fullBase()}<section class="full lineup-screen"><header class="full-header">${competition()}<span>${isBench?'SUBSTITUTES / 替补名单':'TEAM LINE-UP / 首发阵型'}</span></header>${leftTeam(isBench)}<div class="lineup-panel" data-step="${step.kind}" data-group="${step.group||''}">${content}${lineupLegend()}</div><footer class="full-footer"><span>${esc(data.competition.name)} · ${esc(data.competition.round)}</span><span>${!isLive?'预览可拖动球员位置 · ':''}${isBench?'替补名单':step.kind==='formation'?'首发阵容':GROUPS[step.group]||'替补翻页'}</span></footer></section>`,next:Number.isFinite(step.end)?step.end-elapsed:Infinity};
+ const html=`${fullBase()}<section class="full lineup-screen" data-lineup-team="${data.config.team}"><header class="full-header">${competition()}<span>${isBench?'SUBSTITUTES / 替补名单':'TEAM LINE-UP / 首发阵型'}</span></header>${leftTeam(isBench)}<div class="lineup-panel" data-step="${step.kind}" data-group="${step.group||''}">${content}${lineupLegend()}</div><footer class="full-footer"><span>${esc(data.competition.name)} · ${esc(data.competition.round)}</span><span>${!isLive?'预览可拖动球员位置 · ':''}${isBench?'替补名单':step.kind==='formation'?'首发阵容':GROUPS[step.group]||'替补翻页'}</span></footer></section>`;data.config.team=savedTeam;return {html,next:step.kind==='media'&&data.config.positionRibbon&&step.end-elapsed>450?step.end-elapsed-450:Number.isFinite(step.end)?step.end-elapsed:Infinity};
 }
 function kickIcon(value,active=false,unneeded=false){return `<span class="kick ${active?'active-kick ':''}${value===1?'made':value===0?'missed':unneeded?'unneeded':'pending'}" aria-label="${value===1?'罚进':value===0?'罚失':unneeded?'无需再罚':'待罚'}">${value===1?'●':value===0?'×':'—'}</span>`;}
 function shootout(compact=false){
@@ -92,7 +104,7 @@ function setupDragging(){
  layer.querySelectorAll('.lineup-player').forEach(el=>el.addEventListener('pointerdown',event=>{
   event.preventDefault();const pitch=el.closest('.formation-pitch'),rect=pitch.getBoundingClientRect();el.setPointerCapture(event.pointerId);
   const move=e=>{const x=Math.max(8,Math.min(92,(e.clientX-rect.left)/rect.width*100)),y=Math.max(10,Math.min(89,(e.clientY-rect.top)/rect.height*100));el.style.left=x+'%';el.style.top=y+'%';el.dataset.x=x;el.dataset.y=y;};
-  const up=e=>{el.removeEventListener('pointermove',move);el.removeEventListener('pointerup',up);el.removeEventListener('pointercancel',up);if(el.hasPointerCapture(e.pointerId))el.releasePointerCapture(e.pointerId);if(el.dataset.x)parent.postMessage({type:'playerPosition',id:el.dataset.player,x:Number(el.dataset.x),y:Number(el.dataset.y)},location.origin);};
+  const up=e=>{el.removeEventListener('pointermove',move);el.removeEventListener('pointerup',up);el.removeEventListener('pointercancel',up);if(el.hasPointerCapture(e.pointerId))el.releasePointerCapture(e.pointerId);if(el.dataset.x)parent.postMessage({type:'playerPosition',team:el.dataset.team,id:el.dataset.player,x:Number(el.dataset.x),y:Number(el.dataset.y)},location.origin);};
   el.addEventListener('pointermove',move);el.addEventListener('pointerup',up);el.addEventListener('pointercancel',up);
  }));
 }
@@ -105,7 +117,7 @@ function render(){
  const theme=isLive?data.config.theme:q.get('theme')||data.config.theme;
  const surface=materialSettings(data.config,{live:isLive,query:q});
  stage.className='stage '+theme+(q.get('transparent')==='1'?' transparent':'')+(surface.material==='acrylic'?' acrylic-surface':'')+(!isLive&&q.get('backdrop')==='stadium'?' stadium-prototype':'');
- stage.dataset.materialPalette=surface.palette;
+ stage.dataset.materialPalette=surface.palette;stage.dataset.texture=data.config.texture===false?'none':'woven';
  for(const [key,value] of Object.entries(kitSurfaceVariables(data,scene)))stage.style.setProperty(key,value);
  stage.dataset.corners=(!isLive&&q.has('corners')?q.get('corners'):data.config.cornerRadius===18?'round':'square');
  stage.style.setProperty('--material-alpha',String(surface.alpha));
@@ -122,7 +134,7 @@ function render(){
  const outputPart=q.get('part');if(outputPart==='persistent')html=['scoreboard','goal','substitution','card','cancelGoal','notice','var','penalty','statStrip','person','officials','commentators','sponsor'].includes(scene)?scoreboard():'';if(outputPart==='temporary'){const temp=document.createElement('div');temp.innerHTML=html;temp.querySelectorAll('.slim-score').forEach(e=>e.remove());html=temp.innerHTML;}
  if(data.config.replay&&scene!=='clear'&&outputPart!=='persistent')html+='<div class="replay-corner">回放 / REPLAY</div>';
  const frozen=!isLive&&q.get('hold')==='1',transient=['goal','substitution','card','cancelGoal','penalty','notice','var','person','statStrip','officials','commentators','entrance','kickoff','sponsor'].includes(scene),remaining=frozen?null:isLive&&session.expiresAt?session.expiresAt-now:scene==='bottomScore'?data.config.bottomHoldMs-elapsed:transient?data.config.eventHoldMs-elapsed:null;
- motion.paint(html,{run:session.runId||`${previewScene}:${startedAt}`,elapsed,remaining,immediate:scene==='clear'||frozen});safeImgError();setupDragging();applyFont();
+ motion.paint(html,{run:session.runId||`${previewScene}:${startedAt}`,elapsed,remaining,immediate:scene==='clear'||frozen});decoratePanels(layer,{enabled:data.config.texture!==false});safeImgError();setupDragging();applyFont();fitFormationNames();document.fonts.ready.then(fitFormationNames);
  const isRefresh=lastRun===session.runId;if(isRefresh)layer.querySelectorAll('.full,.full-bg,.shootout').forEach(e=>{if(!e.matches('.opening,.shootout'))e.style.animation='none';});lastRun=session.runId;
  if(remaining!==null&&remaining>0)next=Math.min(next,remaining>EXIT_MS?remaining-EXIT_MS:remaining);
  if(data.matchClock)updateClock();
@@ -136,7 +148,7 @@ function render(){
 function updateClock(){const cv=scoreboardClock(data,Date.now()+offset,!isLive&&q.get('added')==='1');layer.querySelectorAll('.slim-clock>b').forEach(e=>e.textContent=cv.display);layer.querySelectorAll('.slim-clock>span').forEach(e=>e.textContent=cv.phase);}
 setInterval(()=>{if(data?.matchClock)updateClock();},200);
 let activeFont='';
-function applyFont(){const path=data.config.font||'';if(path===activeFont)return;activeFont=path;if(!path){document.body.style.removeProperty('font-family');stage.style.removeProperty('--font-num');return;}new FontFace('HustCustom',`url("${path}")`).load().then(font=>{if(activeFont!==path)return;document.fonts.add(font);document.body.style.fontFamily='HustCustom, HustBlack, sans-serif';stage.style.setProperty('--font-num','HustCustom, HustBlack, sans-serif');}).catch(()=>{});}
+function applyFont(){const path=data.config.font||'';if(path===activeFont)return;activeFont=path;document.body.style.removeProperty('font-family');stage.style.removeProperty('font-family');stage.style.removeProperty('--font-num');if(!path)return;new FontFace('HustCustom',`url("${path}")`).load().then(font=>{if(activeFont!==path)return;document.fonts.add(font);stage.style.fontFamily='HustCustom,HustTitle,HustBlack,sans-serif';stage.style.setProperty('--font-num','HustCustom,HustTitle,HustBlack,sans-serif');fitFormationNames();}).catch(()=>{});}
 const ptitle=(title,english)=>`<header class="full-header">${competition()}<span>${english} / ${title}</span></header>`;
 function noticeStrip(label,content,extra=''){return `${scoreboard()}<section class="info-strip cue-graphic ${extra}"><div class="info-label">${esc(label)}</div><div class="info-content">${content}</div></section>`;}
 function personContent(){return `<strong>${esc(data.presentation.personName)}</strong><small>${esc(data.presentation.personRole)}</small>`;}

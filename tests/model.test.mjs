@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import fs from 'node:fs/promises';
-import {normalizeDraft,formationTimeline,formationAt,outputScene,goalRows,shootoutStatus} from '../public/model.js';
+import {normalizeDraft,formationTimeline,formationAt,formationDuration,outputScene,goalRows,shootoutStatus} from '../public/model.js';
 import {inspectAsset} from '../lib/assets.mjs';
 const sample=JSON.parse(await fs.readFile(new URL('../public/data/demo.json',import.meta.url),'utf8'));
 const fresh=()=>normalizeDraft({},sample);
@@ -13,3 +13,17 @@ test('半场、全场、刚刚进球记录分别取值，取消进球不再展�
 test('黄牌与队长数据互不排斥，单人球衣色与队伍球衣色分别保存',()=>{const d=fresh();d.formation.players[3].yellowCards=2;d.formation.players[3].captain=true;d.formation.players[3].shirtColor='#0088cc';const n=normalizeDraft(d,sample),p=n.formation.players[3];assert(p.captain);assert.equal(p.yellowCards,2);assert.equal(p.shirtColor,'#0088cc');assert.equal(n.home.kitColor,sample.home.kitColor);});
 test('点球提前决胜、八轮突然死亡与待重罚处理，比赛比分不变',()=>{const d=fresh();assert.equal(shootoutStatus({home:[1,1,1],away:[0,0,0],first:'home'}).winner,'home');assert.equal(shootoutStatus(d.shootout).winner,'home');d.shootout.away[7]=null;const s=shootoutStatus(d.shootout);assert.equal(s.winner,null);assert.equal(s.next,'away');assert.deepEqual(d.score,{home:2,away:1});});
 test('素材只接受本地路径并校验格式；SVG 内部渐变可用，活动脚本与远程引用被拒绝',()=>{const d=fresh();d.home.badge='https://example.com/logo.png';d.formation.players[0].photo='../../file.png';assert.equal(normalizeDraft(d,sample).home.badge,'');assert.equal(normalizeDraft(d,sample).formation.players[0].photo,'');const ok=Buffer.from('<svg xmlns="http://www.w3.org/2000/svg"><defs><linearGradient id="x"/></defs><path fill="url(#x)"/></svg>');assert.match(inspectAsset(ok,'logo.svg'),/^[a-f0-9]{64}\.svg$/);for(const text of ['<svg><script>alert(1)</script></svg>','<svg onload="alert(1)"/>','<svg><path fill="url(https://example.com/x)"/></svg>'])assert.throws(()=>inspectAsset(Buffer.from(text),'x.svg'));assert.throws(()=>inspectAsset(Buffer.from('not an image'),'logo.png'));});
+
+
+test('两队阵容顺播独立计算分线，队间翻转后清空已揭示照片，时长覆盖客队',()=>{
+ const d=fresh();d.config.lineupBoth=true;d.config.team='home';d.config.mediaHoldMs=15000;
+ d.awayFormation.players=d.awayFormation.players.filter(p=>p.group!=='forwards');
+ const steps=formationTimeline(d),turn=steps.find(s=>s.kind==='teamFlip');
+ assert.equal(turn.fromTeam,'home');assert.equal(turn.team,'away');assert.equal(turn.end-turn.start,900);
+ assert.deepEqual(steps.filter(s=>s.kind==='media'&&s.team==='home').map(s=>s.group),['goalkeeper','defenders','midfielders','forwards']);
+ assert.deepEqual(steps.filter(s=>s.kind==='media'&&s.team==='away').map(s=>s.group),['goalkeeper','defenders','midfielders']);
+ assert.deepEqual(formationAt(d,turn.end+1).revealed,[]);assert.equal(formationAt(d,turn.end+1).team,'away');
+ assert(formationDuration(d)>120000);assert.equal(formationAt(d,formationDuration(d)-1).team,'away');
+ d.config.team='away';assert.equal(formationTimeline(d)[0].team,'away');
+ d.config.flip=false;d.config.benchAfter=false;assert(formationTimeline(d).some(s=>s.kind==='teamFlip'));assert(!formationTimeline(d).some(s=>s.kind==='bench'));
+});

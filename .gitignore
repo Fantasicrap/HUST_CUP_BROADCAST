@@ -5,3 +5,6 @@ node_modules/
 runtime/
 work/
 releases/
+
+.venv-background/
+__pycache__/

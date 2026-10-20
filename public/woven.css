@@ -1,0 +1,10 @@
+.stage{--woven-pattern:url('assets/woven-pattern.svg');--woven-size:470px 264px}
+.stage .woven-panel{background-image:var(--woven-pattern),var(--woven-base)!important;background-size:var(--woven-size),auto!important;background-repeat:repeat,no-repeat!important;background-position:center,center!important}
+.stage .woven-panel.woven-large{--woven-pattern:url('assets/woven-pattern-large.svg');--woven-size:1460px 821px}
+.stage .woven-panel.woven-medium{--woven-pattern:url('assets/woven-pattern-large.svg');--woven-size:960px 540px}
+.stage[data-texture="woven"] .full-bg .grid-lines{opacity:.12}
+.stage[data-texture="woven"] .jersey{background-image:url('assets/woven-pattern.svg');background-size:200px 113px}
+.standalone-wipe{background-image:url('assets/woven-pattern-large.svg'),linear-gradient(120deg,#1355fc,#4e60fc)!important;background-size:1460px 821px,auto;background-position:center}
+
+/* Dim only the dedicated background sibling; all foreground content stays at full luminance. */
+.stage .full-bg{filter:brightness(.9)}

@@ -1,0 +1,52 @@
+@font-face{font-family:HustTitle;src:url('fonts/YouSheBiaoTiHei.ttf') format('truetype');font-weight:100 950;font-style:normal;font-display:swap}
+.stage,.stage.nocturne{font-family:HustTitle,HustBlack,'Microsoft YaHei',sans-serif;--font-num:HustTitle,HustBlack,'Arial Black',sans-serif;font-synthesis:none}
+.standalone-wipe{font-family:HustTitle,HustBlack,'Microsoft YaHei',sans-serif;font-synthesis:none}
+/* Preserve the original font's slanted outlines at narrow clipping boundaries. */
+.stage .score-team>strong,.stage .mini-player>strong{padding-right:3px}
+/* More presence on full-screen boards; compact in-match bars retain their footprint. */
+.stage .opening-team .badge{width:260px;height:270px}
+.stage .opening-team h1{font-size:76px;margin-top:20px}
+.stage .opening-team.long-name h1{font-size:48px;max-height:126px}
+.stage .opening-team.long-name .badge{width:250px;height:240px}
+.stage .opening-center>.trophy,.stage .opening-center .custom-logo{width:180px;height:180px}
+.stage .opening-title h2{font-size:62px}
+.stage .intro-screen>.trophy,.stage .intro-screen>.custom-logo{width:245px;height:245px}
+.stage .intro-screen h1{font-size:124px}.stage .intro-screen.long-title h1{font-size:88px}
+.stage .intro-screen h2{font-size:50px}
+.stage .lineup-panel{top:168px;bottom:84px}
+.stage .lineup-team{top:190px}.stage .lineup-badge{width:125px;height:140px;margin-top:22px}
+.stage .lineup-team h1{font-size:46px;margin-top:18px;line-height:1.25}
+.stage .lineup-team.long-name h1{font-size:34px}
+.stage .lineup-shape{margin:18px 0}.stage .team-officials{gap:9px;margin-top:16px}
+.stage .lineup-player{width:190px}
+.stage .lineup-player>strong{font-size:32px;line-height:1;letter-spacing:0;margin-top:0;overflow:visible;text-overflow:clip}
+.stage .lineup-player .player-avatar,.stage .lineup-player .player-media{width:112px;height:112px}
+.stage .lineup-player .jersey{width:112px;height:108px}
+.stage .lineup-player .jersey>b{font-size:44px}
+.stage .dense-formation .player-avatar,.stage .dense-formation .player-media{width:104px;height:100px}
+.stage .dense-formation .jersey{width:104px;height:100px}
+.stage .dense-formation .lineup-player>strong{font-size:30px}
+.stage .lineup-player .captain-mark{width:28px;height:28px;font-size:19px;right:-18px}
+.stage .lineup-player .yellow-mark{height:28px;font-size:18px;left:-22px;min-width:40px}
+.stage .focus-card .card-face>.jersey,.stage .focus-card .card-face .player-media>.jersey{width:300px;height:300px}
+.stage .focus-card .card-face .jersey>b{font-size:100px}
+.stage .focus-name>strong{font-size:38px}.stage .focus-name>b{font-size:42px}
+.stage .focus-name>strong{min-width:0;overflow:visible;text-overflow:clip}
+.stage .focus-card>small{font-size:23px}
+.stage .has-position-ribbon{padding-bottom:160px}
+.position-ribbon{position:absolute;left:28px;right:28px;bottom:72px;height:68px;display:flex;align-items:center;gap:26px;padding:0 30px;overflow:hidden;background:linear-gradient(105deg,#85c9fc,#4e60fc 48%,#1355fc);color:white;isolation:isolate;animation:ribbonIn 800ms cubic-bezier(.2,.75,.2,1) both;animation-delay:var(--ribbon-age,0ms)}
+.position-ribbon:before{content:'';position:absolute;inset:0;background:url('assets/woven-pattern.svg') center/640px 360px;z-index:-1}
+.position-ribbon>span{font-size:46px;line-height:1;letter-spacing:6px}.position-ribbon>b{font-size:25px;letter-spacing:5px}
+.position-ribbon>i{position:absolute;inset:0;background:linear-gradient(100deg,transparent 35%,#ffffff38 50%,transparent 65%);transform:translateX(-100%);animation:ribbonShine 2200ms ease-in-out infinite;animation-delay:var(--ribbon-age,0ms);z-index:-1}
+.position-ribbon.ribbon-leaving{animation:ribbonOut 450ms ease-in both;animation-delay:var(--ribbon-exit-age,0ms)}
+@keyframes ribbonIn{0%{clip-path:inset(0 100% 0 0)}65%{clip-path:inset(0)}100%{clip-path:inset(0)}}
+@keyframes ribbonOut{to{clip-path:inset(0 0 0 100%)}}
+@keyframes ribbonShine{to{transform:translateX(100%)}}
+.team-turn-space{position:absolute;inset:0;perspective:2400px}
+.team-turn{position:absolute;inset:0;transform-style:preserve-3d;animation:teamTurn 900ms cubic-bezier(.4,0,.2,1) both;animation-delay:var(--team-turn-age,0ms)}
+.team-turn-face{position:absolute;inset:0;backface-visibility:hidden;transform-style:preserve-3d}
+.team-turn-back{transform:rotateY(180deg)}
+@keyframes teamTurn{from{transform:rotateY(0)}to{transform:rotateY(-180deg)}}
+@media(prefers-reduced-motion:reduce){.position-ribbon,.position-ribbon>i{animation:none}.team-turn{animation-duration:1ms}}
+
+.stage .player-media>img.portrait-cutout{object-fit:contain;object-position:center bottom}

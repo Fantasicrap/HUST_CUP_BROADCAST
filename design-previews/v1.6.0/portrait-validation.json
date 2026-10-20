@@ -1,0 +1,14 @@
+{
+  "checks": [
+    "Optional local environment detected",
+    "Cancel does not replace existing photo",
+    "Real CPU removal and confirmation update draft only, retaining original",
+    "Generated image is a real RGBA cutout with both transparent and opaque pixels",
+    "Portable project contains original and accepted cutout",
+    "Restore original changes only draft photo",
+    "Explicit skip adopts source without inference",
+    "Missing optional environment keeps original available",
+    "Out-of-scope file rejected"
+  ],
+  "errors": []
+}

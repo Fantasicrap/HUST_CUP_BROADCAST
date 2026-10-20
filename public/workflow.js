@@ -39,6 +39,7 @@ export function mountWorkflow({showLive,getDraft}) {
  const themeCard=card('视觉主题与边角',panes.settings);move(themes,themeCard);
  const corners=make('label','corner-setting','包装与操作界面边角 <select data-config="cornerRadius"><option value="0">方角 · 几何</option><option value="18">圆角 · 柔和</option></select>');themeCard.append(corners);corners.querySelector('select').value=getDraft().config.cornerRadius||0;
  const materials=make('div','form-grid material-controls','<label>图文材质<select data-config="material"><option value="solid">实色 · 经典包装</option><option value="acrylic">渐变亚克力</option></select></label><label>渐变配色<select data-config="materialPalette"><option value="kits">跟随双方本场球衣</option><option value="fixed">固定白色 → 蓝色</option></select></label><label>底图透出比例 %（0–30）<input type="number" min="0" max="30" step="1" data-config="materialTransparency"></label>');themeCard.append(materials);materials.querySelectorAll('[data-config]').forEach(el=>el.value=getDraft().config[el.dataset.config]);
+ const texture=make('label','texture-setting','<input type="checkbox" data-config="texture"> 深浅交织纹理（所有转播色块，大画面更明显）');texture.querySelector('input').checked=getDraft().config.texture!==false;themeCard.append(texture);
  themeCard.append(make('p','hint','边角立即用于操作界面，材质用于草稿图文；点击“更新直播资料”后才进入 OBS。'));
  const concept=make('a','material-preview-link','查看渐变亚克力材质示意 ↗');concept.href='material-preview.html';concept.target='_blank';concept.rel='noopener';themeCard.append(concept);
  const cards=key=>[...$(`[data-desk-panel="${key}"]`).querySelectorAll('.desk-card')];
