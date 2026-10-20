@@ -1,0 +1,15 @@
+{
+  "checks": [
+    "pulse logo-center added=0 keeps same footprint, teams, red cards and event anchors",
+    "pulse logo-center added=4 keeps same footprint, teams, red cards and event anchors",
+    "pulse clock-center added=0 keeps same footprint, teams, red cards and event anchors",
+    "pulse clock-center added=4 keeps same footprint, teams, red cards and event anchors",
+    "nocturne logo-center added=0 keeps same footprint, teams, red cards and event anchors",
+    "nocturne logo-center added=4 keeps same footprint, teams, red cards and event anchors",
+    "nocturne clock-center added=0 keeps same footprint, teams, red cards and event anchors",
+    "nocturne clock-center added=4 keeps same footprint, teams, red cards and event anchors",
+    "Layout switch stays in draft until publish; export and output refresh retain it",
+    "Custom logo, acrylic texture and round corners fit swapped slot"
+  ],
+  "errors": []
+}

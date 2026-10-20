@@ -17,10 +17,10 @@ test('左上比分牌只随比赛阶段显示，暂停和超出补时均不隐�
  for(const phase of ['pregame','halftime','regulationEnd','extraBreak','shootout','finished','interrupted'])assert(!scoreboardVisible({...d,matchClock:{phase}}),phase);
  d.config.modules.scoreboard=false;assert(!scoreboardVisible(d));
 });
-test('10种常用阵型完整保留球员资料，替补12人可用、13人拒绝且不截断旧存档',()=>{
+test('10种常用阵型完整保留球员资料，替补16人可用、17人拒绝且不截断旧存档',()=>{
  const d=draft(),l=d.formation;l.players[2].photo='assets/home.svg';l.players[2].captain=true;l.players[2].yellowCards=2;
  for(const shape of COMMON_FORMATIONS){const out=arrangeFormation(l,shape);assert.equal(out.name,shape);assert.equal(out.players.filter(p=>p.goalkeeper).length,1);assert.equal(out.players.filter(p=>p.group==='defenders').length,Number(shape.split('-')[0]));assert.deepEqual(out.players.map(p=>[p.id,p.number,p.name,p.photo,p.captain,p.yellowCards]),l.players.map(p=>[p.id,p.number,p.name,p.photo,p.captain,p.yellowCards]));assert(out.players.every(p=>p.x>=8&&p.x<=92&&p.y>=10&&p.y<=89));}
- l.bench=Array.from({length:12},(_,i)=>({...l.bench[0],id:'b'+i}));assert.doesNotThrow(()=>assertBenchLimit(l));l.bench.push({...l.bench[0],id:'b12'});assert.throws(()=>assertBenchLimit(l),/12/);assert.equal(normalizeDraft(d,sample).formation.bench.length,13);
+ l.bench=Array.from({length:16},(_,i)=>({...l.bench[0],id:'b'+i}));assert.doesNotThrow(()=>assertBenchLimit(l));l.bench.push({...l.bench[0],id:'b16'});assert.throws(()=>assertBenchLimit(l),/16/);assert.equal(normalizeDraft(d,sample).formation.bench.length,17);
 });
 test('球队官员空值保持为空，替补动画由单个开关决定，独立名单不受影响',()=>{
  const d=draft();Object.assign(d.formation,{assistantCoach:'助教甲',manager:'领队乙',medic:''});const out=normalizeDraft(d,sample);assert.equal(out.formation.assistantCoach,'助教甲');assert.equal(out.formation.manager,'领队乙');assert.equal(out.formation.medic,'');assert(formationTimeline(out).some(s=>s.kind==='bench'));out.config.benchAfter=false;assert(!formationTimeline(out).some(s=>s.kind==='bench'));assert(out.config.modules.bench);

@@ -132,9 +132,9 @@ body{font-family:var(--font-ui);font-weight:900}button,input,select,textarea{fon
 /* Horizontal core: 330ms open, 330ms hold, 440ms extensions. */
 .stage .bottom-score,.stage .compact-pk,.stage .entrance-bar.cue-graphic,.stage .mini-event,.stage .info-strip.cue-graphic,.stage .referee-panel,.stage .slim-score,.stage .opening,.stage .intro-screen,.stage .shootout{animation-name:centerReveal;animation-duration:1100ms;animation-timing-function:cubic-bezier(.25,.7,.25,1);animation-fill-mode:both}
 @keyframes centerReveal{
- 0%{clip-path:inset(var(--core-top,0px) 50% var(--core-bottom,0px) 50%);opacity:1}
- 30%,60%{clip-path:inset(var(--core-top,0px) 0 var(--core-bottom,0px) 0);opacity:1}
- 100%{clip-path:inset(calc(-1 * var(--spill-top,8px)) -8px calc(-1 * var(--spill-bottom,8px)) -8px);opacity:1}
+ 0%,24%{clip-path:inset(var(--core-top,0px) 50% var(--core-bottom,0px) 50%);opacity:1}
+ 46%,56%{clip-path:inset(var(--core-top,0px) 0 var(--core-bottom,0px) 0);opacity:1}
+ 84%,100%{clip-path:inset(calc(-1 * var(--spill-top,8px)) -8px calc(-1 * var(--spill-bottom,8px)) -8px);opacity:1}
 }
 @media(prefers-reduced-motion:reduce){.opening,.intro-screen,.shootout{animation-duration:1ms!important}}
 
@@ -142,6 +142,13 @@ body{font-family:var(--font-ui);font-weight:900}button,input,select,textarea{fon
 .stage .mini-event,.stage .info-strip.cue-graphic{animation-name:leftLineReveal}
 @keyframes leftLineReveal{
  0%{clip-path:inset(0 calc(100% - 4px) 0 0);opacity:0}
- 14%,40%{clip-path:inset(0 calc(100% - 4px) 0 0);opacity:1}
- 100%{clip-path:inset(calc(-1 * var(--spill-top,8px)) -8px calc(-1 * var(--spill-bottom,8px)) -8px);opacity:1}
+ 12%,32%{clip-path:inset(0 calc(100% - 4px) 0 0);opacity:1}
+ 60%{clip-path:inset(0 8% 0 0);opacity:1}
+ 80%,100%{clip-path:inset(calc(-1 * var(--spill-top,8px)) -8px calc(-1 * var(--spill-bottom,8px)) -8px);opacity:1}
 }
+
+.stage .team-event-extension{animation:bugEventRhythm 650ms cubic-bezier(.15,.8,.2,1) both}
+.stage .added-time-block,.stage .score-context,.stage .dismissal-flags{animation:chipRhythm 650ms cubic-bezier(.15,.8,.2,1) both}
+@keyframes bugEventRhythm{0%,25%{clip-path:inset(0 0 100% 0)}80%,100%{clip-path:inset(0)}}
+@keyframes chipRhythm{0%,25%{clip-path:inset(0 50% 0 50%)}80%,100%{clip-path:inset(0)}}
+@media(prefers-reduced-motion:reduce){.stage .team-event-extension,.stage .added-time-block,.stage .score-context,.stage .dismissal-flags{animation-duration:1ms!important}}

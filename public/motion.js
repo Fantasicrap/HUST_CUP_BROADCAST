@@ -26,7 +26,7 @@ function exitFrames(node){
  const open=css.clipPath==='none'?'inset(-64px -8px -64px -8px)':css.clipPath;
  if(node.matches('.mini-event,.info-strip')){
   const line='inset(0px calc(100% - 4px) 0px 0px)';
-  return [{clipPath:open,opacity:1},{clipPath:line,opacity:1,offset:.6},{clipPath:line,opacity:1,offset:.86},{clipPath:line,opacity:0}];
+  return [{clipPath:open,opacity:1},{clipPath:line,opacity:1,offset:.7},{clipPath:line,opacity:1,offset:.9},{clipPath:line,opacity:0}];
  }
  if(node.matches('.team-event-extension'))return [{clipPath:open,opacity:1},{clipPath:'inset(0px 0px 100% 0px)',opacity:0}];
  if(node.matches('.position-ribbon'))return [{clipPath:open,opacity:1},{clipPath:'inset(0px 100% 0px 0px)',opacity:0}];
@@ -50,7 +50,7 @@ export function createMotion(layer){
   Object.assign(clone.style,{position:'relative',inset:'auto',left:'0',top:'0',width:`${node.offsetWidth}px`,height:`${node.offsetHeight}px`,margin:'0',transform:'none',animation:'none'});
   clone.querySelectorAll('video,audio').forEach(e=>{e.autoplay=false;e.muted=true;});
   box.dataset.motionExit='1';box.append(clone);departures.append(box);
-  const animation=clone.animate(frames,{duration:EXIT_MS,easing:'cubic-bezier(.4,0,.7,1)',fill:'both'});
+  const animation=clone.animate(frames,{duration:EXIT_MS,easing:'cubic-bezier(.15,.8,.2,1)',fill:'both'});
   animation.finished.catch(()=>{}).finally(()=>box.remove());
  }
  function paint(html,{run,elapsed=0,remaining=null,immediate=false}={}){
@@ -71,7 +71,7 @@ export function createMotion(layer){
    if(node.matches('.slim-score')&&previous)node.style.animation='none';
    else if(!node.matches('.position-ribbon'))node.style.animationDelay=`-${Math.max(0,now-entered)}ms`;
    if(remaining!==null&&remaining>0&&remaining<=EXIT_MS&&!node.matches('.slim-score,.added-time-block,.score-context,.dismissal-flags')&&!reduced()){
-    const a=node.animate(exitFrames(node),{duration:EXIT_MS,easing:'cubic-bezier(.4,0,.7,1)',fill:'both'});a.currentTime=EXIT_MS-remaining;
+    const a=node.animate(exitFrames(node),{duration:EXIT_MS,easing:'cubic-bezier(.15,.8,.2,1)',fill:'both'});a.currentTime=EXIT_MS-remaining;
    }
    const ownRemaining=node.dataset.motionRemaining?Number(node.dataset.motionRemaining):remaining;
    updated.set(key,{node,entered:previous&&sameRun?previous.entered:entered,run,deadline:ownRemaining===null?null:now+ownRemaining});

@@ -39,7 +39,7 @@
 .position-ribbon>span{font-size:46px;line-height:1;letter-spacing:6px}.position-ribbon>b{font-size:25px;letter-spacing:5px}
 .position-ribbon>i{position:absolute;inset:0;background:linear-gradient(100deg,transparent 35%,#ffffff38 50%,transparent 65%);transform:translateX(-100%);animation:ribbonShine 2200ms ease-in-out infinite;animation-delay:var(--ribbon-age,0ms);z-index:-1}
 .position-ribbon.ribbon-leaving{animation:ribbonOut 450ms ease-in both;animation-delay:var(--ribbon-exit-age,0ms)}
-@keyframes ribbonIn{0%{clip-path:inset(0 100% 0 0)}65%{clip-path:inset(0)}100%{clip-path:inset(0)}}
+@keyframes ribbonIn{0%,25%{clip-path:inset(0 100% 0 0)}80%,100%{clip-path:inset(0)}}
 @keyframes ribbonOut{to{clip-path:inset(0 100% 0 0)}}
 @keyframes ribbonShine{to{transform:translateX(100%)}}
 .team-turn-space{position:absolute;inset:0;perspective:2400px}
@@ -50,3 +50,26 @@
 @media(prefers-reduced-motion:reduce){.position-ribbon,.position-ribbon>i{animation:none}.team-turn{animation-duration:1ms}}
 
 .stage .player-media>img.portrait-cutout{object-fit:contain;object-position:center bottom}
+
+/* Approved sequential player reveal. Clock and ledger remain independent. */
+.line-motion-active .focus-card{animation:linePlayerReveal 650ms cubic-bezier(.2,.75,.2,1) both;animation-delay:calc(330ms + var(--intro-index,0) * 140ms + var(--intro-age,0ms));transform-origin:50% 85%;will-change:transform,opacity}
+@keyframes linePlayerReveal{0%,10%{opacity:0;transform:translateX(-36px) scale(.72)}78%,100%{opacity:1;transform:translateX(0) scale(1)}}
+@media(prefers-reduced-motion:reduce){.line-motion-active .focus-card{animation:none}}
+
+.line-motion-active .lineup-panel[data-group]:not([data-group=""]){animation:linePanelRhythm 1100ms cubic-bezier(.15,.8,.2,1) both;animation-delay:var(--line-age,0ms)}
+.line-motion-active .lineup-panel[data-group][data-step="lineClose"]{animation:linePanelClose 700ms cubic-bezier(.15,.8,.2,1) both;animation-delay:var(--close-age,0ms)}
+@keyframes linePanelClose{0%,12%{clip-path:inset(0);opacity:1}78%,90%{clip-path:inset(0 calc(100% - 4px) 0 0);opacity:1}100%{clip-path:inset(0 calc(100% - 4px) 0 0);opacity:0}}
+@keyframes linePanelRhythm{0%,25%{clip-path:inset(0 calc(100% - 4px) 0 0)}75%,100%{clip-path:inset(0)}}
+
+/* Respect the nearest player spacing in custom dense lines. */
+.stage .lineup-player{width:var(--token-width,190px)}
+.stage .formation-pitch .lineup-player .player-avatar,.stage .formation-pitch .lineup-player .player-media{width:var(--avatar-size,112px);height:var(--avatar-size,112px)}
+.stage .formation-pitch .lineup-player .jersey{width:var(--avatar-size,112px);height:var(--avatar-size,112px)}
+.stage .formation-pitch .lineup-player>strong{font-size:var(--name-size,32px)}
+.stage .starters-list{grid-template-columns:repeat(var(--starter-cols,2),minmax(0,1fr));grid-template-rows:repeat(var(--starter-rows,6),1fr)}
+.stage .lineup-panel[data-player-count="5"] .starters-list{padding:45px 80px}
+.stage .lineup-panel[data-player-count="5"] .starters-list strong{font-size:42px}
+.stage .lineup-panel[data-player-count="5"] .starters-list small{font-size:25px;max-width:150px}
+.bench-panel[data-count="13"] .bench-row,.bench-panel[data-count="14"] .bench-row,.bench-panel[data-count="15"] .bench-row,.bench-panel[data-count="16"] .bench-row{padding-block:5px}
+.bench-panel[data-count="16"] .bench-row>strong{font-size:28px}
+@media(prefers-reduced-motion:reduce){.line-motion-active .lineup-panel[data-group]:not([data-group=""]){animation:none}}

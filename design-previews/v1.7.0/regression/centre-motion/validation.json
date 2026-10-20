@@ -1,0 +1,27 @@
+{
+  "checks": [
+    "pulse bottomScore 主体从中心左右展开，停顿后上下延伸，定位不变",
+    "pulse entrance 主体从中心左右展开，停顿后上下延伸，定位不变",
+    "pulse officials 主体从中心左右展开，停顿后上下延伸，定位不变",
+    "pulse shootoutCompact 主体从中心左右展开，停顿后上下延伸，定位不变",
+    "pulse shootout 主体从中心左右展开，停顿后上下延伸，定位不变",
+    "pulse intro 主体从中心左右展开，停顿后上下延伸，定位不变",
+    "pulse opening 主体从中心左右展开，停顿后上下延伸，定位不变",
+    "pulse goal 左侧竖线停顿后向右展开，定位不变",
+    "pulse scoreboard 主体从中心左右展开，停顿后上下延伸，定位不变",
+    "nocturne bottomScore 主体从中心左右展开，停顿后上下延伸，定位不变",
+    "nocturne entrance 主体从中心左右展开，停顿后上下延伸，定位不变",
+    "nocturne officials 主体从中心左右展开，停顿后上下延伸，定位不变",
+    "nocturne shootoutCompact 主体从中心左右展开，停顿后上下延伸，定位不变",
+    "nocturne shootout 主体从中心左右展开，停顿后上下延伸，定位不变",
+    "nocturne intro 主体从中心左右展开，停顿后上下延伸，定位不变",
+    "nocturne opening 主体从中心左右展开，停顿后上下延伸，定位不变",
+    "nocturne goal 左侧竖线停顿后向右展开，定位不变",
+    "nocturne scoreboard 主体从中心左右展开，停顿后上下延伸，定位不变",
+    "收起先闭合上下延伸，停顿后再从左右回到中心；完成后无残留",
+    "正式输出opening首次SSE同步不取消中心展开动画",
+    "正式输出shootout首次SSE同步不取消中心展开动画",
+    "正式输出intro首次SSE同步不取消中心展开动画"
+  ],
+  "errors": []
+}

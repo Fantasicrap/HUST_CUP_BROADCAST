@@ -1,3 +1,4 @@
+import {assertRules,normalizeRules,assertLineups} from './roster-rules.js';
 // Shared, deterministic match ledger. Rendering never writes this ledger.
 export const PHASES={pregame:'赛前',first:'上半场',halftime:'中场',second:'下半场',regulationEnd:'常规时间结束',extraFirst:'加时赛上半场',extraBreak:'加时赛中场',extraSecond:'加时赛下半场',shootout:'点球大战',finished:'全场结束',interrupted:'比赛暂时中断'};
 export const STAT_LABELS={possession:'控球率',shots:'射门',onTarget:'射正',corners:'角球',fouls:'犯规',offsides:'越位',yellow:'黄牌',red:'红牌'};
@@ -17,7 +18,8 @@ export function clockView(clock,now=Date.now()){
  return {cumulativeDisplay:fmt(seconds),display:clock.displayMode==='separate'&&added>0?`${fmt(Math.floor(end/1000))} +${fmt(Math.floor(added/1000))}`:fmt(seconds),phase:PHASES[clock.phase],added:added>0?fmt(Math.floor(added/1000)):'',announced:clock.announced,eventTime:ms>=end?`${Math.floor(end/60000)}+${Math.floor(added/60000)+1}′`:`${Math.floor(ms/60000)+1}′`};
 }
 export function newMatch(d,{demo=false,now=Date.now()}={}){
- return {version:1,revision:0,createdAt:now,initial:{score:demo?clone(d.score):{home:0,away:0},goals:demo?clone(d.goals):[],lineups:{home:clone(d.formation),away:clone(d.awayFormation)}},events:[],clock:{phase:'pregame',halfMinutes:45,extraMinutes:15,elapsedMs:0,anchor:now,running:false,announced:0,displayMode:'cumulative'},halftimeScore:{home:0,away:0},halftimeStats:{},shootout:{home:[],away:[],first:'home',confirmed:false,players:{home:[],away:[]}},stats:{},tie:{enabled:false,firstLeg:{home:0,away:0},awayGoals:false,firstLegAway:'home'},result:{confirmed:false,winner:'',label:'胜者',mvp:''},recovery:null};
+ assertLineups(d.rules,d.formation,d.awayFormation);
+ return {rules:normalizeRules(d.rules),version:1,revision:0,createdAt:now,initial:{score:demo?clone(d.score):{home:0,away:0},goals:demo?clone(d.goals):[],lineups:{home:clone(d.formation),away:clone(d.awayFormation)}},events:[],clock:{phase:'pregame',halfMinutes:45,extraMinutes:15,elapsedMs:0,anchor:now,running:false,announced:0,displayMode:'cumulative'},halftimeScore:{home:0,away:0},halftimeStats:{},shootout:{home:[],away:[],first:'home',confirmed:false,players:{home:[],away:[]}},stats:{},tie:{enabled:false,firstLeg:{home:0,away:0},awayGoals:false,firstLegAway:'home'},result:{confirmed:false,winner:'',label:'胜者',mvp:''},recovery:null};
 }
 export function deriveMatch(m){
  const score=clone(m.initial.score),goals=clone(m.initial.goals).map(g=>({...g,...goalTeams(g),teamRole:'player'})),lineups=clone(m.initial.lineups),reds={home:0,away:0},yellow={},dismissed=new Set(),cards=[];
@@ -26,17 +28,17 @@ export function deriveMatch(m){
   if(e.type==='cancelGoal'){const g=goals.find(g=>g.id===e.goalId);if(!g||g.cancelled)throw Error('关联进球不存在或已取消');g.cancelled=true;score[goalTeams(g).scoreTeam]--;}
   if(e.type==='adjustment')score[e.team]+=e.delta;
   if(e.type==='card'){
-   const key=`${e.team}:${e.playerId||e.role+':'+e.name}`,p=[...lineups[e.team].players,...lineups[e.team].bench].find(p=>p.id===e.playerId);
+   const key=`${e.team}:${e.playerId||e.role+':'+e.name}`,p=[...lineups[e.team].players,...lineups[e.team].bench,...(lineups[e.team].used||[])].find(p=>p.id===e.playerId);if(e.role!=='coach'&&!p)throw Error('给牌关联失效：球员已从报名名单移除，请保留原报名球员或先修正关联处罚');
    if(dismissed.has(key))throw Error('该对象已被罚下，请修正先前给牌记录');
    if(e.card==='yellow'||e.card==='secondYellow')yellow[key]=(yellow[key]||0)+(e.card==='secondYellow'?Math.max(1,2-(yellow[key]||0)):1);
    const red=e.card==='red'||(yellow[key]||0)>=2;
-   if(red){dismissed.add(key);if(e.role==='player'&&lineups[e.team].players.some(p=>p.id===e.playerId)){reds[e.team]++;p.dismissed=true;}}
+   if(red){dismissed.add(key);if(p)p.dismissed=true;if(e.role==='player'&&lineups[e.team].players.some(p=>p.id===e.playerId)){reds[e.team]++;p.dismissed=true;}}
    if(p){p.matchYellow=yellow[key]||0;p.yellowCards=(p.yellowCards||0)+(e.card==='red'?0:1);}
    cards.push({...e,effectiveCard:red?(e.card==='red'?'red':'secondYellow'):'yellow'});
   }
   if(e.type==='substitution'){
    const l=lineups[e.team];
-   for(const pair of e.pairs){const oi=l.players.findIndex(p=>p.id===pair.offId),ni=l.bench.findIndex(p=>p.id===pair.onId);if(oi<0||ni<0)throw Error('换人关联失效：换下者须在场、换上者须在替补席；请先修正后续相关换人');const off=l.players[oi],on=l.bench[ni];if(off.dismissed||dismissed.has(`${e.team}:${on.id}`))throw Error('被罚下球员不能参加换人');l.players[oi]={...on,x:off.x,y:off.y,group:off.group,goalkeeper:off.goalkeeper};l.bench.splice(ni,1);(l.used||(l.used=[])).push(off);}
+   for(const pair of e.pairs){const oi=l.players.findIndex(p=>p.id===pair.offId),ni=l.bench.findIndex(p=>p.id===pair.onId);if(oi<0||ni<0)throw Error('换人关联失效：换下者须在场、换上者须在替补席；请先修正后续相关换人');const off=l.players[oi],on=l.bench[ni];if(off.dismissed||dismissed.has(`${e.team}:${on.id}`))throw Error('被罚下球员不能参加换人');l.players[oi]={...on,x:off.x,y:off.y,group:off.group,goalkeeper:off.goalkeeper};if(normalizeRules(m.rules).substitutions==='rolling')l.bench[ni]=off;else l.bench.splice(ni,1);(l.used||(l.used=[])).push(off);}
   }
  }
  if(score.home<0||score.away<0)throw Error('修正后比分不能为负数');
@@ -84,7 +86,7 @@ export function changeMatch(original,command,now=Date.now()){
   if(c.patch){for(const k of ['name','time','text'])if(k in c.patch)e[k]=txt(c.patch[k],k==='text'?140:40);if('number' in c.patch)e.number=integer(c.patch.number);if('kind' in c.patch)e.kind=['penalty','own'].includes(c.patch.kind)?c.patch.kind:'normal';}
   deriveMatch(m);
  }else if(c.action==='lineups'){
-  if(!c.lineups?.home?.players||!c.lineups?.away?.players)throw Error('阵容无效');m.initial.lineups=clone(c.lineups);deriveMatch(m);
+  if(!c.lineups?.home?.players||!c.lineups?.away?.players)throw Error('阵容无效');assertRules(c.rules);const nextRules=normalizeRules(c.rules||m.rules);if(JSON.stringify(nextRules)!==JSON.stringify(normalizeRules(m.rules))&&(m.events.length||clock.phase!=='pregame'||clock.running))throw Error('比赛开始或已有记录后不能更改人数及换人制度，请保留存档并新建比赛');assertLineups(nextRules,c.lineups.home,c.lineups.away);m.rules=nextRules;m.initial.lineups=clone(c.lineups);deriveMatch(m);
  }else if(c.action==='clearLog'){
   if(c.confirm!=='CLEAR_LOG')throw Error('清理日志需要确认');m.logStartIndex=m.events.length;
  }else if(c.action==='stats'){
@@ -111,7 +113,7 @@ export function penaltyStatus(s){
  return {home:hs,away:as,winner,next,round:Math.max(h.length,a.length)+(h.length===a.length&&!winner?1:0),taken:h.length+a.length,suddenDeath:h.length>=5&&a.length>=5&&!winner};
 }
 export function composeData(d,m,event=null){
- const out=clone(d),a=deriveMatch(m);out.score=a.score;out.goals=a.goals;out.matchClock=clone(m.clock);out.clock=clockView(m.clock);out.reds=a.reds;out.aggregate=a.aggregate;out.tie=clone(m.tie);out.stats=clone(m.stats);out.result=clone(m.result);out.halftimeScore=clone(a.halftimeScore);out.halftimeStats=clone(m.halftimeStats||{});out.shootout=clone(m.shootout);out.currentLineups=a.lineups;
+ const out=clone(d),a=deriveMatch(m);out.rules=normalizeRules(m.rules);out.score=a.score;out.goals=a.goals;out.matchClock=clone(m.clock);out.clock=clockView(m.clock);out.reds=a.reds;out.aggregate=a.aggregate;out.tie=clone(m.tie);out.stats=clone(m.stats);out.result=clone(m.result);out.halftimeScore=clone(a.halftimeScore);out.halftimeStats=clone(m.halftimeStats||{});out.shootout=clone(m.shootout);out.currentLineups=a.lineups;
  if(event){out.event=event.type==='goal'?{...clone(event),...goalTeams(event),teamRole:'player'}:clone(event);if(event.type==='goal')out.goal=clone(out.event);if(event.type==='substitution')out.substitution={...event,...event.pairs[0]};if(event.type==='card')out.event=clone(a.cards.find(e=>e.id===event.id)||event);}
  if(event?.type==='penalty'&&event.relatedCardId)out.companionCard=clone(a.cards.find(e=>e.id===event.relatedCardId)||null);
  return out;

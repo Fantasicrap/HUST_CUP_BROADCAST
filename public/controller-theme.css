@@ -79,3 +79,5 @@ html[data-control-theme="light"] .portrait-setup span,html[data-control-theme="l
 html[data-control-theme="light"] .portrait-setup a{color:#164dcc}
 html[data-control-theme="light"] #toast{background:#e7f0ff;color:#163c7d;border-color:#9fbbe9;box-shadow:0 8px 30px #18345626}
 @media(max-width:700px){body>header{gap:10px}body>header .control-theme-toggle{min-width:95px;padding:7px 8px;font-size:10px}body>header .status{min-width:0;flex:1;overflow:hidden;white-space:nowrap;font-size:9px;gap:4px}}
+
+html[data-control-theme="light"] .has-roster-errors{color:#a62c3e}

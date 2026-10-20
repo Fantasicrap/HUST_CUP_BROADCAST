@@ -1,9 +1,7 @@
 import {penaltyStatus} from './match.js';
-export const MAX_BENCH=12;
+import {MAX_BENCH,normalizeRules,formationsFor} from './roster-rules.js';
+export {MAX_BENCH,MATCH_FORMATS,COMMON_FORMATIONS,formationsFor,assertBenchLimit,assertLineups,arrangeFormation,arrangeCustom,lineupErrors,customShape} from './roster-rules.js';
 export const REFEREE_ROLES={referee:'主裁判',assistantReferee1:'第一助理裁判',assistantReferee2:'第二助理裁判',fourthOfficial:'第四官员',additionalReferee1:'附加助理裁判（1）',additionalReferee2:'附加助理裁判（2）',reserveReferee:'候补助理裁判'};
-export const COMMON_FORMATIONS=['4-3-3','4-4-2','4-2-3-1','4-1-4-1','4-4-1-1','4-3-2-1','3-5-2','3-4-3','5-3-2','5-4-1'];
-export function assertBenchLimit(...lineups){if(lineups.some(l=>Array.isArray(l?.bench)&&l.bench.length>MAX_BENCH))throw Error('替补名单最多12人，请先删减多余球员；原存档不会自动删除');}
-export function arrangeFormation(lineup,shape){if(!COMMON_FORMATIONS.includes(shape))throw Error('请选择常用阵型');if(lineup.players.length!==11)throw Error('常用阵型需要11名首发球员');const l=structuredClone(lineup),rows=shape.split('-').map(Number),gk=l.players.find(p=>p.goalkeeper)||l.players[0],out=l.players.filter(p=>p!==gk);let index=0;Object.assign(gk,{x:50,y:86,group:'goalkeeper',goalkeeper:true});rows.forEach((count,row)=>{for(let n=0;n<count;n++)Object.assign(out[index++],{x:12+76*(n+.5)/count,y:66-row*47/(rows.length-1),group:row===0?'defenders':row===rows.length-1?'forwards':'midfielders',goalkeeper:false});});l.name=shape;return l;}
 export const MODULES = {scoreboard:'左上常驻比分牌',goal:'进球播报',substitution:'换人播报',opening:'全屏开场对阵',formation:'首发阵型',bench:'替补名单',shootoutCompact:'底部点球进行中',shootout:'点球结果大面板',bottomScore:'底部简要比分牌',intro:'赛事开场',entrance:'球员入场横条',starters:'独立首发名单',officials:'裁判团队',commentators:'解说团队',kickoff:'开球信息条',card:'给牌',cancelGoal:'进球无效',penalty:'比赛点球事件',var:'VAR 判罚审核',notice:'通用通知',statStrip:'单项统计条',statistics:'统计对比',person:'人物介绍',halftime:'半场总结',fulltime:'全场赛果',summary:'比赛总结',transition:'回放转场',sponsor:'赞助鸣谢'};
 export const CONTEXTS={pregame:'开场 / 开球',halftime:'半场结束',secondhalf:'下半场开场',fulltime:'全场结束',restart:'进球后重新开球'};
 export const GROUPS={goalkeeper:'门将',defenders:'后卫线',midfielders:'中场线',forwards:'前锋线'};
@@ -23,7 +21,7 @@ export function normalizeDraft(raw,sample){
   const players=Array.isArray(value?.players)?value.players:fallback.players;
   const subs=Array.isArray(value?.bench)?value.bench:[{number:12,name:side==='home'?'沈泽宇':'王天霖',position:'门将'},{number:15,name:side==='home'?'罗嘉佑':'孙子墨',position:'中后卫',yellowCards:1},{number:16,name:side==='home'?'郑予安':'顾锦程',position:'中前卫'},{number:18,name:side==='home'?'程星野':'李沐阳',position:'前锋'},{number:20,name:side==='home'?'陆景澄':'蒋奕帆',position:'边锋'}];
   const clean=(p,i,bench=false)=>({id:text(p.id,`${side}-${bench?'b':'p'}-${i}`,80),number:Math.round(num(p.number,i+1,0,999)),name:text(p.name,`球员${i+1}`,40),position:text(p.position,bench?'中前卫':p.goalkeeper?'门将':p.y>57?'后卫':p.y>27?'中场':'前锋',30),group:Object.hasOwn(GROUPS,p.group)?p.group:p.goalkeeper?'goalkeeper':p.y>57?'defenders':p.y>27?'midfielders':'forwards',x:num(p.x,50,8,92),y:num(p.y,50,10,89),goalkeeper:Object.hasOwn(GROUPS,p.group)?p.group==='goalkeeper':bool(p.goalkeeper,false),captain:bool(p.captain,false),yellowCards:Math.round(num(p.yellowCards,0,0,99)),shirtColor:color(p.shirtColor,''),photo:imagePath(p.photo),photoOriginal:imagePath(p.photoOriginal),video:videoPath(p.video)});
-  return {name:text(value?.name,fallback.name,30),coach:text(value?.coach,fallback.coach,40),assistantCoach:text(value?.assistantCoach,'',40),manager:text(value?.manager,'',40),medic:text(value?.medic,'',40),players:players.slice(0,20).map((p,i)=>clean(p,i)),bench:subs.slice(0,24).map((p,i)=>clean(p,i,true))};
+  return {custom:typeof value?.custom==='boolean'?value.custom:!formationsFor(normalizeRules(raw.rules).playersPerSide).includes(text(value?.name,fallback.name,30).replace(/\s/g,'')),name:text(value?.name,fallback.name,30),coach:text(value?.coach,fallback.coach,40),assistantCoach:text(value?.assistantCoach,'',40),manager:text(value?.manager,'',40),medic:text(value?.medic,'',40),players:players.map((p,i)=>clean(p,i)),bench:subs.map((p,i)=>clean(p,i,true))};
  };
  const c=raw.config||{};
  const flags=keys=>Object.fromEntries(Object.keys(keys).map(k=>[k,bool(c.modules?.[k])]));
@@ -31,6 +29,7 @@ export function normalizeDraft(raw,sample){
  const goals=(Array.isArray(raw.goals)?raw.goals:[{team:'home',name:'陈子昂',number:9,time:'23′',period:'first',kind:'normal'},{team:'away',name:'周奕辰',number:8,time:'39′',period:'first',kind:'normal'},{team:'home',name:'陈子昂',number:9,time:'67′',period:'second',kind:'normal'}]).slice(0,100).map((g,i)=>({id:text(g.id,`goal-${i}`,60),team:g.team==='away'?'away':'home',...(g.teamRole==='player'?{teamRole:'player'}:{}),name:text(g.name,'未知球员',40),number:Math.round(num(g.number,0,0,999)),time:text(g.time,'',24),period:['first','second','extra'].includes(g.period)?g.period:'second',kind:['penalty','own'].includes(g.kind)?g.kind:'normal',cancelled:bool(g.cancelled,false)}));
  const kicks=side=>(Array.isArray(raw.shootout?.[side])?raw.shootout[side]:base.shootout[side]).slice(0,100).map(v=>v===1?1:v===0?0:null);
  return {
+  rules:normalizeRules(raw.rules),
   competition:{...Object.fromEntries(['name','subtitle','round','venue','kickoff'].map(k=>[k,text(raw.competition?.[k],base.competition[k],100)])),logo:imagePath(raw.competition?.logo??base.competition.logo)},
   home:team('home'),away:team('away'),score:{home:Math.round(num(raw.score?.home,base.score.home,0,999)),away:Math.round(num(raw.score?.away,base.score.away,0,999))},
   clock:{...base.clock,display:text(raw.clock?.display,base.clock.display,24),phase:text(raw.clock?.phase,base.clock.phase,30)},
@@ -47,9 +46,17 @@ export function normalizeDraft(raw,sample){
 export function lineupFor(d){return d.config.team==='away'?d.awayFormation:d.formation;}
 function singleFormationTimeline(d){
  const c=d.config,steps=[];let cursor=0;const revealed=[];
- const add=(kind,duration,group=null)=>{steps.push({kind,start:cursor,end:cursor+duration,group,revealed:[...revealed]});cursor+=duration;};
+ const add=(kind,duration,group=null,extra={})=>{steps.push({kind,start:cursor,end:cursor+duration,group,revealed:[...revealed],...extra});cursor+=duration;};
  add('formation',c.formationHoldMs);
- if(c.reveal)for(const group of Object.keys(GROUPS))if(c.revealGroups[group]&&lineupFor(d).players.some(p=>p.group===group)){add('shirts',1000,group);if(c.flip)add('flip',720,group);add('media',c.mediaHoldMs,group);revealed.push(group);add('formation',1600);}
+ if(c.reveal)for(const group of Object.keys(GROUPS))if(c.revealGroups[group]){
+  const players=lineupFor(d).players.filter(p=>p.group===group),pages=Math.ceil(players.length/5);
+  for(let page=0;page<pages;page++){
+   const playerIds=players.slice(page*5,page*5+5).map(p=>p.id),introStart=cursor,shirtMs=Math.max(1400,330+650+(playerIds.length-1)*140),mediaStart=cursor+shirtMs+(c.flip?720:0),groupEnd=mediaStart+c.mediaHoldMs+700;
+   const extra={playerIds,page,pages,introStart,mediaStart,groupEnd};
+   add('shirts',shirtMs,group,extra);if(c.flip)add('flip',720,group,extra);add('media',c.mediaHoldMs,group,extra);add('lineClose',700,group,extra);
+  }
+  if(players.length){revealed.push(group);add('formation',1600);}
+ }
  add('formation',c.formationHoldMs);
  if(c.benchAfter&&c.modules.bench){if(c.flip)add('benchFlip',720);add('bench',Infinity);}else add('formation',Infinity);
  return steps;
@@ -59,7 +66,7 @@ export function formationTimeline(d){
  const first=d.config.team,second=first==='home'?'away':'home',steps=[];let cursor=0;
  for(const team of [first,second]){
   const timeline=singleFormationTimeline({...d,config:{...d.config,team,lineupBoth:false}});
-  for(const step of timeline){const duration=Number.isFinite(step.end)?step.end-step.start:team===first?5000:Infinity;steps.push({...step,team,start:cursor,end:cursor+duration});cursor+=duration;}
+  for(const step of timeline){const duration=Number.isFinite(step.end)?step.end-step.start:team===first?5000:Infinity;steps.push({...step,team,...Object.fromEntries(['introStart','mediaStart','groupEnd'].filter(k=>Number.isFinite(step[k])).map(k=>[k,step[k]+cursor-step.start])),start:cursor,end:cursor+duration});cursor+=duration;}
   if(team===first){steps.push({kind:'teamFlip',team:second,fromTeam:first,revealed:[],start:cursor,end:cursor+900});cursor+=900;}
  }
  return steps;
