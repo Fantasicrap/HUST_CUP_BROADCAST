@@ -73,3 +73,15 @@
 .bench-panel[data-count="13"] .bench-row,.bench-panel[data-count="14"] .bench-row,.bench-panel[data-count="15"] .bench-row,.bench-panel[data-count="16"] .bench-row{padding-block:5px}
 .bench-panel[data-count="16"] .bench-row>strong{font-size:28px}
 @media(prefers-reduced-motion:reduce){.line-motion-active .lineup-panel[data-group]:not([data-group=""]){animation:none}}
+
+/* Larger technical statistics. Other match graphics retain their footprint. */
+.stats-screen .stats-heading>.badge{width:80px;height:90px}
+.stats-screen .stats-heading>strong{font-size:44px;line-height:1.15;min-width:0;overflow-wrap:anywhere}
+.stats-screen .comparison-row{min-height:72px}
+.stats-screen .comparison-row b{font-size:48px;line-height:1.15}
+.stats-screen .comparison-row span{font-size:32px;line-height:1.2;letter-spacing:2px}
+.report-columns .comparison-row{min-height:48px}
+.report-columns .comparison-row b{font-size:30px}
+.report-columns .comparison-row span{font-size:24px}
+.info-strip .comparison-row b{font-size:40px}
+.info-strip .comparison-row span{font-size:28px}

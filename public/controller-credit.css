@@ -1,0 +1,8 @@
+/* Copyright (c) 2026 Fantasticrap@GitHub — SPDX-License-Identifier: MIT */
+body>header .wordmark small{width:auto;min-width:80px;max-width:150px}
+#controller-author-credit{display:block;margin-top:4px;color:#adc6e7;font:500 11px/1.35 'Segoe UI','Microsoft YaHei',sans-serif;letter-spacing:0;white-space:nowrap}
+html[data-control-theme="light"] #controller-author-credit{color:#345785}
+#controller-author-credit[hidden],html[data-controller-credit="hidden"] #controller-author-credit{display:none!important}
+#author-settings a{color:#86effc}
+html[data-control-theme="light"] #author-settings a{color:#1355fc}
+@media(max-width:700px){#controller-author-credit{font-size:10px}body>header .wordmark small{max-width:130px}}
