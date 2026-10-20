@@ -3,7 +3,7 @@ const fs=require('node:fs/promises'),path=require('node:path'),os=require('node:
 const {spawn}=require('node:child_process');
 const assert=require('node:assert/strict');
 (async()=>{
- const root=path.resolve(__dirname,'..'),temp=await fs.mkdtemp(path.join(os.tmpdir(),'hust-goal-net-')),out=path.join(root,'design-previews/v1.8.1');
+ const root=path.resolve(__dirname,'..'),temp=await fs.mkdtemp(path.join(os.tmpdir(),'hust-goal-net-')),out=path.join(root,'design-previews/v1.8.2');
  await fs.mkdir(out,{recursive:true});let child,browser;
  const errors=[],checks=[];
  try{
@@ -17,12 +17,14 @@ const assert=require('node:assert/strict');
   const payload={team:'home',teamName:'华中星火',kitColor:'#d9354e',playerId:'home-p-2',name:'赵启航',number:4};
   const frame=async(ms)=>{await page.evaluate(ms=>{window.qaNow=10000+ms;},ms);await page.evaluate(()=>new Promise(resolve=>requestAnimationFrame(()=>requestAnimationFrame(resolve))));return page.evaluate(()=>{
    const b=document.querySelector('.ball'),r=b.getBoundingClientRect(),g=document.querySelector('.goal-frame'),a=g.getBoundingClientRect();
-   const mouth=[[26,62],[136,18],[136,251],[26,295]],back=[[160,92],[270,48],[270,281],[160,325]];
+   const view=g.viewBox.baseVal,map=p=>[a.left+(p[0]-view.x)*a.width/view.width,a.top+(p[1]-view.y)*a.height/view.height];
+   const mouthPath=document.querySelector('.goal-mouth>path'),m=mouthPath.getBBox(),post=parseFloat(getComputedStyle(mouthPath).strokeWidth),net=document.querySelector('.net-back').getBBox();
+   const mouth=[[m.x+post/2,m.y+post/2],[m.x+m.width-post/2,m.y+post/2],[m.x+m.width-post/2,m.y+m.height],[m.x+post/2,m.y+m.height]].map(map),back=[[net.x,net.y],[net.x+net.width,net.y],[net.x+net.width,net.y+net.height],[net.x,net.y+net.height]].map(map);
    const inside=(point,poly)=>{let sign=0;for(let i=0;i<poly.length;i++){const p=poly[i],q=poly[(i+1)%poly.length],n=(q[0]-p[0])*(point[1]-p[1])-(q[1]-p[1])*(point[0]-p[0]);if(Math.abs(n)<.01)continue;const s=Math.sign(n);if(sign&&s!==sign)return false;sign=s;}return true;};
-   const matrix=new DOMMatrix(getComputedStyle(b).transform),radius=parseFloat(getComputedStyle(b).width)*Math.hypot(matrix.a,matrix.b)/2,centre=[(r.x+r.width/2-a.left)*300/a.width,(r.y+r.height/2-a.top)*340/a.height];
+   const matrix=new DOMMatrix(getComputedStyle(b).transform),radius=parseFloat(getComputedStyle(b).width)*Math.hypot(matrix.a,matrix.b)/2,centre=[r.x+r.width/2,r.y+r.height/2];
    const contained=poly=>inside(centre,poly)&&poly.every((p,i)=>{const q=poly[(i+1)%poly.length];return Math.abs((q[0]-p[0])*(centre[1]-p[1])-(q[1]-p[1])*(centre[0]-p[0]))/Math.hypot(q[0]-p[0],q[1]-p[1])>=radius-.1;});
    const text=document.querySelector('.goal-text').getBoundingClientRect();
-   return {x:r.x,y:r.y,width:r.width,height:r.height,opacity:getComputedStyle(b).opacity,transform:getComputedStyle(b).transform,mouth:contained(mouth),net:contained(back),centre,radius,netFloorGap:Math.abs(-110*(centre[1]-281)-44*(centre[0]-270))/Math.hypot(110,44)-radius,leftOfMouth:r.right<a.left+26*a.width/300,aboveText:r.bottom<text.top,textTop:text.top,ballBottom:r.bottom,visible:!document.querySelector('#canvas').hidden,phase:document.querySelector('#canvas').dataset.phase,layers:[getComputedStyle(g).zIndex,getComputedStyle(b).zIndex,getComputedStyle(document.querySelector('.goal-mouth')).zIndex]};
+   return {x:r.x,y:r.y,width:r.width,height:r.height,opacity:getComputedStyle(b).opacity,transform:getComputedStyle(b).transform,mouth:contained(mouth),net:contained(back),centre,radius,netFloorGap:Math.abs((back[3][0]-back[2][0])*(centre[1]-back[2][1])-(back[3][1]-back[2][1])*(centre[0]-back[2][0]))/Math.hypot(back[3][0]-back[2][0],back[3][1]-back[2][1])-radius,goalWidth:a.width,goalHeight:a.height,nameFont:getComputedStyle(document.querySelector('#name')).fontFamily,nameStyle:getComputedStyle(document.querySelector('#name')).fontStyle,nameMatrix:getComputedStyle(document.querySelector('#name')).transform,mouthRatio:(mouth[1][0]-mouth[0][0])/(mouth[3][1]-mouth[0][1]),nameWidth:document.querySelector('#name').getBoundingClientRect().width,namePanelWidth:document.querySelector('.player-text').getBoundingClientRect().width,leftOfMouth:r.right<mouth[0][0],aboveText:r.bottom<text.top,textTop:text.top,ballBottom:r.bottom,visible:!document.querySelector('#canvas').hidden,phase:document.querySelector('#canvas').dataset.phase,layers:[getComputedStyle(g).zIndex,getComputedStyle(b).zIndex,getComputedStyle(document.querySelector('.goal-mouth')).zIndex]};
   });};
   for(const seconds of [3,4,5]){
    await page.goto(base+'/goal2.html?preview=1');await page.evaluate(()=>document.fonts.ready);
@@ -32,14 +34,14 @@ const assert=require('node:assert/strict');
    const apex=await frame(ms*.38);assert(apex.aboveText,'Ball must fly above GOAL '+JSON.stringify(apex));
    assert((await frame(ms*.70)).leftOfMouth,'Approach must start outside the opening');
    assert((await frame(ms*.77)).mouth,'The full ball must cross through the mouth');
-   const settled=await frame(ms*.90);assert(settled.net,'The full ball must finish within the rear net '+JSON.stringify(settled));assert.equal(settled.opacity,'1');assert(settled.netFloorGap>=-.1&&settled.netFloorGap<=3,'Ball must rest on the net floor '+JSON.stringify(settled));assert.deepEqual(settled.layers,['2','4','5']);
+   const settled=await frame(ms*.90);assert(settled.net,'The full ball must finish within the rear net '+JSON.stringify(settled));assert.equal(settled.opacity,'1');assert.equal(settled.goalWidth,680);assert.equal(settled.goalHeight,280);assert(settled.netFloorGap>=-.1&&settled.netFloorGap<=3,'Ball must rest on the net floor '+JSON.stringify(settled));assert.deepEqual(settled.layers,['2','4','5']);
    if(seconds===4)await page.screenshot({path:path.join(out,'ball-inside-net.png')});
-   const duringName=await frame(ms+450+ms*.5);assert.equal(duringName.phase,'player');assert(duringName.net);assert.equal(duringName.opacity,'1');
+   const duringName=await frame(ms+450+ms*.5);assert.equal(duringName.phase,'player');assert(duringName.net);assert.equal(duringName.opacity,'1');assert(duringName.nameFont.includes('HustTitle'));assert.equal(duringName.nameStyle,'normal');assert(Math.abs(duringName.mouthRatio-3)<.001);assert(Math.abs(Number(duringName.nameMatrix.split(',')[2])-.14054)<.001);assert(duringName.nameWidth<=duringName.namePanelWidth);
    for(const key of ['x','y','width','height','transform'])assert.equal(duringName[key],settled[key],key+' must stay still during player intro');
    const beforeExit=await frame(ms*2+1000-600);assert(beforeExit.net&&beforeExit.visible);assert.equal(beforeExit.transform,settled.transform);
    if(seconds===4)await page.screenshot({path:path.join(out,'name-with-stationary-ball.png')});
    const after=await frame(ms*2+1000+50);assert.equal(after.visible,false);
-   checks.push(seconds+'秒/段：越过文字→从左侧门口进入→完整落网→姓名段静止可见→整体结束透明');
+   checks.push(seconds+'秒/段：越过文字→从左侧门口进入→完整落网→姓名段静止可见→姓名正体可读→整体结束透明');
   }
   // Record the real-time four-second version, using separate preview state only.
   const context=await browser.newContext({viewport:{width:1280,height:720},recordVideo:{dir:path.join(temp,'video'),size:{width:1280,height:720}}});
