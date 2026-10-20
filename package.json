@@ -1,6 +1,6 @@
 {
   "name": "hust-cup-broadcast",
-  "version": "1.7.0",
+  "version": "1.8.0",
   "type": "module",
   "private": true,
   "description": "HUST_CUP_BROADCAST 本地足球图文播出系统",
@@ -9,8 +9,9 @@
     "test": "node --test tests/*.test.mjs",
     "review:portraits": "node scripts/review-portraits.cjs",
     "review": "node scripts/review-v140.cjs && node scripts/review-event-modal.cjs && node scripts/review-motion.cjs && node scripts/review-centre.cjs && node scripts/review-surfaces.cjs && node scripts/review-material-live.cjs && node scripts/review-woven.cjs && node scripts/review-lineup-v160.cjs && node scripts/review-scoreboard-layout.cjs && node scripts/review-left-motion.cjs && node scripts/review-controller-theme.cjs",
-    "check": "node --check server.mjs && node --check public/graphics.js && node --check public/preview.js && node --check public/model.js && node --check public/match.js && node --check public/desk.js && node --check public/workflow.js && node --check public/roster-search.js && node --check public/clock-input.js && node --check public/motion.js && node --check public/portrait-editor.js && node --check public/woven.js && node --check lib/portraits.mjs && node --check public/controller-theme.js && node --check public/roster-rules.js && node --check public/roster-editor.js",
-    "review:formats": "node scripts/review-formats.cjs"
+    "check": "node --check server.mjs && node --check public/graphics.js && node --check public/preview.js && node --check public/model.js && node --check public/match.js && node --check public/desk.js && node --check public/workflow.js && node --check public/roster-search.js && node --check public/clock-input.js && node --check public/motion.js && node --check public/portrait-editor.js && node --check public/woven.js && node --check lib/portraits.mjs && node --check public/controller-theme.js && node --check public/roster-rules.js && node --check public/roster-editor.js && node --check lib/goal2.mjs && node --check public/goal2.js && node --check public/goal2-controller.js",
+    "review:formats": "node scripts/review-formats.cjs",
+    "review:goal2": "node scripts/review-goal2.cjs"
   },
   "devDependencies": {
     "playwright": "1.62.1",
