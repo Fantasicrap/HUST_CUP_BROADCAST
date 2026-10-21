@@ -24,7 +24,16 @@ export function mountWorkflowGuide(h){
  const archive=$('#new-match');const fresh=document.createElement('details');fresh.className='workflow-drawer new-match-drawer';fresh.innerHTML='<summary>新比赛或继续原比赛</summary><p class="hint">继续已有比赛时无需新建。新建会清空本场记录，请先导出备份。</p>';fresh.append(archive);relocate(fresh,0);
  relocate($('#format-settings'),0);relocate($('#team-settings'),0);relocate($('#tie-save').closest('.desk-card'),0);
  relocate($('#roster-settings'),1);$('#roster-settings').open=true;relocate($('#sync-lineups').closest('.desk-card'),1);
- relocate($('#stage-pregame .crew-fields')?.closest('.desk-card'),2);
+ const people=$('#stage-pregame .crew-fields')?.closest('.desk-card');relocate(people,2);
+ if(people){
+  people.querySelector('h3').textContent='裁判、解说与赞助素材';
+  const person=document.createElement('fieldset');person.className='person-introduction-settings';
+  person.innerHTML='<legend>通用人物介绍（可选）</legend><p id="person-introduction-purpose" class="hint">仅用于单独播出的姓名／身份信息条，不与球员、球队官员、裁判或解说名单联动。不使用时可留空。</p><div class="form-grid"></div><p class="hint">播出方式：顶部选择「人物介绍」→「预览此画面」→核对后「正式播出此画面」。</p>';
+  for(const [key,title,placeholder] of [['personName','介绍对象姓名','例如：王明远'],['personRole','显示身份／职务','例如：嘉宾、主教练、领队']]){
+   const input=people.querySelector(`[data-path="presentation.${key}"]`),label=input.closest('label');label.firstChild.textContent=title;input.placeholder=placeholder;input.setAttribute('aria-describedby','person-introduction-purpose');person.querySelector('.form-grid').append(label);
+  }
+  people.querySelector('h3').after(person);
+ }
  const visual=document.createElement('section');visual.className='desk-card';visual.innerHTML='<h3>画面与素材检查</h3><p class="hint">照片和视频在第2步按球员上传。裁判、解说和赞助可留空；不需要的模块可关闭。</p><div class="action-row"><button data-guide-settings>选择主题与启用模块</button><button data-guide-preview="formation">预览首发阵型</button><button data-guide-preview="opening">预览开场对阵</button></div><p class="hint">以上只做编辑与预览；第4步明确发布后进入直播资料。</p>';relocate(visual,2);
  const review=document.createElement('section');review.className='desk-card preparation-review';review.innerHTML='<h3>开播前核对</h3><ul id="preparation-checks"></ul><p id="preparation-detail" class="hint"></p><div class="action-row"><button data-guide-target="sync-lineups">同步两队名单到比赛</button><button data-guide-preview="scoreboard">预览比分牌</button><button data-guide-target="apply-live" class="primary">发布资料到直播（不换画面）</button></div><p class="hint">顺播会正式播放已启用的包装。开场动画结束不会自动开表，实际开球时再开始计时。</p>';relocate(review,3);relocate($('#flow-opening').closest('.desk-card'),3);
  const guideExtras=document.createElement('details');guideExtras.className='workflow-drawer';guideExtras.id='goal2-drawer';guideExtras.innerHTML='<summary>二路进球动画 · 独立输出，不记分</summary>';$('#goal2-control').before(guideExtras);guideExtras.append($('#goal2-control'));
