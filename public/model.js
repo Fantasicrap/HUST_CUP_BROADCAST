@@ -1,7 +1,7 @@
 import {penaltyStatus} from './match.js';
 import {MAX_BENCH,normalizeRules,formationsFor} from './roster-rules.js';
 export {MAX_BENCH,MATCH_FORMATS,COMMON_FORMATIONS,formationsFor,assertBenchLimit,assertLineups,arrangeFormation,arrangeCustom,lineupErrors,customShape} from './roster-rules.js';
-export const REFEREE_ROLES={referee:'主裁判',assistantReferee1:'第一助理裁判',assistantReferee2:'第二助理裁判',fourthOfficial:'第四官员',additionalReferee1:'附加助理裁判（1）',additionalReferee2:'附加助理裁判（2）',reserveReferee:'候补助理裁判'};
+export const REFEREE_ROLES={referee:'主裁判',assistantReferee1:'第一助理裁判',assistantReferee2:'第二助理裁判',fourthOfficial:'第四官员',additionalReferee1:'附加助理裁判',additionalReferee2:'附加助理裁判',reserveReferee:'候补助理裁判'};
 export const MODULES = {scoreboard:'左上常驻比分牌',goal:'进球播报',substitution:'换人播报',opening:'全屏开场对阵',formation:'首发阵型',bench:'替补名单',shootoutCompact:'底部点球进行中',shootout:'点球结果大面板',bottomScore:'底部简要比分牌',intro:'赛事开场',entrance:'球员入场横条',starters:'独立首发名单',officials:'裁判团队',commentators:'解说团队',kickoff:'开球信息条',card:'给牌',cancelGoal:'进球无效',penalty:'比赛点球事件',var:'VAR 判罚审核',notice:'通用通知',statStrip:'单项统计条',statistics:'统计对比',person:'人物介绍',halftime:'半场总结',fulltime:'全场赛果',summary:'比赛总结',transition:'回放转场',sponsor:'赞助鸣谢'};
 export const CONTEXTS={pregame:'开场 / 开球',halftime:'半场结束',secondhalf:'下半场开场',fulltime:'全场结束',restart:'进球后重新开球'};
 export const GROUPS={goalkeeper:'门将',defenders:'后卫线',midfielders:'中场线',forwards:'前锋线'};

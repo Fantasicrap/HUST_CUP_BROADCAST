@@ -1,6 +1,7 @@
 // Controller guidance only. Navigation and checks never mutate the match.
 import {lineupErrors} from './roster-rules.js';
 import {PHASES} from './match.js';
+import {mountRefereeEditor} from './referee-editor.js';
 const $=s=>document.querySelector(s);
 const stable=v=>JSON.stringify(v,(_,x)=>x&&typeof x==='object'&&!Array.isArray(x)?Object.fromEntries(Object.keys(x).sort().map(k=>[k,x[k]])):x);
 function publication(d){return {home:d.home,away:d.away,competition:d.competition,formation:d.formation,awayFormation:d.awayFormation,presentation:d.presentation,config:Object.fromEntries(Object.entries(d.config||{}).filter(([k])=>!['team','lineupBoth'].includes(k))) };}
@@ -26,6 +27,7 @@ export function mountWorkflowGuide(h){
  relocate($('#roster-settings'),1);$('#roster-settings').open=true;relocate($('#sync-lineups').closest('.desk-card'),1);
  const people=$('#stage-pregame .crew-fields')?.closest('.desk-card');relocate(people,2);
  if(people){
+  mountRefereeEditor({host:people,getDraft:h.getDraft,edited:h.edited});
   people.querySelector('h3').textContent='裁判、解说与赞助素材';
   const person=document.createElement('fieldset');person.className='person-introduction-settings';
   person.innerHTML='<legend>通用人物介绍（可选）</legend><p id="person-introduction-purpose" class="hint">仅用于单独播出的姓名／身份信息条，不与球员、球队官员、裁判或解说名单联动。不使用时可留空。</p><div class="form-grid"></div><p class="hint">播出方式：顶部选择「人物介绍」→「预览此画面」→核对后「正式播出此画面」。</p>';

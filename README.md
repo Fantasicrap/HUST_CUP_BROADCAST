@@ -16,7 +16,7 @@
 
 赛中保留计时与八类事件主入口；二路动画收进辅助区域，校准与清零按需展开。监看标清草稿预览/实际播出，资料发布、图文播出和回到比分牌的用途直接写在界面。非赛中页面默认收起监看与计时，优先显示当前阶段内容；明暗模式保留。
 
-[新版操作说明](docs/v1.9.0操作流程与界面.md) · [赛中界面](design-previews/v1.9.0/live-matchday.png) · [赛前四步](design-previews/v1.9.0/preparation-light.png) · [v1.9.0源码](https://github.com/Fantasicrap/HUST_CUP_BROADCAST/tree/v1.9.0)
+[新版操作说明](docs/v1.9.0操作流程与界面.md) · [赛中界面](design-previews/v1.9.0/live-matchday.png) · [赛前四步](design-previews/v1.9.0/preparation-light.png) · [最新源码](https://github.com/Fantasicrap/HUST_CUP_BROADCAST/tree/main)
 
 纯前端升级，刷新后台即可，无需重启比赛服务。原Word指南保留，新按钮名称以本次操作说明为准。
 
