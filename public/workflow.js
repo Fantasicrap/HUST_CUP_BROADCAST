@@ -35,13 +35,13 @@ export function mountWorkflow({showLive,getDraft}) {
  roster.querySelector('summary').textContent='首发、替补与逐线翻牌';roster.open=false;
  const draftScores=drawer('草稿比分检查（不生成比赛记录）',panes.settings);move('.score-controls',draftScores);
  const layout=drawer('比分牌位置与显示',panes.settings);move(teams.querySelector('[data-config="x"]').closest('.inline-fields'),layout);
- const scoreboardLayout=make('label','corner-setting','左上比分牌布局 <select data-config="scoreboardLayout"><option value="logo-center">赛事 logo 居中 · 时间在右（默认）</option><option value="clock-center">时间居中 · 赛事 logo 在右（对换）</option></select>');scoreboardLayout.querySelector('select').value=getDraft().config.scoreboardLayout||'logo-center';layout.append(scoreboardLayout);layout.append(make('p','hint','仅改变左上比分牌；补时始终跟在计时器右侧。先预览，点击“更新直播资料”后应用到OBS。'));
+ const scoreboardLayout=make('label','corner-setting','左上比分牌布局 <select data-config="scoreboardLayout"><option value="logo-center">赛事 logo 居中 · 时间在右（默认）</option><option value="clock-center">时间居中 · 赛事 logo 在右（对换）</option></select>');scoreboardLayout.querySelector('select').value=getDraft().config.scoreboardLayout||'logo-center';layout.append(scoreboardLayout);layout.append(make('p','hint','仅改变左上比分牌；补时始终跟在计时器右侧。先预览，点击“发布资料（不换画面）”后应用到OBS。'));
  move('#format-settings',panes.pregame);move(teams,panes.pregame);move(roster,panes.pregame);move(modules,panes.settings);
  const themeCard=card('视觉主题与边角',panes.settings);move(themes,themeCard);
  const corners=make('label','corner-setting','包装与操作界面边角 <select data-config="cornerRadius"><option value="0">方角 · 几何</option><option value="18">圆角 · 柔和</option></select>');themeCard.append(corners);corners.querySelector('select').value=getDraft().config.cornerRadius||0;
  const materials=make('div','form-grid material-controls','<label>图文材质<select data-config="material"><option value="solid">实色 · 经典包装</option><option value="acrylic">渐变亚克力</option></select></label><label>渐变配色<select data-config="materialPalette"><option value="kits">跟随双方本场球衣</option><option value="fixed">固定白色 → 蓝色</option></select></label><label>底图透出比例 %（0–30）<input type="number" min="0" max="30" step="1" data-config="materialTransparency"></label>');themeCard.append(materials);materials.querySelectorAll('[data-config]').forEach(el=>el.value=getDraft().config[el.dataset.config]);
  const texture=make('label','texture-setting','<input type="checkbox" data-config="texture"> 深浅交织纹理（所有转播色块，大画面更明显）');texture.querySelector('input').checked=getDraft().config.texture!==false;themeCard.append(texture);
- themeCard.append(make('p','hint','边角立即用于操作界面，材质用于草稿图文；点击“更新直播资料”后才进入 OBS。'));
+ themeCard.append(make('p','hint','边角立即用于操作界面，材质用于草稿图文；点击“发布资料（不换画面）”后才进入 OBS。'));
  const concept=make('a','material-preview-link','查看渐变亚克力材质示意 ↗');concept.href='material-preview.html';concept.target='_blank';concept.rel='noopener';themeCard.append(concept);
  const cards=key=>[...$(`[data-desk-panel="${key}"]`).querySelectorAll('.desk-card')];
  const eventPanel=$('[data-desk-panel="events"]');eventPanel.hidden=false;move(eventPanel,panes.live);
@@ -82,6 +82,7 @@ export function mountWorkflow({showLive,getDraft}) {
  function select(id){if(!panes[id])return;active=id;document.body.dataset.workflow=id;const stage=stages.find(s=>s[0]===id);$('#workflow-step').textContent=`0${stages.indexOf(stage)+1} / MATCHDAY`;$('#workflow-title').textContent=stage[1];$('#workflow-hint').textContent=stage[3];for(const [key,pane] of Object.entries(panes))pane.hidden=key!==id;nav.querySelectorAll('button').forEach(b=>{const selected=b.dataset.workflow===id;b.classList.toggle('active',selected);b.setAttribute('aria-pressed',String(selected));});
   if(statSlots[id])statSlots[id].append(stats);
   if(archiveSlots[id])archiveSlots[id].append(archive);
+  document.dispatchEvent(new CustomEvent('workflow:stage',{detail:id}));
  }
  nav.addEventListener('click',e=>{const button=e.target.closest('[data-workflow]');if(button)select(button.dataset.workflow);});
  nav.addEventListener('keydown',e=>{if(!['ArrowDown','ArrowUp','Home','End'].includes(e.key))return;e.preventDefault();const i=stages.findIndex(s=>s[0]===active),target=e.key==='Home'?0:e.key==='End'?stages.length-1:(i+(e.key==='ArrowDown'?1:-1)+stages.length)%stages.length;select(stages[target][0]);nav.querySelector(`[data-workflow="${active}"]`).focus();});
@@ -89,4 +90,5 @@ export function mountWorkflow({showLive,getDraft}) {
  // A clean entry point is always live operations, monitoring the real OBS timeline.
  select('live');archiveSlots.pregame.append(archive);showLive();
  document.body.classList.add('workflow-ready');
+ return {select};
 }
