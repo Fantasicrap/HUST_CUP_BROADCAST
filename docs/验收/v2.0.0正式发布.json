@@ -1,0 +1,39 @@
+{
+  "version": "2.0.0",
+  "releaseId": 421699422,
+  "url": "https://github.com/Fantasicrap/HUST_CUP_BROADCAST/releases/tag/v2.0.0",
+  "publishedAt": "2026-10-23T10:16:08Z",
+  "draft": false,
+  "latestVerified": true,
+  "remoteAssetDigestsMatch": true,
+  "sourceCommit": "f667b66626cce2b1ae4bc78b34be714669902bec",
+  "existingTagCommit": "d50680e0391709217b0b6be78200d00625115404",
+  "packageFilesVerified": 711,
+  "extractedTestsPassed": 74,
+  "assets": [
+    {
+      "name": "BUILD-MANIFEST.json",
+      "size": 131580,
+      "digest": "sha256:3fc180e6f9c524d050800dcf6c623f6f3a4de87d77630ca4d285e2e8541bfebf",
+      "browser_download_url": "https://github.com/Fantasicrap/HUST_CUP_BROADCAST/releases/download/v2.0.0/BUILD-MANIFEST.json"
+    },
+    {
+      "name": "HUST_CUP_BROADCAST-v2.0.0.zip",
+      "size": 184376092,
+      "digest": "sha256:49b1e180ecac2f4465ad9fcf93554cffa730bc466c12b8da0573c303654a41f3",
+      "browser_download_url": "https://github.com/Fantasicrap/HUST_CUP_BROADCAST/releases/download/v2.0.0/HUST_CUP_BROADCAST-v2.0.0.zip"
+    },
+    {
+      "name": "HUST_CUP_BROADCAST_Operator_Guide_v2.0.0.docx",
+      "size": 2672563,
+      "digest": "sha256:0b6866d2d81fe2503d83da3a8fdb4ba751dde04d36705bbb91dd7cb3a02affdc",
+      "browser_download_url": "https://github.com/Fantasicrap/HUST_CUP_BROADCAST/releases/download/v2.0.0/HUST_CUP_BROADCAST_Operator_Guide_v2.0.0.docx"
+    },
+    {
+      "name": "SHA256SUMS-v2.0.0.txt",
+      "size": 297,
+      "digest": "sha256:deca90caf68c1c76d8a75d744ee8457d701adecaaea20f5b25c07e1ab33e2b54",
+      "browser_download_url": "https://github.com/Fantasicrap/HUST_CUP_BROADCAST/releases/download/v2.0.0/SHA256SUMS-v2.0.0.txt"
+    }
+  ]
+}
