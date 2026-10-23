@@ -4,7 +4,7 @@
 
 ![当前关键画面 v2.0.0](design-previews/v2.0.0/home-preview.png)
 
-[项目介绍](docs/项目介绍.md) · [Word操作指南 v2.0.0](docs/操作指南/HUST_CUP_BROADCAST_使用者操作指南_v2.0.0.docx) · [在线操作说明](docs/操作指南/README.md) · [项目报告](docs/项目报告.md) · [v2.0.0源码](https://github.com/Fantasicrap/HUST_CUP_BROADCAST/tree/v2.0.0)
+[下载v2.0.0完整包](https://github.com/Fantasicrap/HUST_CUP_BROADCAST/releases/tag/v2.0.0) · [项目介绍](docs/项目介绍.md) · [Word操作指南 v2.0.0](docs/操作指南/HUST_CUP_BROADCAST_使用者操作指南_v2.0.0.docx) · [在线操作说明](docs/操作指南/README.md) · [项目报告](docs/项目报告.md) · [v2.0.0源码](https://github.com/Fantasicrap/HUST_CUP_BROADCAST/tree/v2.0.0)
 
 ## 先启动 再接入 OBS
 
