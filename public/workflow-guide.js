@@ -1,5 +1,5 @@
 // Controller guidance only. Navigation and checks never mutate the match.
-import {lineupErrors} from './roster-rules.js';
+import {assertRules,lineupErrors} from './roster-rules.js';
 import {PHASES} from './match.js';
 import {mountRefereeEditor} from './referee-editor.js';
 const $=s=>document.querySelector(s);
@@ -7,6 +7,7 @@ const stable=v=>JSON.stringify(v,(_,x)=>x&&typeof x==='object'&&!Array.isArray(x
 function publication(d){return {home:d.home,away:d.away,competition:d.competition,formation:d.formation,awayFormation:d.awayFormation,presentation:d.presentation,config:Object.fromEntries(Object.entries(d.config||{}).filter(([k])=>!['team','lineupBoth'].includes(k))) };}
 export function preparationStatus(d,s){
  const errors=['formation','awayFormation'].flatMap((k,i)=>lineupErrors(d[k],d.rules.playersPerSide).map(e=>`${i?'客队':'主队'}：${e}`));
+ try{assertRules(d.rules);}catch(e){errors.push(e.message);}
  const teams=!!(d.home.name.trim()&&d.away.name.trim()&&d.competition.name.trim());
  const synced=!!s&&stable({rules:d.rules,home:d.formation,away:d.awayFormation})===stable({rules:s.match.rules,home:s.match.initial.lineups.home,away:s.match.initial.lineups.away});
  const published=!!s&&stable(publication(d))===stable(publication(s.live.data));

@@ -29,7 +29,7 @@ export function normalizeDraft(raw,sample){
  const goals=(Array.isArray(raw.goals)?raw.goals:[{team:'home',name:'陈子昂',number:9,time:'23′',period:'first',kind:'normal'},{team:'away',name:'周奕辰',number:8,time:'39′',period:'first',kind:'normal'},{team:'home',name:'陈子昂',number:9,time:'67′',period:'second',kind:'normal'}]).slice(0,100).map((g,i)=>({id:text(g.id,`goal-${i}`,60),team:g.team==='away'?'away':'home',...(g.teamRole==='player'?{teamRole:'player'}:{}),name:text(g.name,'未知球员',40),number:Math.round(num(g.number,0,0,999)),time:text(g.time,'',24),period:['first','second','extra'].includes(g.period)?g.period:'second',kind:['penalty','own'].includes(g.kind)?g.kind:'normal',cancelled:bool(g.cancelled,false)}));
  const kicks=side=>(Array.isArray(raw.shootout?.[side])?raw.shootout[side]:base.shootout[side]).slice(0,100).map(v=>v===1?1:v===0?0:null);
  return {
-  rules:normalizeRules(raw.rules),
+  rules:normalizeRules(raw.rules===undefined?{substitutionLimits:{enabled:true,players:5,windows:3,concussion:false}}:raw.rules),
   competition:{...Object.fromEntries(['name','subtitle','round','venue','kickoff'].map(k=>[k,text(raw.competition?.[k],base.competition[k],100)])),logo:imagePath(raw.competition?.logo??base.competition.logo)},
   home:team('home'),away:team('away'),score:{home:Math.round(num(raw.score?.home,base.score.home,0,999)),away:Math.round(num(raw.score?.away,base.score.away,0,999))},
   clock:{...base.clock,display:text(raw.clock?.display,base.clock.display,24),phase:text(raw.clock?.phase,base.clock.phase,30)},

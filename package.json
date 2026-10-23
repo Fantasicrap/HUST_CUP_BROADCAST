@@ -1,6 +1,6 @@
 {
   "name": "hust-cup-broadcast",
-  "version": "1.9.1",
+  "version": "2.0.0",
   "type": "module",
   "private": true,
   "description": "HUST_CUP_BROADCAST 本地足球图文播出系统",
@@ -9,9 +9,10 @@
     "test": "node scripts/run-tests.mjs",
     "review:portraits": "node scripts/review-portraits.cjs",
     "review": "node scripts/review-current.cjs",
-    "check": "node --check server.mjs && node --check public/graphics.js && node --check public/preview.js && node --check public/model.js && node --check public/match.js && node --check public/desk.js && node --check public/workflow.js && node --check public/roster-search.js && node --check public/clock-input.js && node --check public/motion.js && node --check public/portrait-editor.js && node --check public/woven.js && node --check lib/portraits.mjs && node --check public/controller-theme.js && node --check public/roster-rules.js && node --check public/roster-editor.js && node --check lib/goal2.mjs && node --check public/goal2.js && node --check public/goal2-controller.js && node --check public/controller-credit.js && node --check public/workflow-guide.js && node --check public/referee-editor.js && node --check scripts/run-tests.mjs && node --check scripts/review-current.cjs && node --check scripts/review-audit.cjs",
+    "check": "node --check server.mjs && node --check public/graphics.js && node --check public/preview.js && node --check public/model.js && node --check public/match.js && node --check public/desk.js && node --check public/workflow.js && node --check public/roster-search.js && node --check public/clock-input.js && node --check public/motion.js && node --check public/portrait-editor.js && node --check public/woven.js && node --check lib/portraits.mjs && node --check public/controller-theme.js && node --check public/roster-rules.js && node --check public/roster-editor.js && node --check lib/goal2.mjs && node --check public/goal2.js && node --check public/goal2-controller.js && node --check public/controller-credit.js && node --check public/workflow-guide.js && node --check public/referee-editor.js && node --check scripts/run-tests.mjs && node --check scripts/review-current.cjs && node --check scripts/review-audit.cjs && node --check public/substitution-rules.js && node --check scripts/review-substitution-limits.cjs",
     "review:formats": "node scripts/review-formats.cjs",
-    "review:goal2": "node scripts/review-goal2.cjs && node scripts/review-goal2-net.cjs"
+    "review:goal2": "node scripts/review-goal2.cjs && node scripts/review-goal2-net.cjs",
+    "review:substitutions": "node scripts/review-substitution-limits.cjs"
   },
   "devDependencies": {
     "playwright": "1.62.1",

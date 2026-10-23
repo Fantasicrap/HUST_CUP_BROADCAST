@@ -12,7 +12,7 @@ function identity(node,run){
 function items(root,run){return new Map([...root.querySelectorAll(selector)].map(node=>[identity(node,run),node]));}
 function geometry(node){
  const r=node.getBoundingClientRect(),scale=r.height/(node.offsetHeight||r.height)||1;
- const core=node.querySelector(':scope>.bottom-row,:scope>.score-row,:scope>.referee-title')||node;
+ const core=node.querySelector(':scope>.bottom-row,:scope>.score-row,:scope>.referee-title,:scope>.mini-event-body')||node;
  const c=core.getBoundingClientRect(),height=r.height/scale,cy=(c.top+c.height/2-r.top)/scale;
  node.style.setProperty('--core-top',`${(c.top-r.top)/scale}px`);
  node.style.setProperty('--core-bottom',`${height-(c.bottom-r.top)/scale}px`);
@@ -24,6 +24,10 @@ function geometry(node){
 function exitFrames(node){
  const css=getComputedStyle(node),v=(name,fallback)=>css.getPropertyValue(name).trim()||fallback;
  const open=css.clipPath==='none'?'inset(-64px -8px -64px -8px)':css.clipPath;
+ if(node.matches('.mini-substitution')&&node.querySelector('.substitution-budget')){
+  const core=`inset(0 0 ${v('--core-bottom','38px')} 0)`,line=`inset(0 calc(100% - 4px) ${v('--core-bottom','38px')} 0)`;
+  return [{clipPath:open,opacity:1},{clipPath:core,opacity:1,offset:.28},{clipPath:core,opacity:1,offset:.44},{clipPath:line,opacity:1,offset:.78},{clipPath:line,opacity:1,offset:.93},{clipPath:line,opacity:0}];
+ }
  if(node.matches('.mini-event,.info-strip')){
   const line='inset(0px calc(100% - 4px) 0px 0px)';
   return [{clipPath:open,opacity:1},{clipPath:line,opacity:1,offset:.7},{clipPath:line,opacity:1,offset:.9},{clipPath:line,opacity:0}];

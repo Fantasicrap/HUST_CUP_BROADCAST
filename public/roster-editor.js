@@ -1,10 +1,11 @@
-import {MAX_BENCH,formationsFor,lineupErrors,arrangeFormation,arrangeCustom,customShape} from './roster-rules.js';
+import {assertRules,MAX_BENCH,formationsFor,lineupErrors,arrangeFormation,arrangeCustom,customShape} from './roster-rules.js';
 export function refreshRosterRules(d){
  const count=d.rules?.playersPerSide||11,side=d.config.team==='away'?'awayFormation':'formation',l=d[side];
  document.querySelectorAll('[data-match-format]').forEach(el=>el.checked=Number(el.value)===count);
+ const limits=d.rules.substitutionLimits||{enabled:false,players:5,windows:3,concussion:false};for(const [id,key] of [['sub-limits-enabled','enabled'],['sub-concussion-enabled','concussion']]){const el=document.querySelector('#'+id);if(el)el.checked=limits[key];}for(const [id,key] of [['sub-player-limit','players'],['sub-window-limit','windows']]){const el=document.querySelector('#'+id);if(el){el.value=limits[key];el.disabled=!limits.enabled;}}
  const rolling=document.querySelector('#rolling-substitutions');if(rolling)rolling.checked=d.rules?.substitutions==='rolling';
  const select=document.querySelector('#formation-template');if(select){const old=select.value;select.replaceChildren(...[...formationsFor(count),'custom'].map(s=>{const option=document.createElement('option');option.value=s;option.textContent=s==='custom'?'自定义 · 按逐人分线':s;return option;}));select.value=l.custom?'custom':formationsFor(count).includes(l.name)?l.name:formationsFor(count).includes(old)?old:formationsFor(count)[0];}
- const errors=['formation','awayFormation'].map(k=>lineupErrors(d[k],count));
+ const errors=['formation','awayFormation'].map(k=>lineupErrors(d[k],count));try{assertRules(d.rules);}catch(e){errors[0].push(e.message);}
  const status=document.querySelector('#format-validation');if(status){status.textContent=`${count}人制 · 主队首发 ${d.formation.players.length}/${count}，替补 ${d.formation.bench.length}/${MAX_BENCH}；客队首发 ${d.awayFormation.players.length}/${count}，替补 ${d.awayFormation.bench.length}/${MAX_BENCH}。`+errors.map((e,i)=>e.length?` ${i?'客队':'主队'}：${e.join('；')}。`:'').join('');status.classList.toggle('has-roster-errors',errors.some(e=>e.length));}
  const add=document.querySelector('#add-starter');if(add)add.disabled=l.players.length>=count;
  const caption=document.querySelector('#starters-caption');if(caption)caption.textContent=`首发球员 · ${l.players.length}/${count} 人（含1名门将）`;
@@ -16,6 +17,7 @@ export function mountRosterEditor(h){
  const $=s=>document.querySelector(s),lineup=()=>h.getDraft()[h.getDraft().config.team==='away'?'awayFormation':'formation'];
  const changed=()=>{h.edited();h.renderRoster();};
  document.querySelectorAll('[data-match-format]').forEach(el=>el.onchange=()=>{if(el.checked){h.getDraft().rules.playersPerSide=Number(el.value);changed();}});
+ for(const [id,key] of [['sub-limits-enabled','enabled'],['sub-concussion-enabled','concussion'],['sub-player-limit','players'],['sub-window-limit','windows']])$('#'+id).onchange=()=>{const input=$('#'+id);h.getDraft().rules.substitutionLimits[key]=input.type==='checkbox'?input.checked:Number(input.value);changed();};
  $('#rolling-substitutions').onchange=()=>{h.getDraft().rules.substitutions=$('#rolling-substitutions').checked?'rolling':'once';changed();};
  $('#add-starter').onclick=()=>{const l=lineup();if(l.players.length>=h.getDraft().rules.playersPerSide)return;l.players.push(blank(l,l.players.some(keeper)?'midfielders':'goalkeeper'));l.custom=true;l.name=customShape(l);changed();};
  $('#add-bench').onclick=()=>{const l=lineup();if(l.bench.length>=MAX_BENCH)return;l.bench.push(blank(l));changed();};

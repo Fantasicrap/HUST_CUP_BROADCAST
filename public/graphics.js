@@ -1,3 +1,4 @@
+import {remainingSubstitutions} from './substitution-rules.js';
 import {decoratePanels} from './woven.js';
 import {kitSurfaceVariables,materialSettings} from './material-colors.js';
 import {createMotion,ENTER_MS,EXIT_MS} from './motion.js';
@@ -34,8 +35,11 @@ function scoreboard(){
 }
 function event(type){
  const goal=type==='goal';let item=goal?data.goal:data.substitution;if(!goal&&item.pairs?.length){const index=Math.min(item.pairs.length-1,Math.floor(currentElapsed/Math.max(1200,currentHoldMs/item.pairs.length)));item={...item,...item.pairs[index]};}const team=data[item.team]||data.home;
- const content=goal?`<div class="mini-heading"><span>进球 / GOAL</span><b>${esc(item.time)}</b></div><div class="mini-player"><b>${esc(item.number)}</b><strong>${esc(item.name)}</strong>${goalMarker(item.kind)?`<span>${esc(goalMarker(item.kind))}</span>`:''}</div>`:`<div class="mini-heading"><span>换人 / SUBSTITUTION</span><b>${esc(item.time)}</b></div><div class="mini-sub"><span class="in">↑ 换上</span><b>${esc(item.on?.number??'')}</b><strong>${esc(item.on?.name??'')}</strong></div><div class="mini-sub"><span class="out">↓ 换下</span><b>${esc(item.off?.number??'')}</b><strong>${esc(item.off?.name??'')}</strong></div>`;
- return `${scoreboard()}<section class="mini-event ${goal?'mini-goal':'mini-substitution'}"><div class="mini-badge">${badge(team)}</div><div class="mini-content">${content}</div></section>`;
+ const content=goal?`<div class="mini-heading"><span>进球 / GOAL</span><b>${esc(item.time)}</b></div><div class="mini-player"><b>${esc(item.number)}</b><strong>${esc(item.name)}</strong>${goalMarker(item.kind)?`<span>${esc(goalMarker(item.kind))}</span>`:''}</div>`:`<div class="mini-heading"><span>${item.kind==='concussion'?'脑震荡换人 / CONCUSSION':item.kind==='additional'?'额外换人 / ADDITIONAL':'换人 / SUBSTITUTION'}</span><b>${esc(item.time)}</b></div><div class="mini-sub"><span class="in">↑ 换上</span><b>${esc(item.on?.number??'')}</b><strong>${esc(item.on?.name??'')}</strong></div><div class="mini-sub"><span class="out">↓ 换下</span><b>${esc(item.off?.number??'')}</b><strong>${esc(item.off?.name??'')}</strong></div>`;
+ const body=`<div class="mini-badge">${badge(team)}</div><div class="mini-content">${content}</div>`,remaining=!goal?remainingSubstitutions(data.rules,data.substitutionUsage,item.team):null;
+ const value=(key,extra)=>remaining?`${remaining[key]===null?'不限':remaining[key]}${remaining[extra]?`<em>（+${remaining[extra]}）</em>`:''}`:'—';
+ const budget=!goal?`<div class="substitution-budget" aria-label="本队当前剩余换人额度"><span>剩余名额 <b data-remaining="players">${value('players','extraPlayers')}</b></span><span>换人窗口 <b data-remaining="windows">${value('windows','extraWindows')}</b></span></div>`:'';
+ return `${scoreboard()}<section class="mini-event ${goal?'mini-goal':'mini-substitution'}">${goal?body:`<div class="mini-event-body">${body}</div>${budget}`}</section>`;
 }
 const fullBase=()=>`<div class="full-bg"><div class="light-arc arc-one"></div><div class="light-arc arc-two"></div><div class="grid-lines"></div><div class="ghost-mark">${trophy()}</div></div>`;
 function marks(p){return `<span class="player-marks">${data.config.showCaptain&&p.captain?'<i class="captain-mark" title="队长">C</i>':''}${data.config.showYellow&&p.yellowCards?`<i class="yellow-mark" title="累计黄牌 ${p.yellowCards}"><em></em>${p.yellowCards}</i>`:''}</span>`;}
