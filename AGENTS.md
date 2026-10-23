@@ -55,3 +55,5 @@
 30. v2.0.0：新项目默认启用3个普通换人窗口/5名额，赛前可改，脑震荡默认关闭，旧档不追溯新增限制。每组normal/concussion/additional；一批普通多人一个窗口，halftime/regulationEnd/extraBreak占名额免窗口，普通暂停不免。脑震荡每队最多1名、永久退出，对手获1个专项额外名额/窗口，不得挪作普通窗口。重播不扣额，撤销/纠错从账本重算并检查赠送及沿用windowId依赖。左下换人主体停顿右展后下展约36px余额条，普通余额与（+1）分开，只有实际赠送后显示括号、使用后分别减少，退出反向。详情docs/v2.0.0换人名额与窗口.md。
 
 31. 2026-10-23文档与清理：当前Word入口更新为docs/操作指南/HUST_CUP_BROADCAST_使用者操作指南_v2.0.0.docx，18章22页10图，旧Word保留但不再作为当前入口。README为当前功能/流程，docs/项目介绍.md提供完整介绍。源生成器scripts/build-operator-guide.py，当前配图用scripts/capture-operator-guide-v2.cjs在隔离服务生成；不重启实际服务。用户已授权完成文档后清理，旧work/release构建及旧升级日志已删除约2.17GiB；保留runtime状态、素材、模型和.venv-background、历史设计及Git标签。清单docs/目录清理记录.md；不可因清理测试证据而删除可复现脚本与当前验收摘要。
+
+32. 2026-10-23用户指出首页拼图仍写v1.8.5，当前README首图与原图目录必须使用design-previews/v2.0.0/home-preview.png，覆盖第24条的旧路径。旧v1.8.5图作为历史保留。scripts/build-project-preview.cjs自动读取package版本并真实渲染，换人必须含当前余额区；不能只改README文字或旧图片文件名。

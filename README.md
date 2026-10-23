@@ -2,7 +2,7 @@
 
 面向校园足球赛事的本地直播图文包装系统。中文单人操作后台，1920×1080透明OBS浏览器源，覆盖入场、首发、比赛事件、中场、加时点球和赛后。**当前版本 v2.0.0**，原作者 **Fantasticrap@GitHub**。
 
-![当前关键画面](design-previews/v1.8.5/home-preview.png)
+![当前关键画面 v2.0.0](design-previews/v2.0.0/home-preview.png)
 
 [项目介绍](docs/项目介绍.md) · [Word操作指南 v2.0.0](docs/操作指南/HUST_CUP_BROADCAST_使用者操作指南_v2.0.0.docx) · [在线操作说明](docs/操作指南/README.md) · [项目报告](docs/项目报告.md) · [v2.0.0源码](https://github.com/Fantasicrap/HUST_CUP_BROADCAST/tree/v2.0.0)
 
@@ -71,7 +71,7 @@
 
 赛前[本地人像抠图](docs/赛前人像抠图.md)另需Python环境与模型，核心播出不依赖它。视频录制、回放与推流由OBS负责，系统转场只提供图形遮挡。二路接口不代替视频推流。积分榜、其他场次与下场预告为后续扩展。
 
-动画目标为1080p/60fps，实际OBS性能须用目标设备测试。[1080p关键原图](design-previews/v1.8.5)供核对布局；[历史GIF](design-previews/v1.8.4/goal2-loop.gif)是960×540分享预览，当前二路姓名样式以v2.0.0实际输出为准。
+动画目标为1080p/60fps，实际OBS性能须用目标设备测试。[1080p关键原图](design-previews/v2.0.0)供核对布局；[历史GIF](design-previews/v1.8.4/goal2-loop.gif)是960×540分享预览，当前二路姓名样式以v2.0.0实际输出为准。
 
 ## 开发与验证
 
