@@ -57,7 +57,7 @@ function cue(command){
  const context=Object.hasOwn(CONTEXTS,command.context)?command.context:'pregame';if(scene==='bottomScore'&&!template.config.contexts[context])throw Error('该底部比分场景未启用');
  if(state.match.clock.running&&isFulltimeCue({scene,context}))throw Error('计时仍在运行，请先暂停计时或切换全场结束阶段，再播出全场画面');
  const event=command.eventId?state.match.events.find(e=>e.id===command.eventId&&e.active!==false):null;if(command.eventId&&!event)throw Error('事件不存在或已撤销');if(event&&eventScene(event)!==scene)throw Error('事件与播出模块不匹配');if(event?.type==='goal'&&deriveMatch(state.match).goals.find(g=>g.id===event.id)?.cancelled)throw Error('该进球已取消，不能作为有效进球重播');
- return {id:randomUUID(),template,scene,context,eventId:event?.id||null,team:command.team==='away'?'away':command.team==='home'?'home':state.draft.config.team,priority:priority(scene),holdMs:scene==='scoreboard'?null:Math.max(1200,Math.min(scene==='formation'?300000:120000,Number(command.holdMs)||(scene==='bottomScore'?state.draft.config.bottomHoldMs:scene==='transition'?1400:scene==='formation'?formationDuration({...template,config:{...template.config,team:command.team||template.config.team}}):transient.has(scene)?state.draft.config.eventHoldMs:15000))),createdAt:Date.now()};
+ return {id:randomUUID(),template,scene,context,eventId:event?.id||null,team:command.team==='away'?'away':command.team==='home'?'home':state.draft.config.team,priority:priority(scene),holdMs:scene==='scoreboard'?null:Math.max(scene==='substitution'&&event?.pairs?.length?event.pairs.length*1200:1200,Math.min(scene==='formation'?300000:120000,Number(command.holdMs)||(scene==='bottomScore'?state.draft.config.bottomHoldMs:scene==='transition'?1400:scene==='formation'?formationDuration({...template,config:{...template.config,team:command.team||template.config.team}}):transient.has(scene)?state.draft.config.eventHoldMs:15000))),createdAt:Date.now()};
 }
 function startCue(item){if(state.match.clock.running&&isFulltimeCue(item))return finishCue();const event=item.eventId?state.match.events.find(e=>e.id===item.eventId):null;state.publishedDraft=structuredClone(item.template||state.publishedDraft);const data=composeData(state.publishedDraft,state.match,event);data.config.team=item.team;state.live={data,scene:item.scene,context:item.context,startedAt:Date.now(),runId:item.id,revision:state.live.revision,expiresAt:item.holdMs?Date.now()+item.holdMs:null,priority:item.priority,eventId:item.eventId};publish();}
 function enqueue(item,force=false){const busy=state.live.expiresAt&&state.live.expiresAt>Date.now();if(busy&&!force){if(state.queue.length>=200)throw Error('待播队列已满，请先移除旧画面');state.queue.push(item);state.queue.sort((a,b)=>b.priority-a.priority||a.createdAt-b.createdAt);}else startCue(item);}
@@ -108,6 +108,12 @@ const server=http.createServer(async(req,res)=>{
    const command=JSON.parse((await body(req)).toString('utf8'));
    await mutate(async()=>{
     if(command.action==='clear'){goal2.reset();state.queue=[];state.live={...state.live,scene:'clear',runId:randomUUID(),startedAt:Date.now(),expiresAt:null,eventId:null};publish({immediate:true});}
+    else if(command.action==='delay'){
+     const delay=Number(command.delayMs);if(!Number.isFinite(delay)||delay<0||delay>120000)throw Error('输出延迟须为0–120秒');
+     state.outputDelayMs=delay;state.draft.config.delayMs=delay;state.publishedDraft.config.delayMs=delay;
+     for(const item of state.queue)item.template.config.delayMs=delay;
+     refreshLive();
+    }
     else if(command.action==='scoreboard'){
      if(!state.publishedDraft.config.modules.scoreboard)throw Error('直播中的常驻比分牌未启用，请在系统设置启用后更新直播资料');
      state.queue=[];startCue({id:randomUUID(),template:structuredClone(state.publishedDraft),scene:'scoreboard',context:'pregame',team:state.publishedDraft.config.team,eventId:null,holdMs:null,priority:50});

@@ -3,7 +3,7 @@ const fs=require('node:fs/promises'),path=require('node:path'),os=require('node:
 const {spawn}=require('node:child_process');
 const assert=require('node:assert/strict');
 (async()=>{
- const root=path.resolve(__dirname,'..'),temp=await fs.mkdtemp(path.join(os.tmpdir(),'hust-goal-net-')),out=path.join(root,'design-previews/v1.8.6');
+ const root=path.resolve(__dirname,'..'),temp=await fs.mkdtemp(path.join(os.tmpdir(),'hust-goal-net-')),out=path.join(root,process.env.HUST_REVIEW_OUTPUT||'design-previews/v1.8.6');
  await fs.mkdir(out,{recursive:true});let child,browser;
  const errors=[],checks=[];
  try{
@@ -44,13 +44,15 @@ const assert=require('node:assert/strict');
    checks.push(seconds+'秒/段：越过文字→从左侧门口进入→完整落网→姓名段静止可见→斜二测45°半比例及模型3:1→原字体斜体无额外加粗→整体结束透明');
   }
   // Record the real-time four-second version, using separate preview state only.
+  if(process.env.HUST_REVIEW_VIDEO==='1'){
   const context=await browser.newContext({viewport:{width:1280,height:720},recordVideo:{dir:path.join(temp,'video'),size:{width:1280,height:720}}});
   const videoPage=await context.newPage();videoPage.on('pageerror',e=>errors.push(e.message));
   await videoPage.goto(base+'/goal2.html?preview=1');await videoPage.evaluate(()=>document.fonts.ready);
   await videoPage.evaluate(p=>window.postMessage({type:'goal2Preview',payload:p},location.origin),{...payload,phaseMs:4000});
   await videoPage.locator('#canvas:not([hidden])').waitFor();await videoPage.waitForTimeout(9300);
   const video=videoPage.video();await context.close();await fs.copyFile(await video.path(),path.join(out,'goal2-net-demo.webm'));
-  const after=await fetch(base+'/api/control-state').then(r=>r.json());assert.deepEqual(after.match,before.match);assert.equal(after.live.runId,before.live.runId);checks.push('只读预览及录制不改变主路/账本');
+  }
+  const after=await fetch(base+'/api/control-state').then(r=>r.json());assert.deepEqual(after.match,before.match);assert.equal(after.live.runId,before.live.runId);checks.push('只读逐帧预览不改变主路/账本'+(process.env.HUST_REVIEW_VIDEO==='1'?'；额外录制完成':'；录像可选，HUST_REVIEW_VIDEO=1启用'));
   assert.deepEqual(errors,[]);await fs.writeFile(path.join(out,'net-validation.json'),JSON.stringify({checks,errors},null,2));console.log(JSON.stringify({checks,errors}));
  }finally{await browser?.close();child?.kill();await new Promise(r=>setTimeout(r,250));await fs.rm(temp,{recursive:true,force:true,maxRetries:5});}
 })().catch(e=>{console.error(e);process.exitCode=1;});

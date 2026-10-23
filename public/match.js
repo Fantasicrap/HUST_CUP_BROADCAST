@@ -11,7 +11,8 @@ const id=()=>globalThis.crypto.randomUUID();
 export function goalTeams(goal){const team=side(goal.team),own=goal.kind==='own',actor=own&&goal.teamRole!=='player'?(team==='home'?'away':'home'):team;return {team:actor,scoreTeam:own?(actor==='home'?'away':'home'):actor};}
 export function specialGoalLabel(kind){return kind==='own'||kind==='乌龙'||kind==='乌龙球'?'乌龙球':kind==='penalty'||kind==='点球'?'点球':'';}
 export function goalMarker(kind){return ['own','乌龙','乌龙球'].includes(kind)?'(OG)':['penalty','点球'].includes(kind)?'(P)':'';}
-export function phaseBounds(clock){const h=clock.halfMinutes*60000,e=clock.extraMinutes*60000;return {first:[0,h],second:[h,h*2],extraFirst:[h*2,h*2+e],extraSecond:[h*2+e,h*2+e*2]}[clock.phase]||[clock.elapsedMs,Infinity];}
+function eventPhase(clock){const phase=clock.phase==='interrupted'?clock.previousPhase:clock.phase;return ({halftime:'first',regulationEnd:'second',extraBreak:'extraFirst',finished:clock.lastPlayingPhase||'second',shootout:clock.lastPlayingPhase||'second'})[phase]||phase;}
+export function phaseBounds(clock){const h=clock.halfMinutes*60000,e=clock.extraMinutes*60000;return {first:[0,h],second:[h,h*2],extraFirst:[h*2,h*2+e],extraSecond:[h*2+e,h*2+e*2]}[eventPhase(clock)]||[clock.elapsedMs,Infinity];}
 export function clockMs(clock,now=Date.now()){return Math.max(0,clock.elapsedMs+(clock.running?Math.max(0,now-clock.anchor):0));}
 export function clockView(clock,now=Date.now()){
  const ms=clockMs(clock,now),seconds=Math.floor(ms/1000),[,end]=phaseBounds(clock),added=Math.max(0,ms-end),fmt=s=>`${Math.floor(s/60).toString().padStart(2,'0')}:${(s%60).toString().padStart(2,'0')}`;
@@ -30,10 +31,10 @@ export function deriveMatch(m){
   if(e.type==='card'){
    const key=`${e.team}:${e.playerId||e.role+':'+e.name}`,p=[...lineups[e.team].players,...lineups[e.team].bench,...(lineups[e.team].used||[])].find(p=>p.id===e.playerId);if(e.role!=='coach'&&!p)throw Error('给牌关联失效：球员已从报名名单移除，请保留原报名球员或先修正关联处罚');
    if(dismissed.has(key))throw Error('该对象已被罚下，请修正先前给牌记录');
-   if(e.card==='yellow'||e.card==='secondYellow')yellow[key]=(yellow[key]||0)+(e.card==='secondYellow'?Math.max(1,2-(yellow[key]||0)):1);
+   const previousYellow=yellow[key]||0;if(e.card==='yellow'||e.card==='secondYellow')yellow[key]=(yellow[key]||0)+(e.card==='secondYellow'?Math.max(1,2-(yellow[key]||0)):1);
    const red=e.card==='red'||(yellow[key]||0)>=2;
    if(red){dismissed.add(key);if(p)p.dismissed=true;if(e.role==='player'&&lineups[e.team].players.some(p=>p.id===e.playerId)){reds[e.team]++;p.dismissed=true;}}
-   if(p){p.matchYellow=yellow[key]||0;p.yellowCards=(p.yellowCards||0)+(e.card==='red'?0:1);}
+   if(p){p.matchYellow=yellow[key]||0;p.yellowCards=(p.yellowCards||0)+(yellow[key]||0)-previousYellow;}
    cards.push({...e,effectiveCard:red?(e.card==='red'?'red':'secondYellow'):'yellow'});
   }
   if(e.type==='substitution'){
@@ -54,9 +55,9 @@ export function changeMatch(original,command,now=Date.now()){
  const m=clone(original),a=deriveMatch(m),c=command,clock=m.clock;
  if(c.action==='clock'){
   clock.elapsedMs=clockMs(clock,now);clock.anchor=now;
-  const setPhase=()=>{if(!PHASES[c.phase])throw Error('比赛阶段无效');const resuming=clock.phase==='interrupted'&&clock.previousPhase===c.phase;if(c.phase==='interrupted'){clock.previousPhase=clock.phase;clock.previousAnnounced=clock.announced;}if(resuming)clock.announced=clock.previousAnnounced||0;clock.phase=c.phase;clock.running=false;if(!resuming){clock.announced=0;if(['first','second','extraFirst','extraSecond'].includes(c.phase))clock.elapsedMs=phaseBounds(clock)[0];}if(c.phase==='halftime'){m.halftimeScore=clone(a.halftimeScore);m.halftimeStats=clone(m.stats);}};
-  if(c.operation==='apply'){if(!PHASES[c.phase])throw Error('比赛阶段无效');if(c.phase!==clock.phase)setPhase();clock.running=['first','second','extraFirst','extraSecond'].includes(clock.phase);if(clock.running)m.recovery=null;}
-  else if(c.operation==='start'){if(!['first','second','extraFirst','extraSecond'].includes(clock.phase))throw Error('请先选择正在比赛的阶段');clock.running=true;m.recovery=null;}
+  const setPhase=()=>{if(!PHASES[c.phase])throw Error('比赛阶段无效');const resuming=clock.phase==='interrupted'&&clock.previousPhase===c.phase;if(c.phase==='interrupted'){clock.previousPhase=clock.phase;clock.previousAnnounced=clock.announced;}if(resuming)clock.announced=clock.previousAnnounced||0;clock.phase=c.phase;if(['first','second','extraFirst','extraSecond'].includes(c.phase))clock.lastPlayingPhase=c.phase;clock.running=false;if(!resuming){clock.announced=0;if(['first','second','extraFirst','extraSecond'].includes(c.phase))clock.elapsedMs=phaseBounds(clock)[0];}if(c.phase==='halftime'){m.halftimeScore=clone(a.halftimeScore);m.halftimeStats=clone(m.stats);}};
+  if(c.operation==='apply'){if(!PHASES[c.phase])throw Error('比赛阶段无效');if(c.phase!==clock.phase)setPhase();clock.running=['first','second','extraFirst','extraSecond'].includes(clock.phase);if(clock.running){clock.lastPlayingPhase=clock.phase;m.recovery=null;}}
+  else if(c.operation==='start'){if(!['first','second','extraFirst','extraSecond'].includes(clock.phase))throw Error('请先选择正在比赛的阶段');clock.running=true;clock.lastPlayingPhase=clock.phase;m.recovery=null;}
   else if(c.operation==='pause')clock.running=false;
   else if(c.operation==='reset'){if(c.confirm!=='RESET_CLOCK')throw Error('计时清零需要确认');clock.elapsedMs=0;clock.running=false;m.recovery=null;}
   else if(c.operation==='calibrate'){clock.elapsedMs=c.deltaSeconds!==undefined?Math.max(0,Math.min(99999000,clock.elapsedMs+integer(c.deltaSeconds,-99999,99999)*1000)):integer(c.seconds,0,99999)*1000;}
@@ -68,7 +69,7 @@ export function changeMatch(original,command,now=Date.now()){
  }else if(c.action==='record'){
   const x=c.event||{},team=side(x.team);if(!EVENT_LABELS[x.type])throw Error('事件类型无效');
   if(m.events.some(e=>e.id===c.id))return original;
-  const e={id:txt(c.id||id(),80),type:x.type,team,at:now,time:txt(x.time||clockView(clock,now).eventTime,24),period:['first','second','extra'].includes(x.period)?x.period:clock.phase==='first'?'first':clock.phase.startsWith('extra')?'extra':'second',active:true,name:txt(x.name||'未填写球员',40),number:integer(x.number||0),kind:['penalty','own'].includes(x.kind)?x.kind:'normal'};
+  const e={id:txt(c.id||id(),80),type:x.type,team,at:now,time:txt(x.time||clockView(clock,now).eventTime,24),period:['first','second','extra'].includes(x.period)?x.period:eventPhase(clock)==='first'?'first':eventPhase(clock)?.startsWith('extra')?'extra':'second',active:true,name:txt(x.name||'未填写球员',40),number:integer(x.number||0),kind:['penalty','own'].includes(x.kind)?x.kind:'normal'};
   if(e.type==='goal')e.teamRole='player';
   if(e.type==='penalty'&&x.relatedCardId)e.relatedCardId=txt(x.relatedCardId,80);
   if(e.type==='card'&&x.parentEventId)e.parentEventId=txt(x.parentEventId,80);

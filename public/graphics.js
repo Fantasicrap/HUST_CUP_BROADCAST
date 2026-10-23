@@ -6,7 +6,7 @@ import {STAT_LABELS,PHASES,goalMarker} from './match.js';
 import {MAX_BENCH,REFEREE_ROLES,SCENES,CONTEXTS,GROUPS,lineupFor,formationAt,goalRows,bottomScores,outputScene,shootoutStatus} from './model.js';
 const q=new URLSearchParams(location.search),isLive=q.get('mode')==='live';
 let data=isLive?null:(await fetch('api/preview').then(r=>r.json())).data;
-let currentScene='scoreboard',currentElapsed=0;let live=null,offset=0,startedAt=Date.now(),timer,previewScene=SCENES.includes(q.get('scene'))?q.get('scene'):'scoreboard';
+let currentScene='scoreboard',currentElapsed=0,currentHoldMs=6000;let live=null,offset=0,startedAt=Date.now(),timer,previewScene=SCENES.includes(q.get('scene'))?q.get('scene'):'scoreboard';
 const stage=document.querySelector('#stage'),layer=document.querySelector('#graphics');
 const motion=createMotion(layer);
 const esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
@@ -33,7 +33,7 @@ function scoreboard(){
  return `<section class="slim-score ${swapped?'clock-center':''}" style="width:${width}px;left:${Math.min(data.config.x,1920-54-width*data.config.scale)}px;top:${Math.min(data.config.y,1080-54-125*data.config.scale)}px;--scale:${data.config.scale};--score-row-width:${rowWidth}px;--clock-slot-width:${122+(cv.announced?60:0)}px" aria-label="单行常驻比分牌">${swapped?scoreRow('',data.score,`<div class="score-clock-slot">${clock}${added}</div>`)+`<div class="score-logo score-end-logo">${logo()}</div>`:scoreRow()+clock+added}${context.length?`<div class="score-context">${context.map(v=>`<span>${v}</span>`).join('')}</div>`:''}${extension}</section>`;
 }
 function event(type){
- const goal=type==='goal';let item=goal?data.goal:data.substitution;if(!goal&&item.pairs?.length){const index=Math.min(item.pairs.length-1,Math.floor(currentElapsed/Math.max(1200,data.config.eventHoldMs/item.pairs.length)));item={...item,...item.pairs[index]};}const team=data[item.team]||data.home;
+ const goal=type==='goal';let item=goal?data.goal:data.substitution;if(!goal&&item.pairs?.length){const index=Math.min(item.pairs.length-1,Math.floor(currentElapsed/Math.max(1200,currentHoldMs/item.pairs.length)));item={...item,...item.pairs[index]};}const team=data[item.team]||data.home;
  const content=goal?`<div class="mini-heading"><span>进球 / GOAL</span><b>${esc(item.time)}</b></div><div class="mini-player"><b>${esc(item.number)}</b><strong>${esc(item.name)}</strong>${goalMarker(item.kind)?`<span>${esc(goalMarker(item.kind))}</span>`:''}</div>`:`<div class="mini-heading"><span>换人 / SUBSTITUTION</span><b>${esc(item.time)}</b></div><div class="mini-sub"><span class="in">↑ 换上</span><b>${esc(item.on?.number??'')}</b><strong>${esc(item.on?.name??'')}</strong></div><div class="mini-sub"><span class="out">↓ 换下</span><b>${esc(item.off?.number??'')}</b><strong>${esc(item.off?.name??'')}</strong></div>`;
  return `${scoreboard()}<section class="mini-event ${goal?'mini-goal':'mini-substitution'}"><div class="mini-badge">${badge(team)}</div><div class="mini-content">${content}</div></section>`;
 }
@@ -115,7 +115,7 @@ function render(){
  clearTimeout(timer);layer.classList.remove('exiting');
  const previousScores=Object.fromEntries([...layer.querySelectorAll('.slim-score .score-value')].map(e=>[e.dataset.side,e.textContent]));
  const now=Date.now()+offset,session=live||{data,scene:previewScene,context:q.get('context')||'pregame',startedAt};
- const resolved=isLive?outputScene(session,now):outputScene(session,Date.now());if(isLive&&session.expiresAt&&now<session.expiresAt){resolved.scene=session.scene;}if(isLive&&session.expiresAt&&now>=session.expiresAt){resolved.scene=data.config.restoreScoreboard?'scoreboard':'clear';}if(!isLive&&q.get('hold')==='1'){resolved.scene=previewScene;resolved.elapsed=ENTER_MS+100;}const {scene,elapsed}=resolved;currentElapsed=elapsed;currentScene=scene;
+ const resolved=isLive?outputScene(session,now):outputScene(session,Date.now());if(!isLive&&q.get('hold')==='1'){resolved.scene=previewScene;resolved.elapsed=ENTER_MS+100;}const {scene,elapsed}=resolved;currentElapsed=elapsed;currentScene=scene;currentHoldMs=isLive&&Number.isFinite(session.expiresAt)?session.expiresAt-session.startedAt:data.config.eventHoldMs;
  const theme=isLive?data.config.theme:q.get('theme')||data.config.theme;
  const surface=materialSettings(data.config,{live:isLive,query:q});
  stage.className='stage '+theme+' line-motion-active'+(q.get('transparent')==='1'?' transparent':'')+(surface.material==='acrylic'?' acrylic-surface':'')+(!isLive&&q.get('backdrop')==='stadium'?' stadium-prototype':'');
@@ -130,8 +130,8 @@ function render(){
  if(scene==='opening')html=opening();
  if(scene==='formation'||scene==='bench'){const result=formation(elapsed,scene==='bench');html=result.html;next=result.next;}
  if(scene==='shootout'||scene==='shootoutCompact')html=shootout(scene==='shootoutCompact');
- if(scene==='bottomScore'){const result=bottomScore(session.context,elapsed);html=result.html;next=Math.min(result.next,data.config.bottomHoldMs-elapsed);}
- if(['goal','substitution','card','cancelGoal','penalty','notice','var','person','statStrip','officials','commentators','entrance','kickoff','sponsor'].includes(scene))next=Math.min(next,data.config.eventHoldMs-elapsed);if(scene==='substitution'&&data.substitution.pairs?.length>1)next=Math.min(next,1200);
+ if(scene==='bottomScore'){const result=bottomScore(session.context,elapsed);html=result.html;next=Math.min(result.next,isLive&&Number.isFinite(session.expiresAt)?session.expiresAt-now:data.config.bottomHoldMs-elapsed);}
+ if(['goal','substitution','card','cancelGoal','penalty','notice','var','person','statStrip','officials','commentators','entrance','kickoff','sponsor'].includes(scene))next=Math.min(next,isLive&&Number.isFinite(session.expiresAt)?session.expiresAt-now:data.config.eventHoldMs-elapsed);if(scene==='substitution'&&data.substitution.pairs?.length>1){const slot=Math.max(1200,currentHoldMs/data.substitution.pairs.length);next=Math.min(next,slot-elapsed%slot);}
  if(extraScenes[scene])html=extraScenes[scene](session,elapsed);
  const outputPart=q.get('part');if(outputPart==='persistent')html=['scoreboard','goal','substitution','card','cancelGoal','notice','var','penalty','statStrip','person','officials','commentators','sponsor'].includes(scene)?scoreboard():'';if(outputPart==='temporary'){const temp=document.createElement('div');temp.innerHTML=html;temp.querySelectorAll('.slim-score').forEach(e=>e.remove());html=temp.innerHTML;}
  if(data.config.replay&&scene!=='clear'&&outputPart!=='persistent')html+='<div class="replay-corner">回放 / REPLAY</div>';

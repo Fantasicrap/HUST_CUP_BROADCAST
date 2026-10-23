@@ -73,7 +73,13 @@ export function formationTimeline(d){
 }
 export function formationDuration(d){return Math.max(45000,formationTimeline(d).at(-1).start+6000);}
 export function formationAt(d,elapsed){return formationTimeline(d).find(s=>elapsed>=s.start&&elapsed<s.end)||formationTimeline(d).at(-1);}
-export function outputScene(live,now){let scene=live.scene;const elapsed=Math.max(0,now-live.startedAt),c=live.data.config;if(scene==='bottomScore'&&(!c.contexts[live.context]||elapsed>=c.bottomHoldMs))scene=c.restoreScoreboard?'scoreboard':'clear';if(['goal','substitution','card','cancelGoal','penalty','notice','var','person','statStrip','officials','commentators','entrance','kickoff','sponsor'].includes(scene)&&elapsed>=c.eventHoldMs)scene=c.restoreScoreboard?'scoreboard':'clear';if(scene!=='clear'&&!c.modules[scene])scene='clear';return {scene,elapsed};}
+export function outputScene(live,now){
+ let scene=live.scene;const elapsed=Math.max(0,now-live.startedAt),c=live.data.config;
+ const timed=['goal','substitution','card','cancelGoal','penalty','notice','var','person','statStrip','officials','commentators','entrance','kickoff','sponsor'];
+ const expires=Number.isFinite(live.expiresAt)?live.expiresAt:scene==='bottomScore'?live.startedAt+c.bottomHoldMs:timed.includes(scene)?live.startedAt+c.eventHoldMs:Infinity;
+ if(now>=expires||scene==='bottomScore'&&!c.contexts[live.context])scene=c.restoreScoreboard?'scoreboard':'clear';
+ if(scene!=='clear'&&!c.modules[scene])scene='clear';return {scene,elapsed};
+}
 export function goalRows(d,context){const valid=d.goals.filter(g=>!g.cancelled);return context==='restart'?valid.slice(-1):['halftime','secondhalf'].includes(context)?valid.filter(g=>g.period==='first'):context==='fulltime'?valid:[];}
 export const shootoutStatus=penaltyStatus;
 
