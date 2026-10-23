@@ -1,0 +1,863 @@
+{
+  "version": "2.0.0",
+  "date": "2026-10-23",
+  "word": {
+    "path": "docs/操作指南/HUST_CUP_BROADCAST_使用者操作指南_v2.0.0.docx",
+    "sha256": "0b6866d2d81fe2503d83da3a8fdb4ba751dde04d36705bbb91dd7cb3a02affdc",
+    "chapters": 18,
+    "pages": 22,
+    "figures": 10,
+    "renderer": "Microsoft Word",
+    "visualReview": "全部22页已检查，无截断、溢出、孤立空页；更换无遮挡1080p二路帧后复查21/22页",
+    "a11y": {
+      "high": 0,
+      "medium": 0,
+      "low": 0
+    }
+  },
+  "pages": [
+    {
+      "page": 1,
+      "chars": 671,
+      "start": "HUST CUP BROADCAST 操作指南  足球直播 图文包装系 统  适用版本 v2.0.0 ｜ 编写日期 2026 年 10 月 23 日  本指南供现场图文操作员使用。按赛前、赛中、中场、"
+    },
+    {
+      "page": 2,
+      "chars": 950,
+      "start": "HUST CUP BROADCAST  使用者操作指南  第 2 页  共 22 页  01 启动系统与接入 OBS  启动本地服务  1. 从 GitHub 下载完整版本并解压到一个固定文件夹，不要"
+    },
+    {
+      "page": 3,
+      "chars": 805,
+      "start": "HUST CUP BROADCAST  使用者操作指南  第 3 页  共 22 页  02 看懂后台与播出按钮  后台默认进入“赛中”。左侧六个大类是工具导航，切换导航不会更改比赛阶段、不会停表，也"
+    },
+    {
+      "page": 4,
+      "chars": 781,
+      "start": "HUST CUP BROADCAST  使用者操作指南  第 4 页  共 22 页  03 赛前录入球队与名单  建立本场比赛资料  1. 进入“赛前准备 → 资料”，先导出现有项目。需要清空旧比赛"
+    },
+    {
+      "page": 5,
+      "chars": 1102,
+      "start": "HUST CUP BROADCAST  使用者操作指南  第 5 页  共 22 页  首发与替补  1. 分别选择主队和客队录入首发、替补及号码。赛中会以这份名单检索，号码与姓名应一一核对。替 补最"
+    },
+    {
+      "page": 6,
+      "chars": 957,
+      "start": "HUST CUP BROADCAST  使用者操作指南  第 6 页  共 22 页  04 设置主题边角与材质  后台右上角可切换白天或黑夜模式。首次默认白天，选择保存在当前浏览器与服务地址，不影响"
+    },
+    {
+      "page": 7,
+      "chars": 728,
+      "start": "HUST CUP BROADCAST  使用者操作指南  第 7 页  共 22 页  05 控制计时与伤停补时    图 5 计时区  阶段选择与开始继续合并为应用按钮  应用  暂停  校准  清"
+    },
+    {
+      "page": 8,
+      "chars": 784,
+      "start": "HUST CUP BROADCAST  使用者操作指南  第 8 页  共 22 页  06 记录进球与修正比分  标准事件操作  1. 在“赛中”点击“进球”，选择球员所属球队。输入号码、姓名或部分"
+    },
+    {
+      "page": 9,
+      "chars": 694,
+      "start": "HUST CUP BROADCAST  使用者操作指南  第 9 页  共 22 页  07 处理给牌点球与 VAR  黄牌  红牌  两黄变红  1. 点击“给牌”，先选球队和对象：场上球员、替补球"
+    },
+    {
+      "page": 10,
+      "chars": 803,
+      "start": "HUST CUP BROADCAST  使用者操作指南  第 10 页  共 22 页  08 管理换人名额和窗口  赛前确定赛事额度  1. 进入“赛前准备 → 资料 → 比赛人数与换人制度”。新项"
+    },
+    {
+      "page": 11,
+      "chars": 702,
+      "start": "HUST CUP BROADCAST  使用者操作指南  第 11 页  共 22 页  中场换人与普通暂停不同  裁判吹停上半场后，先应用“中场”。从进入中场到应用下半场开球前，普通换人仍扣名额，但"
+    },
+    {
+      "page": 12,
+      "chars": 1077,
+      "start": "HUST CUP BROADCAST  使用者操作指南  第 12 页  共 22 页  09 播出开场与阵容包装  赛前顺序播出  资料与名单确认后，在“赛前准备”使用开场顺播。流程按启用模块播放赛"
+    },
+    {
+      "page": 13,
+      "chars": 766,
+      "start": "HUST CUP BROADCAST  使用者操作指南  第 13 页  共 22 页  10 完成中场与赛后包装  半场与下半场开场  1. 裁判吹停后，由操作员暂停计时、切换到中场并应用。中场左上"
+    },
+    {
+      "page": 14,
+      "chars": 550,
+      "start": "HUST CUP BROADCAST  使用者操作指南  第 14 页  共 22 页  11 操作点球大战  普通比赛点球与点球大战分开保存。进入点球大战前，先选择相应比赛阶段并应用，使比赛计时保持"
+    },
+    {
+      "page": 15,
+      "chars": 722,
+      "start": "HUST CUP BROADCAST  使用者操作指南  第 15 页  共 22 页  12 管理队列日志与紧急清屏  待播队列  在赛中展开“待播队列与其他图文”。进球、给牌、VAR 等优先级高于"
+    },
+    {
+      "page": 16,
+      "chars": 808,
+      "start": "HUST CUP BROADCAST  使用者操作指南  第 16 页  共 22 页  13 设置延迟快捷键与回放  统计与人物信息  统计包括控球率、射门、射正、角球、犯规、越位、黄牌、红牌。未知"
+    },
+    {
+      "page": 17,
+      "chars": 952,
+      "start": "HUST CUP BROADCAST  使用者操作指南  第 17 页  共 22 页  14 保存比赛与排查故障  导出  换机  升级  1. 在赛前、赛后或系统设置展开项目导入导出，导出.hus"
+    },
+    {
+      "page": 18,
+      "chars": 1111,
+      "start": "HUST CUP BROADCAST  使用者操作指南  第 18 页  共 22 页  15 演练整场比赛与开播检查  演示比赛训练流程  只在导出演示存档或独立练习副本中操作。训练结束不要把示例比"
+    },
+    {
+      "page": 19,
+      "chars": 825,
+      "start": "HUST CUP BROADCAST  使用者操作指南  第 19 页  共 22 页  16 赛前可选人像抠图  人像抠图是赛前可选步骤，默认关闭。已有透明 PNG 可直接上传；不用抠图也能完整播出"
+    },
+    {
+      "page": 20,
+      "chars": 609,
+      "start": "HUST CUP BROADCAST  使用者操作指南  第 20 页  共 22 页  17 播出独立二路进球动画  在 OBS 添加独立输出  二路是单独的进球图形输出，地址为 http://12"
+    },
+    {
+      "page": 21,
+      "chars": 509,
+      "start": "HUST CUP BROADCAST  使用者操作指南  第 21 页  共 22 页  动画顺序与撤下  GOAL 以三档字号闪动一段，450ms 翻转后换为原优设标题黑斜体姓名和号码，不额外加粗，"
+    },
+    {
+      "page": 22,
+      "chars": 817,
+      "start": "HUST CUP BROADCAST  使用者操作指南  第 22 页  共 22 页  18 核对画质与输出设置  正式画面与预览文件  正式输出按 1920×1080 坐标实时绘制。文字使用本地字"
+    }
+  ],
+  "cleanup": {
+    "root": "项目目录",
+    "createdAt": "2026-10-23T17:30:18.4474584+08:00",
+    "items": [
+      {
+        "path": "releases/HUST_CUP_BROADCAST_Operator_Guide_v1.8.5.docx",
+        "bytes": 2496371,
+        "sha256": "8a7114720a3ac42fa2e9870a9fc3ec826b2f5147ed2f6b15113375547221663f",
+        "reason": "GitHub历史发布资产已核对同名、字节数及SHA256"
+      },
+      {
+        "path": "releases/HUST_CUP_BROADCAST_v1.0.0_SHA256.txt",
+        "bytes": 97,
+        "sha256": "79a094eae386e7537be5dde7f451cf3533251d2ab2dd52c16a1fc2117e1b2557",
+        "reason": "GitHub历史发布资产已核对同名、字节数及SHA256"
+      },
+      {
+        "path": "releases/HUST_CUP_BROADCAST_v1.0.0.zip",
+        "bytes": 44715850,
+        "sha256": "c4125670c7be2d521a065a3e8eb5798faea59a8b80b9ba0debecc77109a66b55",
+        "reason": "GitHub历史发布资产已核对同名、字节数及SHA256"
+      },
+      {
+        "path": "releases/HUST_CUP_BROADCAST_v1.1.0_SHA256.txt",
+        "bytes": 97,
+        "sha256": "a0d6237c5ec89a106e311f559af219ac6ff991aaa3d8eedfb1a1b00bc7641272",
+        "reason": "GitHub历史发布资产已核对同名、字节数及SHA256"
+      },
+      {
+        "path": "releases/HUST_CUP_BROADCAST_v1.1.0.zip",
+        "bytes": 44818152,
+        "sha256": "44acb2d95b9c9b375de8d3a7f321037b79a6f1831263121b450f6dfe5c08b31c",
+        "reason": "GitHub历史发布资产已核对同名、字节数及SHA256"
+      },
+      {
+        "path": "releases/HUST_CUP_BROADCAST_v1.1.1_SHA256.txt",
+        "bytes": 97,
+        "sha256": "e9b9514d100b5ad76d6b64c273b295a621eb83d8f5e09146a547596e3757f2ac",
+        "reason": "GitHub历史发布资产已核对同名、字节数及SHA256"
+      },
+      {
+        "path": "releases/HUST_CUP_BROADCAST_v1.1.1.zip",
+        "bytes": 44916392,
+        "sha256": "b4a9cfd5f7ab5032a5d2276ed80a470b9f6368525e409482563523eecf1d46d0",
+        "reason": "GitHub历史发布资产已核对同名、字节数及SHA256"
+      },
+      {
+        "path": "releases/HUST_CUP_BROADCAST_v1.1.2_SHA256.txt",
+        "bytes": 97,
+        "sha256": "282f023abb087801811bebe4ce1205c8831f8776fe6ff16db2a3baa72384e7d1",
+        "reason": "GitHub历史发布资产已核对同名、字节数及SHA256"
+      },
+      {
+        "path": "releases/HUST_CUP_BROADCAST_v1.1.2.zip",
+        "bytes": 45412857,
+        "sha256": "1a74943d15db299c3d254ab921a611b497911c7e07e744f0a29d3d417cf60b00",
+        "reason": "GitHub历史发布资产已核对同名、字节数及SHA256"
+      },
+      {
+        "path": "releases/HUST_CUP_BROADCAST_v1.2.0_SHA256.txt",
+        "bytes": 97,
+        "sha256": "929273f844ac75465107241f2ef047d3c5a782078f410e35c0388df2594c971a",
+        "reason": "GitHub历史发布资产已核对同名、字节数及SHA256"
+      },
+      {
+        "path": "releases/HUST_CUP_BROADCAST_v1.2.0.zip",
+        "bytes": 46953826,
+        "sha256": "23044b52cfa6dbbc3a3ffbf43c901c337f1232c30e578e5cbb5769586cea35a9",
+        "reason": "GitHub历史发布资产已核对同名、字节数及SHA256"
+      },
+      {
+        "path": "releases/HUST_CUP_BROADCAST_v1.3.0_SHA256.txt",
+        "bytes": 97,
+        "sha256": "25e908e975b5e9505ddc821f20f1767debf9adfb13f15c528c80018491d202f2",
+        "reason": "GitHub历史发布资产已核对同名、字节数及SHA256"
+      },
+      {
+        "path": "releases/HUST_CUP_BROADCAST_v1.3.0.zip",
+        "bytes": 47915305,
+        "sha256": "1b8c6f0b8ecb39d038ffdb9d7ee799caf49896f7ffef40018ea3f4117d023a74",
+        "reason": "GitHub历史发布资产已核对同名、字节数及SHA256"
+      },
+      {
+        "path": "releases/HUST_CUP_BROADCAST-v1.4.0-SHA256.txt",
+        "bytes": 97,
+        "sha256": "558a073735f3bb2f16108274bdd55569efab88913d2766f11c66aa419fcadaec",
+        "reason": "GitHub历史发布资产已核对同名、字节数及SHA256"
+      },
+      {
+        "path": "releases/HUST_CUP_BROADCAST-v1.4.0.zip",
+        "bytes": 58633910,
+        "sha256": "0462a99c7f6aa7ac9f04dc66237c007a46f96742c55d2f9ffb47017e80420198",
+        "reason": "GitHub历史发布资产已核对同名、字节数及SHA256"
+      },
+      {
+        "path": "releases/HUST_CUP_BROADCAST-v1.4.1-SHA256.txt",
+        "bytes": 97,
+        "sha256": "bfd360cbc54da3680f80ffdf27203dcdf1ae3bdf499333a5702333c03c414ab1",
+        "reason": "GitHub历史发布资产已核对同名、字节数及SHA256"
+      },
+      {
+        "path": "releases/HUST_CUP_BROADCAST-v1.4.1.zip",
+        "bytes": 58639649,
+        "sha256": "2e5b854d6ca3f8677cea40db3653fcf8a2fe6130f2ea3d63fa6a8f7c6f6351f9",
+        "reason": "GitHub历史发布资产已核对同名、字节数及SHA256"
+      },
+      {
+        "path": "releases/HUST_CUP_BROADCAST-v1.4.2-SHA256.txt",
+        "bytes": 97,
+        "sha256": "de1180335c80dbb6c19ccaa2b416719049c0299034bac11226bbf5b682fc1445",
+        "reason": "GitHub历史发布资产已核对同名、字节数及SHA256"
+      },
+      {
+        "path": "releases/HUST_CUP_BROADCAST-v1.4.2.zip",
+        "bytes": 58996674,
+        "sha256": "7661dc4335f8e00262c1ead67a188a2209bba0b04b52ca44bae6c015081a6726",
+        "reason": "GitHub历史发布资产已核对同名、字节数及SHA256"
+      },
+      {
+        "path": "releases/HUST_CUP_BROADCAST-v1.4.3-SHA256.txt",
+        "bytes": 97,
+        "sha256": "b3d3cf51e595d61810fdeaa5dd5ecc021b6463170b5b2da4b6490bdf761440fe",
+        "reason": "GitHub历史发布资产已核对同名、字节数及SHA256"
+      },
+      {
+        "path": "releases/HUST_CUP_BROADCAST-v1.4.3.zip",
+        "bytes": 59064686,
+        "sha256": "78f6804ce8903a597a4173a2bd74ffa6f17d6c2d7bd251690122e397d42cf073",
+        "reason": "GitHub历史发布资产已核对同名、字节数及SHA256"
+      },
+      {
+        "path": "releases/HUST_CUP_BROADCAST-v1.4.4-SHA256.txt",
+        "bytes": 97,
+        "sha256": "c6a5654cff9510adf14cb58441205431b80f73627c78d635f4b704cb5874be5d",
+        "reason": "GitHub历史发布资产已核对同名、字节数及SHA256"
+      },
+      {
+        "path": "releases/HUST_CUP_BROADCAST-v1.4.4.zip",
+        "bytes": 59065025,
+        "sha256": "9ac2ea342c8526319aec7a2ef937370758bffb375e51f5fd9c34215ba450e0e7",
+        "reason": "GitHub历史发布资产已核对同名、字节数及SHA256"
+      },
+      {
+        "path": "releases/HUST_CUP_BROADCAST-v1.5.1.zip",
+        "bytes": 70480733,
+        "sha256": "86284e25a3ef48d1f9c0ff7a606cbb609af79b0c00812cce1164765306740da5",
+        "reason": "GitHub历史发布资产已核对同名、字节数及SHA256"
+      },
+      {
+        "path": "releases/HUST_CUP_BROADCAST-v1.6.0.zip",
+        "bytes": 90891580,
+        "sha256": "e3d0a007a465f3c73151d9deb27ac40bc9b4427653e2cf3497aedbbef43e197f",
+        "reason": "GitHub历史发布资产已核对同名、字节数及SHA256"
+      },
+      {
+        "path": "releases/HUST_CUP_BROADCAST-v1.6.1.zip",
+        "bytes": 91616682,
+        "sha256": "ed1d8b2b41b1733c3006203a50c9f7f35faad0e8612dffa41ad83cc2a06ee9d0",
+        "reason": "GitHub历史发布资产已核对同名、字节数及SHA256"
+      },
+      {
+        "path": "releases/HUST_CUP_BROADCAST-v1.6.2.zip",
+        "bytes": 92580826,
+        "sha256": "0efa8711938450c7cd2b4f8874d52278afe32eca91f66582892192ddb0b1a96a",
+        "reason": "GitHub历史发布资产已核对同名、字节数及SHA256"
+      },
+      {
+        "path": "releases/HUST_CUP_BROADCAST-v1.7.0.sha256",
+        "bytes": 97,
+        "sha256": "b2bbb97b39b58c6404a5904c9de49dba0bf8ca859b3adba2b4bfff4115e694ec",
+        "reason": "GitHub历史发布资产已核对同名、字节数及SHA256"
+      },
+      {
+        "path": "releases/HUST_CUP_BROADCAST-v1.7.0.zip",
+        "bytes": 117651817,
+        "sha256": "ede60f4188b0157d625656197a21ded0d699f7e4020b151249752d36b16eddca",
+        "reason": "GitHub历史发布资产已核对同名、字节数及SHA256"
+      },
+      {
+        "path": "releases/HUST_CUP_BROADCAST-v1.8.0.sha256",
+        "bytes": 97,
+        "sha256": "286dae8e169824e1bc2d8e38a0af0bb4dc64a2e5f8a13b2666044b3b20f4384b",
+        "reason": "GitHub历史发布资产已核对同名、字节数及SHA256"
+      },
+      {
+        "path": "releases/HUST_CUP_BROADCAST-v1.8.0.zip",
+        "bytes": 120798594,
+        "sha256": "cf9792c3b97eb4db7d41c121544c04f8e057a684ae2b3bf1590cc0d74b818bec",
+        "reason": "GitHub历史发布资产已核对同名、字节数及SHA256"
+      },
+      {
+        "path": "releases/HUST_CUP_BROADCAST-v1.8.1.sha256",
+        "bytes": 97,
+        "sha256": "d001de16ea282e6e928a23d10f4826b52aa46fd05ed24bd86237cb24f7908223",
+        "reason": "GitHub历史发布资产已核对同名、字节数及SHA256"
+      },
+      {
+        "path": "releases/HUST_CUP_BROADCAST-v1.8.1.zip",
+        "bytes": 125551301,
+        "sha256": "67d4cdab12a8b08ee7b11bbdc2c653cae8444ae9f27f454acee88142fd4194f2",
+        "reason": "GitHub历史发布资产已核对同名、字节数及SHA256"
+      },
+      {
+        "path": "releases/HUST_CUP_BROADCAST-v1.8.2.sha256",
+        "bytes": 97,
+        "sha256": "8ccda07560be691b316f5f687216c6ecbf5b289d892e0851ae181b711f6457f0",
+        "reason": "GitHub历史发布资产已核对同名、字节数及SHA256"
+      },
+      {
+        "path": "releases/HUST_CUP_BROADCAST-v1.8.2.zip",
+        "bytes": 130232617,
+        "sha256": "781ec0e327f244c63c7b02ad469bd0729c037f550c22ae2816373f95af9707a5",
+        "reason": "GitHub历史发布资产已核对同名、字节数及SHA256"
+      },
+      {
+        "path": "releases/HUST_CUP_BROADCAST-v1.8.3.zip",
+        "bytes": 135259062,
+        "sha256": "2334aa941b7696d80d4f04dd99cef15f2a6c630d23b425afea6a4d4a75b646e0",
+        "reason": "GitHub历史发布资产已核对同名、字节数及SHA256"
+      },
+      {
+        "path": "releases/HUST_CUP_BROADCAST-v1.8.3.zip.sha256",
+        "bytes": 97,
+        "sha256": "c478a7d24139253e3c610b975215905385bc30fc0464b5ab58fb4bcb0310172a",
+        "reason": "GitHub历史发布资产已核对同名、字节数及SHA256"
+      },
+      {
+        "path": "releases/HUST_CUP_BROADCAST-v1.8.4-goal.gif",
+        "bytes": 17862976,
+        "sha256": "df4b470c1b652afa93b98369681c4657870c7a5deaac3aecaaaa6ef462e2e217",
+        "reason": "GitHub历史发布资产已核对同名、字节数及SHA256"
+      },
+      {
+        "path": "releases/HUST_CUP_BROADCAST-v1.8.4.zip",
+        "bytes": 138240729,
+        "sha256": "2a4e7ae22d0229d8f8e3ab5d4f20edede78f4b6f4890880f9a2892ad148052d8",
+        "reason": "GitHub历史发布资产已核对同名、字节数及SHA256"
+      },
+      {
+        "path": "releases/HUST_CUP_BROADCAST-v1.8.4.zip.sha256",
+        "bytes": 97,
+        "sha256": "08f992e44d8f707f51b7e8289ff00ba5a74ffcf446badf47b7fc27bf52bbf1c2",
+        "reason": "GitHub历史发布资产已核对同名、字节数及SHA256"
+      },
+      {
+        "path": "releases/HUST_CUP_BROADCAST-v1.8.5-goal-preview.gif",
+        "bytes": 17862976,
+        "sha256": "df4b470c1b652afa93b98369681c4657870c7a5deaac3aecaaaa6ef462e2e217",
+        "reason": "GitHub历史发布资产已核对同名、字节数及SHA256"
+      },
+      {
+        "path": "releases/HUST_CUP_BROADCAST-v1.8.5.zip",
+        "bytes": 163927663,
+        "sha256": "8d6bd6e3349c5aa24198a6f5056c198e1cb5baeb07e746a53129abe65b55e865",
+        "reason": "GitHub历史发布资产已核对同名、字节数及SHA256"
+      },
+      {
+        "path": "releases/HUST_CUP_BROADCAST-v1.8.6.zip",
+        "bytes": 172640756,
+        "sha256": "d42029d4f51302c54f9e9886dd7dcc8af1b0f97aaccee39d5475539ffc209ebe",
+        "reason": "GitHub历史发布资产已核对同名、字节数及SHA256"
+      },
+      {
+        "path": "releases/HUST_CUP_BROADCAST-YouSheBiaoTiHei-font.zip",
+        "bytes": 862524,
+        "sha256": "722c856fd540928b3244f418e0ca1d65f409c7acf54260b14c8d5d9c52705ef7",
+        "reason": "GitHub历史发布资产已核对同名、字节数及SHA256"
+      },
+      {
+        "path": "releases/release-notes.md",
+        "bytes": 1445,
+        "sha256": "0b6fb3275fabbd9098aa074a8e04c7ff71ce247590400e9308cc7e70e929232c",
+        "reason": "旧发布工作区中的发布说明草稿；当前项目报告和GitHub历史发布保留"
+      },
+      {
+        "path": "releases/release-v11.md",
+        "bytes": 734,
+        "sha256": "275f85fe9f53cc84b027f114ec64305b6b245121f0110b432808fa813293e69a",
+        "reason": "旧发布工作区中的发布说明草稿；当前项目报告和GitHub历史发布保留"
+      },
+      {
+        "path": "releases/release-v111.md",
+        "bytes": 804,
+        "sha256": "9d1c58a05501c0216a05163873766229bb05b83db8525a023760bdb1965546ba",
+        "reason": "旧发布工作区中的发布说明草稿；当前项目报告和GitHub历史发布保留"
+      },
+      {
+        "path": "releases/release-v112.md",
+        "bytes": 675,
+        "sha256": "352435484057b406aa0f9c65b7ee1cd474f5843223c655777eafcaf6fbc795ff",
+        "reason": "旧发布工作区中的发布说明草稿；当前项目报告和GitHub历史发布保留"
+      },
+      {
+        "path": "releases/release-v120.md",
+        "bytes": 947,
+        "sha256": "4f55110547f123785407be240f17a4b31477fda6423aa47cf9cbe0b350a36240",
+        "reason": "旧发布工作区中的发布说明草稿；当前项目报告和GitHub历史发布保留"
+      },
+      {
+        "path": "releases/release-v130.md",
+        "bytes": 955,
+        "sha256": "95f62cd9ced4153c8a8193687e8ede291d9a22455526a7886130718ad0782ea6",
+        "reason": "旧发布工作区中的发布说明草稿；当前项目报告和GitHub历史发布保留"
+      },
+      {
+        "path": "releases/release-v131.md",
+        "bytes": 756,
+        "sha256": "df49d1b097ab7311fd4d82d91320128e317f658d7e294c40754c4262b3e6c35b",
+        "reason": "旧发布工作区中的发布说明草稿；当前项目报告和GitHub历史发布保留"
+      },
+      {
+        "path": "releases/release-v140-superseded.md",
+        "bytes": 1689,
+        "sha256": "7071b405f160dae4985fe3aea2f7013501b1b9db9f8fc1f07e06c726ccf956e4",
+        "reason": "旧发布工作区中的发布说明草稿；当前项目报告和GitHub历史发布保留"
+      },
+      {
+        "path": "releases/release-v140.md",
+        "bytes": 1459,
+        "sha256": "6735ae9a98700c6254a5b78c1fef8c92f4d94ecf3b5b3dd7ee6ceb9962bff890",
+        "reason": "旧发布工作区中的发布说明草稿；当前项目报告和GitHub历史发布保留"
+      },
+      {
+        "path": "releases/release-v141.md",
+        "bytes": 1610,
+        "sha256": "d4ef55909a614042552e4cbc06ee7e0ba7cc1d510157f0f4cb466210dce45b3a",
+        "reason": "旧发布工作区中的发布说明草稿；当前项目报告和GitHub历史发布保留"
+      },
+      {
+        "path": "releases/release-v142.md",
+        "bytes": 1336,
+        "sha256": "c48083fb7f38aacaf1d8c723632e734501b530e5c49d1323155dbb9c96faf13d",
+        "reason": "旧发布工作区中的发布说明草稿；当前项目报告和GitHub历史发布保留"
+      },
+      {
+        "path": "releases/release-v143.md",
+        "bytes": 808,
+        "sha256": "d0eb265e6a0d631f08a153f877b372538a5a9c921de3c93f4d215a2806226dda",
+        "reason": "旧发布工作区中的发布说明草稿；当前项目报告和GitHub历史发布保留"
+      },
+      {
+        "path": "releases/release-v144.md",
+        "bytes": 945,
+        "sha256": "f10d27ce9184c64bb55fa73505822b17c20c22d3f6292d927099257b88579f57",
+        "reason": "旧发布工作区中的发布说明草稿；当前项目报告和GitHub历史发布保留"
+      },
+      {
+        "path": "releases/SHA256-v1.5.0.txt",
+        "bytes": 97,
+        "sha256": "6aa12d81dbd6b7c9124b1bbf5de11f7ea6cc7fd88aa7eb0ad9dcb9d6c7035b91",
+        "reason": "旧构建包校验文本；版本及发布校验信息保留在GitHub"
+      },
+      {
+        "path": "releases/SHA256-v1.5.1.txt",
+        "bytes": 97,
+        "sha256": "bf0a98ae1424d21c43f187efcb4b4c8770c80232562aaa65569dba24461a5523",
+        "reason": "GitHub历史发布资产已核对同名、字节数及SHA256"
+      },
+      {
+        "path": "releases/SHA256-v1.6.0.txt",
+        "bytes": 208,
+        "sha256": "38d4f59bca91f06a1ac90902a563bb2bb98a4655c747ef64f74adcfc094a840f",
+        "reason": "GitHub历史发布资产已核对同名、字节数及SHA256"
+      },
+      {
+        "path": "releases/SHA256-v1.6.1.txt",
+        "bytes": 97,
+        "sha256": "9aced7f74ef9bdd21efb1e8d86abf0845988e841c94650a0696128653740d6da",
+        "reason": "GitHub历史发布资产已核对同名、字节数及SHA256"
+      },
+      {
+        "path": "releases/SHA256-v1.6.2.txt",
+        "bytes": 97,
+        "sha256": "cd7a80da6891d29451c9f47ca63d44ca1a6b46fdccb9be75f9f9a0d6a447e1c7",
+        "reason": "GitHub历史发布资产已核对同名、字节数及SHA256"
+      },
+      {
+        "path": "releases/SHA256SUMS-v1.8.5.txt",
+        "bytes": 320,
+        "sha256": "f390ab67219aaa51ff91169a0c2ad978035c49acbbcbe959aebead37197cbdeb",
+        "reason": "GitHub历史发布资产已核对同名、字节数及SHA256"
+      },
+      {
+        "path": "releases/SHA256SUMS-v1.8.6.txt",
+        "bytes": 97,
+        "sha256": "c5ff1b7f6caf6cf04e4188d2ad4cbcb4d0f94eb31a1394195bb2b9c942396d65",
+        "reason": "GitHub历史发布资产已核对同名、字节数及SHA256"
+      },
+      {
+        "path": "releases/v1.5.0-notes.md",
+        "bytes": 936,
+        "sha256": "7e9f5027ee654f670ea638c5cb65886f0636477db1edc622283933945c4be960",
+        "reason": "旧发布工作区中的发布说明草稿；当前项目报告和GitHub历史发布保留"
+      },
+      {
+        "path": "releases/v1.5.1-notes.md",
+        "bytes": 1042,
+        "sha256": "8d3e9cc36b6632fe8f948e1d3df223e684b61ee6153e096d339437602f33d061",
+        "reason": "旧发布工作区中的发布说明草稿；当前项目报告和GitHub历史发布保留"
+      },
+      {
+        "path": "releases/v1.6.0-notes.md",
+        "bytes": 1729,
+        "sha256": "04f43cc8ad1759d761152ee094650638b6aa3289f06949772d906cb1c09b8320",
+        "reason": "旧发布工作区中的发布说明草稿；当前项目报告和GitHub历史发布保留"
+      },
+      {
+        "path": "releases/v1.6.1-notes.md",
+        "bytes": 1353,
+        "sha256": "64e56832ff36725136843bfe8d44807aa6d006b9966dfd582688f28714b39674",
+        "reason": "旧发布工作区中的发布说明草稿；当前项目报告和GitHub历史发布保留"
+      },
+      {
+        "path": "releases/v1.6.2-notes.md",
+        "bytes": 1164,
+        "sha256": "a9f0699a6197b6707760928ec54cedc4221f41ab34cc7a99cade24b13fb735cc",
+        "reason": "旧发布工作区中的发布说明草稿；当前项目报告和GitHub历史发布保留"
+      },
+      {
+        "path": "work/audit-20261023",
+        "bytes": 46419123.0,
+        "files": 165,
+        "reason": "历史测试截图、逐帧验收、内部文档渲染、临时诊断；可复现源脚本和验收摘要保留"
+      },
+      {
+        "path": "work/audit-debug",
+        "bytes": 4157942.0,
+        "files": 9,
+        "reason": "历史测试截图、逐帧验收、内部文档渲染、临时诊断；可复现源脚本和验收摘要保留"
+      },
+      {
+        "path": "work/font-v186",
+        "bytes": 1564009.0,
+        "files": 4,
+        "reason": "历史测试截图、逐帧验收、内部文档渲染、临时诊断；可复现源脚本和验收摘要保留"
+      },
+      {
+        "path": "work/format-upgrade",
+        "bytes": 172381.0,
+        "files": 1,
+        "reason": "历史测试截图、逐帧验收、内部文档渲染、临时诊断；可复现源脚本和验收摘要保留"
+      },
+      {
+        "path": "work/gif-v184",
+        "bytes": 92882229.0,
+        "files": 385,
+        "reason": "历史测试截图、逐帧验收、内部文档渲染、临时诊断；可复现源脚本和验收摘要保留"
+      },
+      {
+        "path": "work/manual-v151",
+        "bytes": 9121429.0,
+        "files": 43,
+        "reason": "历史测试截图、逐帧验收、内部文档渲染、临时诊断；可复现源脚本和验收摘要保留"
+      },
+      {
+        "path": "work/manual-v185",
+        "bytes": 9658932.0,
+        "files": 34,
+        "reason": "历史测试截图、逐帧验收、内部文档渲染、临时诊断；可复现源脚本和验收摘要保留"
+      },
+      {
+        "path": "work/person-label-smoke-data",
+        "bytes": 39.0,
+        "files": 1,
+        "reason": "历史测试截图、逐帧验收、内部文档渲染、临时诊断；可复现源脚本和验收摘要保留"
+      },
+      {
+        "path": "work/playwright",
+        "bytes": 3776007.0,
+        "files": 8,
+        "reason": "历史测试截图、逐帧验收、内部文档渲染、临时诊断；可复现源脚本和验收摘要保留"
+      },
+      {
+        "path": "work/referee-notes-review",
+        "bytes": 175165.0,
+        "files": 5,
+        "reason": "历史测试截图、逐帧验收、内部文档渲染、临时诊断；可复现源脚本和验收摘要保留"
+      },
+      {
+        "path": "work/substitution-rules-20261023",
+        "bytes": 122929.0,
+        "files": 4,
+        "reason": "历史测试截图、逐帧验收、内部文档渲染、临时诊断；可复现源脚本和验收摘要保留"
+      },
+      {
+        "path": "work/upgrade-v130",
+        "bytes": 545487.0,
+        "files": 3,
+        "reason": "历史测试截图、逐帧验收、内部文档渲染、临时诊断；可复现源脚本和验收摘要保留"
+      },
+      {
+        "path": "work/upgrade-v131",
+        "bytes": 678610.0,
+        "files": 3,
+        "reason": "历史测试截图、逐帧验收、内部文档渲染、临时诊断；可复现源脚本和验收摘要保留"
+      },
+      {
+        "path": "work/upgrade-v140",
+        "bytes": 282972.0,
+        "files": 3,
+        "reason": "历史测试截图、逐帧验收、内部文档渲染、临时诊断；可复现源脚本和验收摘要保留"
+      },
+      {
+        "path": "work/upgrade-v141",
+        "bytes": 60642.0,
+        "files": 1,
+        "reason": "历史测试截图、逐帧验收、内部文档渲染、临时诊断；可复现源脚本和验收摘要保留"
+      },
+      {
+        "path": "work/upgrade-v142",
+        "bytes": 708463.0,
+        "files": 3,
+        "reason": "历史测试截图、逐帧验收、内部文档渲染、临时诊断；可复现源脚本和验收摘要保留"
+      },
+      {
+        "path": "work/upgrade-v150",
+        "bytes": 242745.0,
+        "files": 1,
+        "reason": "历史测试截图、逐帧验收、内部文档渲染、临时诊断；可复现源脚本和验收摘要保留"
+      },
+      {
+        "path": "work/upgrade-v151",
+        "bytes": 369026.0,
+        "files": 3,
+        "reason": "历史测试截图、逐帧验收、内部文档渲染、临时诊断；可复现源脚本和验收摘要保留"
+      },
+      {
+        "path": "work/upgrade-v160",
+        "bytes": 1452714.0,
+        "files": 8,
+        "reason": "历史测试截图、逐帧验收、内部文档渲染、临时诊断；可复现源脚本和验收摘要保留"
+      },
+      {
+        "path": "work/upgrade-v161",
+        "bytes": 253200.0,
+        "files": 5,
+        "reason": "历史测试截图、逐帧验收、内部文档渲染、临时诊断；可复现源脚本和验收摘要保留"
+      },
+      {
+        "path": "work/upgrade-v162",
+        "bytes": 651.0,
+        "files": 1,
+        "reason": "历史测试截图、逐帧验收、内部文档渲染、临时诊断；可复现源脚本和验收摘要保留"
+      },
+      {
+        "path": "work/upgrade-v170",
+        "bytes": 1620663.0,
+        "files": 9,
+        "reason": "历史测试截图、逐帧验收、内部文档渲染、临时诊断；可复现源脚本和验收摘要保留"
+      },
+      {
+        "path": "work/upgrade-v180",
+        "bytes": 177952.0,
+        "files": 4,
+        "reason": "历史测试截图、逐帧验收、内部文档渲染、临时诊断；可复现源脚本和验收摘要保留"
+      },
+      {
+        "path": "work/upgrade-v181",
+        "bytes": 1673.0,
+        "files": 3,
+        "reason": "历史测试截图、逐帧验收、内部文档渲染、临时诊断；可复现源脚本和验收摘要保留"
+      },
+      {
+        "path": "work/upgrade-v182",
+        "bytes": 1630.0,
+        "files": 3,
+        "reason": "历史测试截图、逐帧验收、内部文档渲染、临时诊断；可复现源脚本和验收摘要保留"
+      },
+      {
+        "path": "work/upgrade-v183",
+        "bytes": 132127.0,
+        "files": 5,
+        "reason": "历史测试截图、逐帧验收、内部文档渲染、临时诊断；可复现源脚本和验收摘要保留"
+      },
+      {
+        "path": "work/upgrade-v184",
+        "bytes": 131933.0,
+        "files": 4,
+        "reason": "历史测试截图、逐帧验收、内部文档渲染、临时诊断；可复现源脚本和验收摘要保留"
+      },
+      {
+        "path": "work/upgrade-v185",
+        "bytes": 134083.0,
+        "files": 4,
+        "reason": "历史测试截图、逐帧验收、内部文档渲染、临时诊断；可复现源脚本和验收摘要保留"
+      },
+      {
+        "path": "work/upgrade-v186",
+        "bytes": 6724.0,
+        "files": 4,
+        "reason": "历史测试截图、逐帧验收、内部文档渲染、临时诊断；可复现源脚本和验收摘要保留"
+      },
+      {
+        "path": "work/upgrade-v190",
+        "bytes": 402.0,
+        "files": 1,
+        "reason": "历史测试截图、逐帧验收、内部文档渲染、临时诊断；可复现源脚本和验收摘要保留"
+      },
+      {
+        "path": "work/v1100-review",
+        "bytes": 13273416.0,
+        "files": 52,
+        "reason": "历史测试截图、逐帧验收、内部文档渲染、临时诊断；可复现源脚本和验收摘要保留"
+      },
+      {
+        "path": "work/lineup-preview-diagnostic.png",
+        "bytes": 489226.0,
+        "files": 1,
+        "reason": "历史测试截图、逐帧验收、内部文档渲染、临时诊断；可复现源脚本和验收摘要保留"
+      },
+      {
+        "path": "work/measure-title-angle.cjs",
+        "bytes": 1042.0,
+        "files": 1,
+        "reason": "历史测试截图、逐帧验收、内部文档渲染、临时诊断；可复现源脚本和验收摘要保留"
+      },
+      {
+        "path": "work/person-label-smoke.cjs",
+        "bytes": 2484.0,
+        "files": 1,
+        "reason": "历史测试截图、逐帧验收、内部文档渲染、临时诊断；可复现源脚本和验收摘要保留"
+      },
+      {
+        "path": "work/review-formats-debug.cjs",
+        "bytes": 10716.0,
+        "files": 1,
+        "reason": "历史测试截图、逐帧验收、内部文档渲染、临时诊断；可复现源脚本和验收摘要保留"
+      },
+      {
+        "path": "work/review-referee-notes.cjs",
+        "bytes": 7601.0,
+        "files": 1,
+        "reason": "历史测试截图、逐帧验收、内部文档渲染、临时诊断；可复现源脚本和验收摘要保留"
+      },
+      {
+        "path": "work/run-audit-review.cjs",
+        "bytes": 346.0,
+        "files": 1,
+        "reason": "历史测试截图、逐帧验收、内部文档渲染、临时诊断；可复现源脚本和验收摘要保留"
+      },
+      {
+        "path": "runtime/upgrade-v170.stderr.log",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "reason": "旧版本升级stdout/stderr日志，保留当前startup.log、state、锁和素材模型"
+      },
+      {
+        "path": "runtime/upgrade-v170.stdout.log",
+        "bytes": 221,
+        "sha256": "89e4c4a325589693bfab97be3075406077b848970e1e523d5a1efc8eb97e0385",
+        "reason": "旧版本升级stdout/stderr日志，保留当前startup.log、state、锁和素材模型"
+      },
+      {
+        "path": "runtime/upgrade-v180.stderr.log",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "reason": "旧版本升级stdout/stderr日志，保留当前startup.log、state、锁和素材模型"
+      },
+      {
+        "path": "runtime/upgrade-v180.stdout.log",
+        "bytes": 221,
+        "sha256": "65b44723541e61898b494dce6aa205d5d798bab2f3c9991860237549dcae31eb",
+        "reason": "旧版本升级stdout/stderr日志，保留当前startup.log、state、锁和素材模型"
+      },
+      {
+        "path": "releases/HUST_CUP_BROADCAST-v1.5.0.zip",
+        "bytes": 68931719,
+        "sha256": "43f0b1833b91bc6db1f9d4495f7fe46a0d8d6e03cf7a2d96dbc01e4963050deb",
+        "reason": "历史本地构建包，无runtime或个人存档，仅包含源码/示例/文档；与GitHub资产非同一字节版本，不作重复哈希声明，源码历史保留"
+      },
+      {
+        "path": "releases/verification-v141.json",
+        "bytes": 317,
+        "sha256": "baa0d6eb5b065132c8a2201194ce7a523747653c06544f5290c37f2b5304323a",
+        "reason": "旧发布工作区校验回执，内容收入本清理记录"
+      },
+      {
+        "path": "work/manual-v200",
+        "files": 38,
+        "bytes": 11116998,
+        "reason": "本次内部Word渲染PDF/逐页PNG、临时脚本和重复证据；最终Word及摘要另存docs"
+      },
+      {
+        "path": "docs/操作指南/配图-v2.0.0/referee-controls.png",
+        "bytes": 27956,
+        "reason": "本次指南未使用的截屏，正式10幅配图保留"
+      },
+      {
+        "path": "docs/操作指南/配图-v2.0.0/goal-dialog.png",
+        "bytes": 117386,
+        "reason": "本次指南未使用的截屏，正式10幅配图保留"
+      },
+      {
+        "path": "docs/操作指南/配图-v2.0.0/substitution-controls.png",
+        "bytes": 155860,
+        "reason": "本次指南未使用的截屏，正式10幅配图保留"
+      }
+    ],
+    "unverifiedReleaseFiles": [],
+    "bytes": 2327099973.0,
+    "preserve": [
+      "runtime/state.json",
+      "runtime/assets",
+      "runtime/background",
+      "runtime/service.lock",
+      "runtime/startup.log",
+      ".venv-background",
+      ".git",
+      "源代码和测试",
+      "示例素材与字体",
+      "历史Word与设计预览",
+      "当前文档配图"
+    ],
+    "legacyReleaseReceipt": {
+      "commit": "569606b4deb6ce616e29971e8859c0faf866176e",
+      "remoteMainMatches": true,
+      "tagMatches": true,
+      "zipDigestMatches": true,
+      "digest": "sha256:2e5b854d6ca3f8677cea40db3653fcf8a2fe6130f2ea3d63fa6a8f7c6f6351f9",
+      "release": "https://github.com/Fantasicrap/HUST_CUP_BROADCAST/releases/tag/v1.4.1"
+    },
+    "protectedFileCount": 89,
+    "status": "已完成",
+    "protectedHashesUnchanged": true,
+    "completedAt": "2026-10-23T17:33:31.9227197+08:00"
+  },
+  "postCleanupTests": {
+    "command": "node scripts/run-tests.mjs",
+    "passed": 74,
+    "failed": 0,
+    "skipped": 0,
+    "includes": "真实Windows cmd启动、服务事务、导入导出与旧档迁移"
+  }
+}
